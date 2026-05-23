@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AthleteVault — Built by Athletes. For Athletes.</title>
+<meta name="description" content="AI-powered platform for undrafted, college, and overseas athletes. Recruiting, brand deals, NIL education, and European teams. Built by a GFL1 player."/>
+<meta name="theme-color" content="#00F0FF"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --c:#00F0FF;--c2:#E8B84B;--bg:#020408;--dark:#030610;
+  --card:#060D1A;--border:#0A1628;--white:#E0F4FF;--muted:#2A4A6A;
+  --green:#0FFFB0;--red:#FF2D6E;--purple:#9D4EDD;
+  --glow:0 0 20px rgba(0,240,255,.4),0 0 60px rgba(0,240,255,.15);
+  --glow2:0 0 20px rgba(232,184,75,.3);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Sora',sans-serif;overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+#cur{position:fixed;width:10px;height:10px;background:var(--c);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;transition:transform .1s;}
+#cur2{position:fixed;width:32px;height:32px;border:1px solid var(--c);border-radius:50%;pointer-events:none;z-index:9998;transition:all .2s ease;opacity:.5;}
+
+/* TRON GRID BACKGROUND */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,240,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.04) 1px,transparent 1px);
+  background-size:44px 44px;animation:gridMove 8s linear infinite;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(0,240,255,.06),transparent 60%),
+  radial-gradient(ellipse 50% 40% at 80% 80%,rgba(232,184,75,.04),transparent 50%);
+  pointer-events:none;z-index:0;}
+@keyframes gridMove{from{background-position:0 0;}to{background-position:0 44px;}}
+
+/* SCAN LINE */
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);opacity:.3;animation:scan 6s linear infinite;z-index:1;pointer-events:none;}
+@keyframes scan{from{top:0;}to{top:100vh;}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 48px;display:flex;justify-content:space-between;align-items:center;transition:all .3s;}
+nav.scrolled{background:rgba(2,4,8,.9);border-bottom:1px solid rgba(0,240,255,.1);backdrop-filter:blur(20px);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-icon{width:36px;height:36px;border:1px solid var(--c);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--c);box-shadow:var(--glow);position:relative;overflow:hidden;}
+.nav-logo-icon::before{content:'';position:absolute;inset:0;background:var(--c);opacity:.08;}
+.nav-logo-text{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--white);letter-spacing:3px;}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:color .2s;font-family:'DM Mono',monospace;}
+.nav-links a:hover{color:var(--c);}
+.nav-cta{color:var(--bg)!important;background:var(--c)!important;padding:9px 20px;border-radius:5px;box-shadow:var(--glow);letter-spacing:1px!important;}
+.nav-cta:hover{opacity:.85!important;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 24px 80px;text-align:center;position:relative;z-index:2;}
+
+/* FLOATING CARDS */
+.fcards{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.fc{position:absolute;background:rgba(6,13,26,.85);border:1px solid rgba(0,240,255,.15);border-radius:10px;padding:12px 16px;backdrop-filter:blur(10px);box-shadow:0 0 20px rgba(0,240,255,.08),inset 0 1px 0 rgba(0,240,255,.06);}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c),transparent);opacity:.5;}
+.fc1{top:22%;left:3%;animation:float1 7s ease-in-out infinite;}
+.fc2{top:28%;right:2%;animation:float2 9s ease-in-out infinite;}
+.fc3{bottom:30%;left:4%;animation:float1 11s ease-in-out infinite reverse;}
+.fc4{bottom:25%;right:4%;animation:float2 8s ease-in-out infinite 1s;}
+.fc-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;}
+.fc-val{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--c);line-height:1;text-shadow:0 0 12px rgba(0,240,255,.5);}
+.fc-sub{font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:5px;animation:blink 2s ease-in-out infinite;box-shadow:0 0 6px var(--green);}
+@keyframes float1{0%,100%{transform:translateY(0) rotateX(2deg);}50%{transform:translateY(-16px) rotateX(-2deg);}}
+@keyframes float2{0%,100%{transform:translateY(0) rotateX(-2deg);}50%{transform:translateY(-22px) rotateX(2deg);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* HERO BADGE */
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,240,255,.06);border:1px solid rgba(0,240,255,.2);border-radius:100px;padding:6px 16px;font-size:10px;font-weight:600;color:var(--c);letter-spacing:1.5px;margin-bottom:28px;font-family:'DM Mono',monospace;animation:fadeUp .8s ease both;}
+
+/* HEADLINE */
+h1{font-family:'Orbitron',sans-serif;font-size:clamp(48px,9vw,120px);line-height:.95;letter-spacing:2px;margin-bottom:24px;animation:fadeUp .9s ease .1s both;position:relative;z-index:2;}
+h1 .outline{display:block;-webkit-text-stroke:1px rgba(0,240,255,.3);color:transparent;}
+h1 .solid{display:block;color:var(--c);text-shadow:0 0 40px rgba(0,240,255,.4),0 0 80px rgba(0,240,255,.15);}
+
+/* SUBHEAD */
+.sub{max-width:540px;font-size:16px;color:rgba(224,244,255,.5);line-height:1.8;margin:0 auto 36px;animation:fadeUp 1s ease .2s both;font-weight:300;}
+
+/* BUTTONS */
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp 1s ease .3s both;margin-bottom:18px;}
+.btn-p{background:var(--c);color:var(--bg);padding:15px 34px;border-radius:6px;font-weight:700;font-size:14px;text-decoration:none;letter-spacing:1px;box-shadow:var(--glow);transition:all .2s;font-family:'Rajdhani',sans-serif;}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,240,255,.6);}
+.btn-g{background:transparent;color:var(--white);padding:15px 34px;border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;letter-spacing:.5px;border:1px solid rgba(0,240,255,.2);transition:all .2s;font-family:'Rajdhani',sans-serif;}
+.btn-g:hover{border-color:var(--c);color:var(--c);}
+.price-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;animation:fadeUp 1s ease .4s both;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* TICKER */
+.ticker{background:rgba(0,240,255,.04);border-top:1px solid rgba(0,240,255,.08);border-bottom:1px solid rgba(0,240,255,.08);padding:10px 0;overflow:hidden;position:relative;z-index:2;}
+.ticker-t{display:flex;width:max-content;animation:tick 28s linear infinite;white-space:nowrap;}
+.ticker-i{font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:3px;color:rgba(0,240,255,.4);padding:0 36px;text-transform:uppercase;}
+.ticker-s{color:rgba(0,240,255,.15);}
+@keyframes tick{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* PROOF BAR */
+.proof{background:rgba(6,13,26,.8);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap;position:relative;z-index:2;}
+.p-item{text-align:center;}
+.p-num{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:var(--c);text-shadow:0 0 12px rgba(0,240,255,.4);}
+.p-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-top:3px;text-transform:uppercase;}
+.p-div{width:1px;height:36px;background:var(--border);}
+
+/* SECTIONS */
+section{position:relative;z-index:2;}
+.pad{padding:100px 48px;}
+.sec-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--c);text-transform:uppercase;margin-bottom:12px;}
+.sec-title{font-family:'Orbitron',sans-serif;font-size:clamp(32px,5vw,60px);line-height:1;letter-spacing:1px;margin-bottom:18px;color:var(--white);}
+.sec-title span{color:var(--c);}
+.sec-sub{font-size:15px;color:rgba(224,244,255,.45);line-height:1.8;max-width:500px;font-weight:300;}
+
+/* FEATURE CARDS */
+.feats{padding:100px 48px;background:linear-gradient(180deg,var(--bg),rgba(6,13,26,.95));}
+.feats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:52px;}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:28px;position:relative;overflow:hidden;transition:all .3s;cursor:default;}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,240,255,.3),transparent);opacity:0;transition:opacity .3s;}
+.feat::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 20%,rgba(0,240,255,.04),transparent 60%);opacity:0;transition:opacity .3s;}
+.feat:hover{border-color:rgba(0,240,255,.25);transform:translateY(-4px);box-shadow:0 0 30px rgba(0,240,255,.08);}
+.feat:hover::before,.feat:hover::after{opacity:1;}
+.feat-icon{width:44px;height:44px;border-radius:8px;border:1px solid rgba(0,240,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px;background:rgba(0,240,255,.05);position:relative;z-index:1;}
+.feat-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;color:var(--white);margin-bottom:8px;position:relative;z-index:1;}
+.feat-desc{font-size:12px;color:var(--muted);line-height:1.8;position:relative;z-index:1;}
+.feat-tag{display:inline-block;margin-top:12px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--c);text-transform:uppercase;position:relative;z-index:1;}
+
+/* WHO */
+.who{padding:100px 48px;}
+.who-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:44px;}
+.who-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px 18px;text-align:center;transition:all .25s;cursor:default;}
+.who-card:hover{border-color:rgba(0,240,255,.2);box-shadow:0 0 20px rgba(0,240,255,.06);}
+.who-icon{font-size:28px;margin-bottom:10px;}
+.who-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;color:var(--white);margin-bottom:5px;}
+.who-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+
+/* PRICING */
+.pricing{padding:100px 48px;background:var(--bg);}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:52px;max-width:860px;margin-left:auto;margin-right:auto;}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:32px 26px;position:relative;transition:all .3s;}
+.price-card.featured{border-color:rgba(0,240,255,.3);box-shadow:0 0 40px rgba(0,240,255,.08),inset 0 1px 0 rgba(0,240,255,.1);}
+.price-card.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c),transparent);}
+.price-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--c);color:var(--bg);font-weight:700;font-size:9px;letter-spacing:2px;padding:4px 14px;border-radius:100px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.price-tier{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;}
+.price-amt{font-family:'Orbitron',sans-serif;font-size:52px;color:var(--c);line-height:1;text-shadow:0 0 20px rgba(0,240,255,.3);}
+.price-per{font-size:12px;color:var(--muted);margin-bottom:22px;font-family:'DM Mono',monospace;}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:26px;}
+.price-feats li{font-size:12px;color:rgba(224,244,255,.6);display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
+.price-feats li::before{content:'◈';color:var(--c);flex-shrink:0;font-size:10px;margin-top:1px;}
+.price-btn{display:block;text-align:center;padding:12px;border-radius:6px;font-weight:700;font-size:13px;text-decoration:none;letter-spacing:1px;transition:all .2s;font-family:'Rajdhani',sans-serif;}
+.price-btn.solid{background:var(--c);color:var(--bg);box-shadow:var(--glow);}
+.price-btn.solid:hover{opacity:.85;}
+.price-btn.outline{border:1px solid var(--border);color:var(--white);}
+.price-btn.outline:hover{border-color:rgba(0,240,255,.3);color:var(--c);}
+
+/* FOUNDER */
+.founder{padding:100px 48px;background:rgba(6,13,26,.9);}
+.founder-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;max-width:960px;margin:0 auto;}
+.founder-quote{font-family:'Orbitron',sans-serif;font-size:clamp(24px,3.5vw,44px);line-height:1.1;color:var(--white);margin-bottom:22px;}
+.founder-quote span{color:var(--c);text-shadow:0 0 20px rgba(0,240,255,.3);}
+.founder-body{font-size:14px;color:rgba(224,244,255,.5);line-height:1.9;font-weight:300;margin-bottom:24px;}
+.founder-name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;color:var(--c);}
+.founder-creds{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-top:4px;}
+.f-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.f-stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;position:relative;overflow:hidden;}
+.f-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c),transparent);opacity:.4;}
+.f-stat-num{font-family:'Orbitron',sans-serif;font-size:30px;color:var(--c);line-height:1;text-shadow:0 0 12px rgba(0,240,255,.3);}
+.f-stat-label{font-size:10px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:.5px;}
+
+/* CAPTURE */
+.capture{padding:100px 48px;}
+.cap-inner{max-width:600px;margin:0 auto;text-align:center;}
+.cap-form{display:flex;gap:10px;margin-top:32px;flex-wrap:wrap;justify-content:center;}
+.cap-input{flex:1;min-width:220px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:13px 16px;color:var(--white);font-size:13px;font-family:'Sora',sans-serif;outline:none;transition:border-color .2s;}
+.cap-input:focus{border-color:rgba(0,240,255,.4);}
+.cap-input::placeholder{color:var(--muted);}
+.cap-btn{background:var(--c);color:var(--bg);padding:13px 26px;border-radius:7px;font-weight:700;font-size:13px;border:none;cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:'Rajdhani',sans-serif;}
+.cap-btn:hover{box-shadow:var(--glow);transform:translateY(-1px);}
+.cap-fine{font-size:10px;color:var(--muted);margin-top:11px;font-family:'DM Mono',monospace;letter-spacing:.5px;}
+
+/* FOOTER */
+footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;position:relative;z-index:2;}
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,240,255,.2),transparent);}
+.f-logo{font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted);}
+.f-links{display:flex;gap:24px;}
+.f-links a{color:var(--muted);text-decoration:none;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:color .2s;}
+.f-links a:hover{color:var(--c);}
+.f-copy{font-family:'DM Mono',monospace;font-size:9px;color:rgba(42,74,106,.6);letter-spacing:1px;}
+
+/* SCROLL INDICATOR */
+.scroll-ind{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp 1s ease .6s both;}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--c),transparent);animation:scrollPulse 2s ease-in-out infinite;}
+.scroll-text{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);}
+@keyframes scrollPulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:14px 20px;} .nav-links{display:none;}
+  .pad,.feats,.who,.pricing,.founder,.capture{padding:72px 20px;}
+  .proof{padding:14px 20px;gap:20px;}
+  h1{font-size:clamp(40px,12vw,72px);}
+  .founder-inner{grid-template-columns:1fr;gap:36px;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .fc1,.fc3{display:none;}
+}
+
+/* TRON PULSE ANIMATION */
+@keyframes tronPulse{0%,100%{box-shadow:var(--glow);}50%{box-shadow:0 0 30px rgba(0,240,255,.7),0 0 80px rgba(0,240,255,.3);}}
+.tron-glow{animation:tronPulse 3s ease-in-out infinite;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(32px);transition:all .6s cubic-bezier(.16,1,.3,1);}
+.reveal.on{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">AV</div>
+    <span class="nav-logo-text">ATHLETEVAULT</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">FEATURES</a>
+    <a href="#pricing">PRICING</a>
+    <a href="#founder">STORY</a>
+    <a href="https://athletevault.org" class="nav-cta">ENTER →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="fcards">
+    <div class="fc fc1"><div class="fc-label"><span class="dot"></span>LIVE OPPORTUNITY</div><div class="fc-val">GFL1</div><div class="fc-sub">Berlin Thunder · WR Open</div></div>
+    <div class="fc fc2"><div class="fc-label">AI PITCH SENT</div><div class="fc-val">$1,400</div><div class="fc-sub">Brand deal · Nike Training</div></div>
+    <div class="fc fc3"><div class="fc-label">COACH MESSAGE</div><div class="fc-val">TSU</div><div class="fc-sub">Coach Thompson · Unread</div></div>
+    <div class="fc fc4"><div class="fc-label"><span class="dot"></span>NEW SUBSCRIBER</div><div class="fc-val">+$79</div><div class="fc-sub">Pro Athlete · MRR growing</div></div>
+  </div>
+
+  <div class="badge"><span class="dot"></span>BUILT BY A GFL1 PLAYER &nbsp;·&nbsp; UTEP ALUM &nbsp;·&nbsp; MYSTIX7V7</div>
+
+  <h1>
+    <span class="outline">YOUR NAME</span>
+    <span class="solid">IS THE BRAND.</span>
+  </h1>
+
+  <p class="sub">AI-powered recruiting, brand deals, NIL education, and overseas opportunities — built for athletes who got overlooked by the system.</p>
+
+  <div class="btns">
+    <a href="https://athletevault.org" class="btn-p">START FREE TRIAL →</a>
+    <a href="#features" class="btn-g">SEE WHAT'S INSIDE</a>
+  </div>
+  <p class="price-note">STARTING AT $29/MONTH &nbsp;·&nbsp; CANCEL ANYTIME &nbsp;·&nbsp; NO AGENT NEEDED</p>
+
+  <div class="scroll-ind">
+    <span class="scroll-text">SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-t">
+    <span class="ticker-i">AI RECRUITING EMAILS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">25+ EUROPEAN TEAMS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">NIL BRAND DEALS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">GFL1 · ELF · EUROLEAGUE</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">HBCU SCHOOLS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">UNDRAFTED ATHLETE PLATFORM</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">COACH MONETIZATION</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">AI RECRUITING EMAILS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">25+ EUROPEAN TEAMS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">NIL BRAND DEALS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">GFL1 · ELF · EUROLEAGUE</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">HBCU SCHOOLS</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">UNDRAFTED ATHLETE PLATFORM</span><span class="ticker-i ticker-s">◈</span>
+    <span class="ticker-i">COACH MONETIZATION</span><span class="ticker-i ticker-s">◈</span>
+  </div>
+</div>
+
+<div class="proof">
+  <div class="p-item"><div class="p-num">25+</div><div class="p-label">EUROPEAN TEAMS</div></div>
+  <div class="p-div"></div>
+  <div class="p-item"><div class="p-num">20+</div><div class="p-label">NCAA / HBCU PROGRAMS</div></div>
+  <div class="p-div"></div>
+  <div class="p-item"><div class="p-num">9</div><div class="p-label">NIL ACADEMY LESSONS</div></div>
+  <div class="p-div"></div>
+  <div class="p-item"><div class="p-num">$29</div><div class="p-label">STARTING PRICE</div></div>
+  <div class="p-div"></div>
+  <div class="p-item"><div class="p-num">AI</div><div class="p-label">CLAUDE 4 POWERED</div></div>
+</div>
+
+<section class="feats" id="features">
+  <div class="reveal">
+    <div class="sec-label">// WHAT'S INSIDE</div>
+    <div class="sec-title">EVERY TOOL YOU<br>NEED TO <span>WIN.</span></div>
+    <p class="sec-sub">From the locker room to the boardroom. Built for athletes who weren't handed anything.</p>
+  </div>
+  <div class="feats-grid reveal">
+    <div class="feat"><div class="feat-icon">🌍</div><div class="feat-title">EUROPEAN TEAMS</div><div class="feat-desc">25+ pro clubs across GFL1, ELF, EuroLeague, NWSL, Rugby, SHL, IPL. Filter by sport and country. See salary ranges and open positions.</div><div class="feat-tag">// BETTER THAN EUROPLAYERS.COM</div></div>
+    <div class="feat"><div class="feat-icon">⚡</div><div class="feat-title">AI OUTREACH ENGINE</div><div class="feat-desc">Claude writes your personalized recruiting pitch, coach email, brand DM, or overseas application in seconds — based on your actual stats and story.</div><div class="feat-tag">// POWERED BY CLAUDE 4</div></div>
+    <div class="feat"><div class="feat-icon">🏫</div><div class="feat-title">SCHOOL SEARCH</div><div class="feat-desc">NCAA D1, D2, NAIA, JUCO, and HBCU programs. AI matches you to the right level. Generate outreach emails and track your recruiting pipeline.</div><div class="feat-tag">// BEATS NCSA</div></div>
+    <div class="feat"><div class="feat-icon">🤝</div><div class="feat-title">BRAND DEALS</div><div class="feat-desc">Real brand opportunities with payout estimates. AI writes your pitch DM personalized to your sport, following, and story. Apply in one tap.</div><div class="feat-tag">// START EARNING NOW</div></div>
+    <div class="feat"><div class="feat-icon">🎬</div><div class="feat-title">COACH STUDIO</div><div class="feat-desc">Coaches upload training videos and host live sessions. Athletes buy access. Platform takes 20%, coaches keep 80%. Real passive income.</div><div class="feat-tag">// MONETIZE YOUR KNOWLEDGE</div></div>
+    <div class="feat"><div class="feat-icon">🎓</div><div class="feat-title">NIL ACADEMY</div><div class="feat-desc">9 lessons covering NIL basics, deal negotiation, taxes, overseas contracts, and multiple income streams. Ask the NIL AI anything, anytime.</div><div class="feat-tag">// KNOW YOUR WORTH</div></div>
+  </div>
+</section>
+
+<section class="who pad" id="who">
+  <div class="reveal" style="text-align:center">
+    <div class="sec-label" style="text-align:center">// WHO IT'S FOR</div>
+    <div class="sec-title" style="text-align:center">IF THE SYSTEM<br><span>SLEPT ON YOU.</span></div>
+  </div>
+  <div class="who-grid reveal">
+    <div class="who-card"><div class="who-icon">🏈</div><div class="who-title">UNDRAFTED</div><div class="who-desc">NFL/NBA dream didn't happen. Europe, Canada, or an indie league might be your next chapter.</div></div>
+    <div class="who-card"><div class="who-icon">🎓</div><div class="who-title">COLLEGE</div><div class="who-desc">NCAA, NAIA, JUCO — build your NIL brand and recruiting pipeline before eligibility runs out.</div></div>
+    <div class="who-card"><div class="who-icon">✈️</div><div class="who-title">OVERSEAS</div><div class="who-desc">Already playing abroad? Build your brand, find your next contract, monetize your following.</div></div>
+    <div class="who-card"><div class="who-icon">🏆</div><div class="who-title">HIGH SCHOOL</div><div class="who-desc">Start building your recruiting profile early. Know what coaches want before your junior year.</div></div>
+    <div class="who-card"><div class="who-icon">📡</div><div class="who-title">COACHES</div><div class="who-desc">Find athletes worldwide, generate recruiting outreach, sell coaching content, find job openings.</div></div>
+  </div>
+</section>
+
+<section class="pricing pad" id="pricing">
+  <div class="reveal" style="text-align:center">
+    <div class="sec-label" style="text-align:center">// PRICING</div>
+    <div class="sec-title" style="text-align:center">INVEST IN YOUR<br><span>OWN BRAND.</span></div>
+    <p class="sec-sub" style="margin:0 auto;text-align:center">One brand deal covers 6 months. One European contract changes your life.</p>
+  </div>
+  <div class="price-grid reveal">
+    <div class="price-card">
+      <div class="price-tier">ROOKIE</div>
+      <div class="price-amt">$29</div>
+      <div class="price-per">/ MONTH</div>
+      <ul class="price-feats">
+        <li>School search + AI outreach</li>
+        <li>Euro Teams browser</li>
+        <li>Brand deal applications</li>
+        <li>NIL Academy access</li>
+        <li>Direct messaging</li>
+        <li>Referral code</li>
+      </ul>
+      <a href="https://athletevault.org" class="price-btn outline">GET STARTED</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-badge">MOST POPULAR</div>
+      <div class="price-tier">RISING STAR</div>
+      <div class="price-amt">$49</div>
+      <div class="price-per">/ MONTH</div>
+      <ul class="price-feats">
+        <li>Everything in Rookie</li>
+        <li>AI monetization roadmap</li>
+        <li>Content vault + caption AI</li>
+        <li>Coaching hub access</li>
+        <li>Verified badge eligibility</li>
+        <li>Priority coach matching</li>
+      </ul>
+      <a href="https://athletevault.org" class="price-btn solid">START RISING →</a>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">PRO ATHLETE</div>
+      <div class="price-amt">$79</div>
+      <div class="price-per">/ MONTH</div>
+      <ul class="price-feats">
+        <li>Everything in Rising Star</li>
+        <li>Overseas pitch builder</li>
+        <li>Press release generator</li>
+        <li>Full AI outreach suite</li>
+        <li>Priority support</li>
+        <li>First access to new features</li>
+      </ul>
+      <a href="https://athletevault.org" class="price-btn outline">GO PRO</a>
+    </div>
+  </div>
+</section>
+
+<section class="founder pad" id="founder">
+  <div class="founder-inner">
+    <div class="reveal">
+      <div class="sec-label">// FROM THE FOUNDER</div>
+      <div class="founder-quote">"I LIVED THIS.<br><span>NOBODY BUILT THIS TOOL.</span><br>SO I DID."</div>
+      <p class="founder-body">I played at UTEP. I went to Germany and played GFL1. I built Mystix7V7 from nothing. Every step of the way I watched talented athletes get ignored because they didn't have the right connections or the right platform to show the world what they could do.<br><br>AthleteVault is what I wish existed. AI that writes your outreach. A real database of European teams. Schools, brand deals, NIL education — everything in one place.</p>
+      <div class="founder-name">DENNIS "CHEWY" BARNES</div>
+      <div class="founder-creds">FOUNDER · UTEP ALUM · GFL1 GERMANY · MYSTIX7V7</div>
+    </div>
+    <div class="f-stats reveal">
+      <div class="f-stat"><div class="f-stat-num">GFL1</div><div class="f-stat-label">Played overseas in Germany</div></div>
+      <div class="f-stat"><div class="f-stat-num">UTEP</div><div class="f-stat-label">Division I football alumnus</div></div>
+      <div class="f-stat"><div class="f-stat-num">7V7</div><div class="f-stat-label">Founded Mystix7v7 program</div></div>
+      <div class="f-stat"><div class="f-stat-num">2026</div><div class="f-stat-label">AthleteVault launched</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="capture pad" id="join">
+  <div class="cap-inner reveal">
+    <div class="sec-label" style="text-align:center">// GET ACCESS</div>
+    <div class="sec-title" style="font-size:clamp(28px,4vw,52px);text-align:center">DON'T WAIT FOR<br><span>THEM TO CALL.</span></div>
+    <div class="cap-form">
+      <input type="email" class="cap-input" id="emailIn" placeholder="your@email.com"/>
+      <button class="cap-btn" onclick="signup()">GET ACCESS →</button>
+    </div>
+    <p class="cap-fine">NO SPAM · CANCEL ANYTIME · BUILT BY AN ATHLETE FOR ATHLETES</p>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">ATHLETEVAULT</div>
+  <div class="f-links">
+    <a href="#features">FEATURES</a>
+    <a href="#pricing">PRICING</a>
+    <a href="https://athletevault.org">LOGIN</a>
+    <a href="mailto:support@athletevault.org">CONTACT</a>
+  </div>
+  <div class="f-copy">© 2026 ATHLETEVAULT LLC · HOUSTON, TX</div>
+</footer>
+
+<script>
+// Cursor
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=(mx-5)+'px';cur.style.top=(my-5)+'px';});
+(function animR(){rx+=(mx-rx-16)*.1;ry+=(my-ry-16)*.1;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(animR);})();
+document.querySelectorAll('a,button,.feat,.who-card,.price-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='scale(3)';cur2.style.transform='scale(1.5)';cur2.style.opacity='.15';});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='scale(1)';cur2.style.transform='scale(1)';cur2.style.opacity='.5';});
+});
+
+// Nav
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>50));
+
+// Reveal
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+
+// 3D tilt on feature cards
+document.querySelectorAll('.feat').forEach(c=>{
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect();
+    const x=((e.clientX-r.left)/r.width-.5)*12;
+    const y=((e.clientY-r.top)/r.height-.5)*-12;
+    c.style.transform=`translateY(-4px) rotateX(${y}deg) rotateY(${x}deg)`;
+    c.style.perspective='600px';
+  });
+  c.addEventListener('mouseleave',()=>{c.style.transform='';});
+});
+
+// Signup
+function signup(){
+  const v=document.getElementById('emailIn').value;
+  if(!v||!v.includes('@')){document.getElementById('emailIn').style.borderColor='#FF2D6E';return;}
+  document.getElementById('emailIn').style.borderColor='#0FFFB0';
+  document.querySelector('.cap-btn').textContent='✓ YOU\'RE IN!';
+  document.querySelector('.cap-btn').style.background='#0FFFB0';
+  setTimeout(()=>window.location.href='https://athletevault.org',1200);
+}
+document.getElementById('emailIn').addEventListener('keydown',e=>{if(e.key==='Enter')signup();});
+</script>
+</body>
+</html>
