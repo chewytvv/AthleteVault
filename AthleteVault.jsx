@@ -754,7 +754,7 @@ function PrivacySecurity({user,saveUsers,role}){
 // ═══════════════════════════════════════════════
 //  OWNER DASHBOARD — full control center
 // ═══════════════════════════════════════════════
-const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"}];
+const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"}];
 
 function OOverview({athletes,coaches,messages,settings}){
   const active=athletes.filter(a=>a.status==="active");
@@ -1011,6 +1011,84 @@ function OSecurity({logs,addLog,onLogout}){
       <div style={{width:7,height:7,borderRadius:"50%",background:lc[l.level]||C.muted,marginTop:5,flexShrink:0}}/>
       <div><div style={{display:"flex",gap:8,marginBottom:2}}><span style={{color:C.white,fontWeight:600,fontSize:12}}>{l.action}</span><span style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace"}}>{l.ts}</span></div><div style={{color:C.mutedHi,fontSize:11}}>{l.detail}</div></div>
     </div>)}</div></Card>
+  </div>;
+}
+function OGrowth({addLog}){
+  const [gtab,setGtab]=useState("tiktok");
+  const [tkTopic,setTkTopic]=useState("nil");const [tkHook,setTkHook]=useState("curiosity");const [tkOut,setTkOut]=useState("");const [tkLoading,setTkLoading]=useState(false);
+  const [tkHistory,setTkHistory]=useStore("av_tk_v1",[]);
+  const [dmTarget,setDmTarget]=useState("college_d2");const [dmPlatform,setDmPlatform]=useState("instagram");const [dmSport,setDmSport]=useState("Football");const [dmBatch,setDmBatch]=useState("10");const [dmOut,setDmOut]=useState([]);const [dmLoading,setDmLoading]=useState(false);
+  const [adPlatform,setAdPlatform]=useState("tiktok");const [adAngle,setAdAngle]=useState("pain");const [adOut,setAdOut]=useState("");const [adLoading,setAdLoading]=useState(false);
+  const [leads]=useStore("av_leads_v1",[]);
+  const tkTopics={nil:"NIL deals — what they are and how college athletes get them",overseas:"Playing overseas in Europe as an American athlete",undrafted:"What to do when you go undrafted but still want to play pro",brand:"How athletes build a personal brand that brands pay for",money:"Real ways college athletes are making money right now",expose:"The recruiting system is broken — here's what scouts don't tell you"};
+  const tkHooks={curiosity:"Open with a curiosity gap that makes viewers stop scrolling",shock:"Start with a shocking stat or claim about athletes being overlooked",transformation:"Show a before/after athlete story — broke to getting paid",fomo:"FOMO — what athletes are leaving on the table right now"};
+  const dmTargets={college_d2:"D2/D3 college athletes finishing eligibility",hs_senior:"high school seniors seeking college opportunities",undrafted:"athletes who went undrafted but want to keep playing",nil:"college athletes wanting to monetize their NIL",overseas:"athletes interested in playing overseas professionally"};
+  const adPlatforms={tiktok:"TikTok Ads",meta:"Facebook / Instagram Ads",google:"Google Search Ads"};
+  const adAngles={pain:"pain point — athletes struggling to get seen or recruited",proof:"social proof — athletes who got results with AthleteVault",fomo:"FOMO — athletes missing out on money and overseas opportunities",aspiration:"aspirational — become the athlete brands want to work with"};
+  async function genTikTok(){setTkLoading(true);setTkOut("");try{const r=await ai(`Write a faceless TikTok video script for AthleteVault. Topic: ${tkTopics[tkTopic]}. Hook style: ${tkHooks[tkHook]}.\nFormat exactly:\nHOOK (0-3s): [hook line — one sentence]\nBODY (3-45s): [5-8 short punchy lines or bullet points]\nCTA (45-60s): [CTA mentioning AthleteVault.org]\nHASHTAGS: [10 relevant hashtags]\nVOICEOVER TONE: [one line description]\nTarget audience: athletes age 16-24. Keep it authentic, not salesy.`);setTkOut(r);setTkHistory(p=>[{id:Date.now(),topic:tkTopic,hook:tkHook,script:r,date:new Date().toLocaleDateString()},...p].slice(0,20));addLog({action:"TikTok script generated",detail:tkTopics[tkTopic].slice(0,50),level:"success"});}catch(e){setTkOut("⚠️ Failed. Retry.");}setTkLoading(false);}
+  async function genDMs(){setDmLoading(true);setDmOut([]);try{const n=parseInt(dmBatch);const r=await ai(`Generate ${n} short DM scripts for ${dmPlatform} from AthleteVault targeting ${dmTargets[dmTarget]} who play ${dmSport}. Each DM must be under 100 words, feel human not spammy, name one specific pain point, end with a soft CTA to check out AthleteVault. Return JSON array only: [{"id":1,"dm":"..."}]. No markdown or explanation.`);const p=JSON.parse(r.replace(/```json|```/g,"").trim());setDmOut(p);addLog({action:"DM batch generated",detail:`${n} DMs — ${dmSport} — ${dmTargets[dmTarget].split(" ").slice(0,3).join(" ")}`,level:"success"});}catch(e){setDmOut([{id:1,dm:"⚠️ Failed. Retry."}]);}setDmLoading(false);}
+  async function genAd(){setAdLoading(true);setAdOut("");try{const r=await ai(`Write a ${adPlatforms[adPlatform]} ad for AthleteVault. Angle: ${adAngles[adAngle]}.\nFormat exactly:\nPRIMARY HEADLINE: [max 40 chars]\nSECONDARY HEADLINE: [max 40 chars]\nAD BODY: [max 125 chars — punchy]\nCTA BUTTON: [text]\nVIDEO HOOK (first 3s): [line]\nTARGETING: [who to target]`);setAdOut(r);addLog({action:"Ad copy generated",detail:`${adPlatforms[adPlatform]} — ${adAngles[adAngle]}`,level:"success"});}catch(e){setAdOut("⚠️ Failed. Retry.");}setAdLoading(false);}
+  const gtabs=[["tiktok","📱","TikTok"],["dm","📨","DM Outreach"],["ads","📣","Ad Copy"],["leads","📋",`Leads${leads.length>0?" ("+leads.length+")":""}`]];
+  return <div>
+    <Sec title="Growth Engine" sub="Autonomous lead generation — TikTok scripts, DM outreach, ad copy, lead tracker"/>
+    <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{gtabs.map(([id,icon,label])=><Btn key={id} onClick={()=>setGtab(id)} variant={gtab===id?"gold":"ghost"} small>{icon} {label}</Btn>)}</div>
+    {gtab==="tiktok"&&<div>
+      <Card style={{marginBottom:13}} glow>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:12,letterSpacing:1}}>CONTENT SETTINGS</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+          <Sel label="TOPIC" value={tkTopic} onChange={setTkTopic} options={Object.entries(tkTopics).map(([v,l])=>({v,l:l.split("—")[0].trim().slice(0,32)}))}/>
+          <Sel label="HOOK STYLE" value={tkHook} onChange={setTkHook} options={[{v:"curiosity",l:"Curiosity Gap"},{v:"shock",l:"Shock Value"},{v:"transformation",l:"Transformation"},{v:"fomo",l:"FOMO"}]}/>
+        </div>
+        <Btn onClick={genTikTok} loading={tkLoading} full>⚡ Generate TikTok Script</Btn>
+      </Card>
+      <AIOut loading={tkLoading} output={tkOut} label="TIKTOK SCRIPT"/>
+      {tkHistory.length>0&&<Card style={{marginTop:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>RECENT SCRIPTS ({tkHistory.length})</div>
+        {tkHistory.slice(0,5).map(h=><div key={h.id} style={{padding:"8px 0",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{color:C.white,fontSize:12,fontWeight:600}}>{tkTopics[h.topic]?.split("—")[0]?.trim()}</div><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace"}}>{h.date}</div></div>
+          <Btn variant="ghost" small onClick={()=>{setTkTopic(h.topic);setTkHook(h.hook);setTkOut(h.script);}}>Load</Btn>
+        </div>)}
+      </Card>}
+    </div>}
+    {gtab==="dm"&&<div>
+      <Card glow style={{marginBottom:13}}>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:12,letterSpacing:1}}>DM CAMPAIGN SETTINGS</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+          <Sel label="TARGET AUDIENCE" value={dmTarget} onChange={setDmTarget} options={Object.entries(dmTargets).map(([v,l])=>({v,l:l.split(" ").slice(0,4).join(" ")}))}/>
+          <Sel label="SPORT" value={dmSport} onChange={setDmSport} options={SPORTS_LIST.map(s=>({v:s,l:s}))}/>
+          <Sel label="PLATFORM" value={dmPlatform} onChange={setDmPlatform} options={[{v:"instagram",l:"Instagram"},{v:"twitter",l:"Twitter / X"},{v:"tiktok",l:"TikTok DMs"}]}/>
+          <Sel label="BATCH SIZE" value={dmBatch} onChange={setDmBatch} options={[{v:"5",l:"5 DMs"},{v:"10",l:"10 DMs"},{v:"20",l:"20 DMs"},{v:"25",l:"25 DMs"}]}/>
+        </div>
+        <Btn onClick={genDMs} loading={dmLoading} full>⚡ Generate {dmBatch} DM Scripts</Btn>
+      </Card>
+      {dmOut.length>0&&<div style={{display:"flex",flexDirection:"column",gap:10}}>{dmOut.map((d,i)=><Card key={d.id||i}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12}}><div><div style={{color:C.muted,fontSize:9,fontFamily:"DM Mono,monospace",marginBottom:5}}>DM #{i+1}</div><div style={{color:C.white,fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}>{d.dm}</div></div><Btn variant="ghost" small onClick={()=>navigator.clipboard?.writeText(d.dm)}>📋</Btn></div></Card>)}</div>}
+    </div>}
+    {gtab==="ads"&&<div>
+      <Card glow style={{marginBottom:13}}>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:12,letterSpacing:1}}>AD SETTINGS</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+          <Sel label="PLATFORM" value={adPlatform} onChange={setAdPlatform} options={[{v:"tiktok",l:"TikTok Ads"},{v:"meta",l:"Meta (FB / IG)"},{v:"google",l:"Google Search"}]}/>
+          <Sel label="AD ANGLE" value={adAngle} onChange={setAdAngle} options={[{v:"pain",l:"Pain Point"},{v:"proof",l:"Social Proof"},{v:"fomo",l:"FOMO"},{v:"aspiration",l:"Aspirational"}]}/>
+        </div>
+        <Btn onClick={genAd} loading={adLoading} full>⚡ Generate Ad Copy</Btn>
+      </Card>
+      <AIOut loading={adLoading} output={adOut} label={`${(adPlatforms[adPlatform]||"").toUpperCase()} AD COPY`}/>
+    </div>}
+    {gtab==="leads"&&<div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:12,marginBottom:16}}>
+        <Stat icon="📧" label="TOTAL LEADS" value={fmt(leads.length)} color={C.teal}/>
+        <Stat icon="📅" label="TODAY" value={fmt(leads.filter(l=>l.date===new Date().toLocaleDateString()).length)} color={C.green}/>
+        <Stat icon="💰" label="POTENTIAL MRR" value={fmtM(leads.length*29)} color={C.gold}/>
+      </div>
+      {leads.length===0?<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:40,marginBottom:12}}>📭</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:6}}>No leads yet</div><div style={{color:C.muted,fontSize:13}}>Leads appear here when visitors submit their info on the landing page.</div></Card>
+      :<Card><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1}}>ALL LEADS ({leads.length})</div>
+        <Btn variant="ghost" small onClick={()=>{const csv="Name,Email,Sport,Date\n"+leads.map(l=>`"${l.name||""}","${l.email}","${l.sport||""}","${l.date}"`).join("\n");const b=new Blob([csv],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="av_leads.csv";a.click();}}>⬇ CSV</Btn>
+      </div>
+      <div style={{maxHeight:420,overflowY:"auto"}}>{leads.slice().reverse().map((l,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${C.border}`}}>
+        <div><div style={{color:C.white,fontWeight:600,fontSize:13}}>{l.name||"—"}</div><div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:11}}>{l.email}</div></div>
+        <div style={{textAlign:"right"}}>{l.sport&&<Badge color={C.teal}>{l.sport}</Badge>}<div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginTop:3}}>{l.date}</div></div>
+      </div>)}</div></Card>}
+    </div>}
   </div>;
 }
 // ═══════════════════════════════════════════════
@@ -2202,6 +2280,11 @@ function CoachingHub({athlete,coaches,athletes,messages,saveMessages,saveAthlete
 }
 
 function MarketingPage({onEnter,settings}){
+  const [lpName,setLpName]=useState("");const [lpEmail,setLpEmail]=useState("");const [lpSport,setLpSport]=useState("");const [lpDone,setLpDone]=useState(false);
+  function captureLead(){
+    if(lpEmail){try{const ex=JSON.parse(localStorage.getItem("av_leads_v1")||"[]");ex.push({name:lpName,email:lpEmail,sport:lpSport,date:new Date().toLocaleDateString(),source:"landing_page"});localStorage.setItem("av_leads_v1",JSON.stringify(ex));}catch(e){}}
+    setLpDone(true);setTimeout(onEnter,400);
+  }
   const acc=(settings&&settings.themeAccent)||"#00F0FF";
   const rookiePrice=(settings&&settings.rookiePrice)||29;
   const risingPrice=(settings&&settings.risingPrice)||49;
@@ -2252,11 +2335,21 @@ function MarketingPage({onEnter,settings}){
         <div style={{color:acc,textShadow:"0 0 40px "+acc+"55",display:"block"}}>{h2}</div>
       </div>
       <p style={{maxWidth:520,fontSize:16,color:"rgba(224,244,255,.5)",lineHeight:1.8,margin:"0 auto 36px",animation:"lpFadeUp 1s ease .2s both",fontWeight:300}}>{heroSub}</p>
-      <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",animation:"lpFadeUp 1s ease .3s both",marginBottom:16}}>
-        <button onClick={onEnter} style={{background:acc,color:bg,padding:"15px 34px",borderRadius:6,fontWeight:700,fontSize:14,border:"none",letterSpacing:1,boxShadow:"0 0 20px "+acc+"44",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif"}}>START FREE TRIAL →</button>
-        <button onClick={onEnter} style={{background:"transparent",color:wh,padding:"15px 34px",borderRadius:6,fontWeight:600,fontSize:14,border:"1px solid "+acc+"22",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",letterSpacing:.5}}>SIGN IN</button>
-      </div>
-      <p style={{fontFamily:"DM Mono,monospace",fontSize:10,color:muted,letterSpacing:1,animation:"lpFadeUp 1s ease .4s both"}}>{"STARTING AT $"+rookiePrice+"/MONTH · CANCEL ANYTIME · NO AGENT NEEDED"}</p>
+      {!lpDone?<div style={{width:"100%",maxWidth:420,margin:"0 auto",animation:"lpFadeUp 1s ease .3s both"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:10}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <input value={lpName} onChange={e=>setLpName(e.target.value)} placeholder="Your name" style={{background:"rgba(6,13,26,.9)",border:"1px solid "+acc+"22",borderRadius:6,padding:"11px 14px",color:wh,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif"}}/>
+            <select value={lpSport} onChange={e=>setLpSport(e.target.value)} style={{background:"rgba(6,13,26,.9)",border:"1px solid "+acc+"22",borderRadius:6,padding:"11px 14px",color:lpSport?wh:muted,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif"}}>
+              <option value="">Your sport</option>
+              {["Football","Basketball","Baseball","Track","Soccer","Swimming","Tennis","Golf","Wrestling","Volleyball","Lacrosse","Other"].map(s=><option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <input value={lpEmail} onChange={e=>setLpEmail(e.target.value)} placeholder="Your email address" type="email" style={{background:"rgba(6,13,26,.9)",border:"1px solid "+acc+"33",borderRadius:6,padding:"11px 14px",color:wh,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif"}}/>
+          <button onClick={captureLead} style={{background:acc,color:bg,padding:"13px",borderRadius:6,fontWeight:700,fontSize:14,border:"none",letterSpacing:1,boxShadow:"0 0 20px "+acc+"44",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif"}}>START FREE TRIAL →</button>
+        </div>
+        <div style={{display:"flex",gap:8,justifyContent:"center"}}><button onClick={onEnter} style={{background:"transparent",color:wh,padding:"10px 24px",borderRadius:6,fontWeight:600,fontSize:13,border:"1px solid "+acc+"22",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",letterSpacing:.5}}>ALREADY HAVE AN ACCOUNT →</button></div>
+      </div>:<div style={{animation:"lpFadeUp .4s ease both",textAlign:"center",color:acc,fontFamily:"'Rajdhani',sans-serif",fontSize:18,fontWeight:700,letterSpacing:2}}>✓ WELCOME — ENTERING ATHLETEVAULT…</div>}
+      <p style={{fontFamily:"DM Mono,monospace",fontSize:10,color:muted,letterSpacing:1,animation:"lpFadeUp 1s ease .4s both",marginTop:12}}>{"STARTING AT $"+rookiePrice+"/MONTH · CANCEL ANYTIME · NO AGENT NEEDED"}</p>
     </div>
     <div style={{background:acc+"06",borderTop:"1px solid "+acc+"10",borderBottom:"1px solid "+acc+"10",padding:"10px 0",overflow:"hidden",position:"relative",zIndex:2}}>
       <div style={{display:"flex",width:"max-content",animation:"lpTick 28s linear infinite",whiteSpace:"nowrap"}}>
@@ -2386,6 +2479,7 @@ export default function App(){
       if(tab==="revenue")return <ORevenue athletes={athletes} coaches={coaches}/>;
       if(tab==="ai")return <OAITools athletes={athletes} saveAthletes={saveAthletes} addLog={addLog}/>;
       if(tab==="outreach")return <OOutreach athletes={athletes} saveAthletes={saveAthletes} addLog={addLog}/>;
+      if(tab==="growth")return <OGrowth addLog={addLog}/>;
       if(tab==="referrals")return <OReferrals athletes={athletes} coaches={coaches} settings={settings} saveSettings={saveSettings}/>;
       if(tab==="discounts")return <ODiscounts settings={settings} saveSettings={saveSettings} addLog={addLog}/>;
       if(tab==="siteconfig")return <OSiteConfig settings={settings} saveSettings={saveSettings} addLog={addLog} setTab={setTab}/>;
