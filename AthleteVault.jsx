@@ -176,10 +176,16 @@ const NIL_LESSONS=[
 //  STORAGE + AI + SHARED UI — TRON: ARES EDITION
 // ═══════════════════════════════════════════════
 function useStore(key,init){
-  const [data,setData]=useState(init);
-  const [ready,setReady]=useState(false);
-  useEffect(()=>{(async()=>{try{const r=await window.storage.get(key);if(r?.value)setData(JSON.parse(r.value));}catch(_){}setReady(true);})();},[key]);
-  const save=useCallback(async val=>{const next=typeof val==="function"?val(data):val;setData(next);try{await window.storage.set(key,JSON.stringify(next));}catch(_){}return next;},[key,data]);
+  const [data,setData]=useState(()=>{
+    try{const s=localStorage.getItem(key);return s?JSON.parse(s):init;}catch(_){return init;}
+  });
+  const [ready,setReady]=useState(true);
+  const save=useCallback(val=>{
+    const next=typeof val==="function"?val(data):val;
+    setData(next);
+    try{localStorage.setItem(key,JSON.stringify(next));}catch(_){}
+    return next;
+  },[key,data]);
   return[data,save,ready];
 }
 
@@ -2193,6 +2199,135 @@ function CoachingHub({athlete,coaches,athletes,messages,saveMessages,saveAthlete
     </div>}
   </div>;
 }
+
+function MarketingPage({onEnter,settings}){
+  const acc=(settings&&settings.themeAccent)||"#00F0FF";
+  const rookiePrice=(settings&&settings.rookiePrice)||29;
+  const risingPrice=(settings&&settings.risingPrice)||49;
+  const proPrice=(settings&&settings.proPrice)||79;
+  const pName=(settings&&settings.platformName)||"ATHLETEVAULT";
+  const heroBadge=(settings&&settings.heroBadgeText)||"BUILT BY A GFL1 PLAYER · UTEP ALUM · MYSTIX7V7";
+  const h1=(settings&&settings.heroHeadline1)||"YOUR NAME";
+  const h2=(settings&&settings.heroHeadline2)||"IS THE BRAND.";
+  const heroSub=(settings&&settings.heroSub)||"AI-powered recruiting, brand deals, NIL education, and overseas opportunities — built for athletes who got overlooked.";
+  const fQuote=(settings&&settings.founderQuote)||'I LIVED THIS. NOBODY BUILT THIS. SO I DID.';
+  const fBio=(settings&&settings.founderBio)||"I played at UTEP. I went to Germany and played GFL1. I built Mystix7V7 from nothing. Every step of the way I watched talented athletes get ignored. AthleteVault is what I wish existed.";
+  const fName=(settings&&settings.founderName)||'DENNIS "CHEWY" BARNES';
+  const fCreds=(settings&&settings.founderCreds)||"FOUNDER · UTEP ALUM · GFL1 GERMANY · MYSTIX7V7";
+  const bg=(settings&&settings.themeBg)||"#020408";
+  const card=(settings&&settings.themeCard)||"#060D1A";
+  const border=(settings&&settings.themeBorder)||"#0A1628";
+  const muted=(settings&&settings.themeMuted)||"#2A4A6A";
+  const wh=(settings&&settings.themeWhite)||"#E0F4FF";
+
+  return <div style={{minHeight:"100vh",background:bg,fontFamily:"'Sora',sans-serif",overflowX:"hidden",position:"relative"}}>
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap');
+      .lp-grid-bg{background-image:linear-gradient(${acc}06 1px,transparent 1px),linear-gradient(90deg,${acc}06 1px,transparent 1px);background-size:44px 44px;animation:lpGridScroll 8s linear infinite;}
+      @keyframes lpGridScroll{from{background-position:0 0;}to{background-position:0 44px;}}
+      @keyframes lpFloat1{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+      @keyframes lpFloat2{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
+      @keyframes lpBlink{0%,100%{opacity:1;}50%{opacity:.2;}}
+      @keyframes lpScan{from{top:-2px;}to{top:100vh;}}
+      @keyframes lpFadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+      @keyframes lpTick{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+    `}</style>
+    <div style={{position:"fixed",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,"+acc+",transparent)",opacity:.3,animation:"lpScan 6s linear infinite",zIndex:1,pointerEvents:"none"}}/>
+    <div className="lp-grid-bg" style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:0,opacity:.5}}/>
+    <div style={{position:"fixed",inset:0,background:"radial-gradient(ellipse 80% 50% at 50% 0%,"+acc+"08,transparent 60%)",pointerEvents:"none",zIndex:0}}/>
+    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,padding:"16px 40px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(2,4,8,.85)",borderBottom:"1px solid "+acc+"18",backdropFilter:"blur(12px)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:34,height:34,border:"1px solid "+acc,borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Orbitron',sans-serif",fontSize:12,fontWeight:900,color:acc,boxShadow:"0 0 12px "+acc+"44"}}>AV</div>
+        <span style={{fontFamily:"'Rajdhani',sans-serif",fontSize:18,fontWeight:700,color:wh,letterSpacing:3}}>{pName}</span>
+      </div>
+      <button onClick={onEnter} style={{background:acc,color:bg,border:"none",padding:"9px 22px",borderRadius:6,fontWeight:700,fontSize:13,cursor:"pointer",letterSpacing:1,fontFamily:"'Rajdhani',sans-serif",boxShadow:"0 0 16px "+acc+"44"}}>ENTER →</button>
+    </nav>
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"120px 24px 80px",textAlign:"center",position:"relative",zIndex:2}}>
+      <div style={{display:"inline-flex",alignItems:"center",gap:8,background:acc+"0A",border:"1px solid "+acc+"33",borderRadius:100,padding:"6px 16px",fontSize:10,fontWeight:600,color:acc,letterSpacing:1.5,marginBottom:28,fontFamily:"DM Mono,monospace",animation:"lpFadeUp .8s ease both"}}>
+        <span style={{width:5,height:5,borderRadius:"50%",background:"#0FFFB0",display:"inline-block",animation:"lpBlink 2s infinite",boxShadow:"0 0 6px #0FFFB0",marginRight:4}}/>{heroBadge}
+      </div>
+      <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(48px,9vw,110px)",lineHeight:.95,letterSpacing:2,marginBottom:22,animation:"lpFadeUp .9s ease .1s both"}}>
+        <div style={{WebkitTextStroke:"1px "+acc+"33",color:"transparent",display:"block"}}>{h1}</div>
+        <div style={{color:acc,textShadow:"0 0 40px "+acc+"55",display:"block"}}>{h2}</div>
+      </div>
+      <p style={{maxWidth:520,fontSize:16,color:"rgba(224,244,255,.5)",lineHeight:1.8,margin:"0 auto 36px",animation:"lpFadeUp 1s ease .2s both",fontWeight:300}}>{heroSub}</p>
+      <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",animation:"lpFadeUp 1s ease .3s both",marginBottom:16}}>
+        <button onClick={onEnter} style={{background:acc,color:bg,padding:"15px 34px",borderRadius:6,fontWeight:700,fontSize:14,border:"none",letterSpacing:1,boxShadow:"0 0 20px "+acc+"44",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif"}}>START FREE TRIAL →</button>
+        <button onClick={onEnter} style={{background:"transparent",color:wh,padding:"15px 34px",borderRadius:6,fontWeight:600,fontSize:14,border:"1px solid "+acc+"22",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",letterSpacing:.5}}>SIGN IN</button>
+      </div>
+      <p style={{fontFamily:"DM Mono,monospace",fontSize:10,color:muted,letterSpacing:1,animation:"lpFadeUp 1s ease .4s both"}}>{"STARTING AT $"+rookiePrice+"/MONTH · CANCEL ANYTIME · NO AGENT NEEDED"}</p>
+    </div>
+    <div style={{background:acc+"06",borderTop:"1px solid "+acc+"10",borderBottom:"1px solid "+acc+"10",padding:"10px 0",overflow:"hidden",position:"relative",zIndex:2}}>
+      <div style={{display:"flex",width:"max-content",animation:"lpTick 28s linear infinite",whiteSpace:"nowrap"}}>
+        {["AI RECRUITING EMAILS","25+ EUROPEAN TEAMS","NIL BRAND DEALS","GFL1 · ELF · EUROLEAGUE","HBCU SCHOOLS","UNDRAFTED ATHLETE PLATFORM","COACH MONETIZATION","AI RECRUITING EMAILS","25+ EUROPEAN TEAMS","NIL BRAND DEALS","GFL1 · ELF · EUROLEAGUE","HBCU SCHOOLS","UNDRAFTED ATHLETE PLATFORM","COACH MONETIZATION"].map((t,i)=><span key={i} style={{fontFamily:"'Rajdhani',sans-serif",fontSize:12,letterSpacing:3,color:acc+"55",padding:"0 28px",textTransform:"uppercase"}}>{t}</span>)}
+      </div>
+    </div>
+    <div style={{background:"rgba(6,13,26,.9)",borderTop:"1px solid "+border,borderBottom:"1px solid "+border,padding:"20px 48px",display:"flex",alignItems:"center",justifyContent:"center",gap:40,flexWrap:"wrap",position:"relative",zIndex:2}}>
+      {[["25+","EUROPEAN TEAMS"],["20+","NCAA / HBCU"],["9","NIL LESSONS"],["$"+rookiePrice,"STARTING PRICE"],["AI","CLAUDE 4"]].map(([n,l],i)=><div key={i} style={{textAlign:"center"}}>
+        <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,color:acc,textShadow:"0 0 12px "+acc+"44"}}>{n}</div>
+        <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:1.5,color:muted,marginTop:3,textTransform:"uppercase"}}>{l}</div>
+      </div>)}
+    </div>
+    <div style={{padding:"80px 40px",position:"relative",zIndex:2}}>
+      <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:3,color:acc,textTransform:"uppercase",marginBottom:10}}>// WHAT'S INSIDE</div>
+      <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(26px,4vw,48px)",lineHeight:1,marginBottom:36,color:wh}}>EVERY TOOL YOU NEED TO <span style={{color:acc}}>WIN.</span></div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",gap:14}}>
+        {[["🌍","EUROPEAN TEAMS","25+ pro clubs — GFL1, ELF, EuroLeague, NWSL. Salary ranges, open positions, AI pitch generator.","BETTER THAN EUROPLAYERS.COM"],["⚡","AI OUTREACH ENGINE","Claude writes personalized recruiting pitches, coach emails, brand DMs in seconds.","POWERED BY CLAUDE 4"],["🏫","SCHOOL SEARCH","NCAA D1, D2, NAIA, JUCO, HBCU. AI matches you to the right level.","BEATS NCSA"],["🤝","BRAND DEALS","Real brand opportunities. AI writes your pitch personalized to your stats and story.","START EARNING NOW"],["🎬","COACH STUDIO","Coaches upload training videos, host live sessions. Athletes buy access.","80% TO COACHES"],["🎓","NIL ACADEMY","9 lessons — NIL basics, deal negotiation, taxes, overseas contracts.","KNOW YOUR WORTH"]].map(([icon,title,desc,tag],i)=><div key={i} style={{background:card,border:"1px solid "+border,borderRadius:10,padding:22,transition:"all .3s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=acc+"33";e.currentTarget.style.transform="translateY(-3px)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor=border;e.currentTarget.style.transform="";}}>
+          <div style={{fontSize:20,marginBottom:12,width:40,height:40,border:"1px solid "+acc+"22",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",background:acc+"06"}}>{icon}</div>
+          <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:17,fontWeight:700,letterSpacing:1,color:wh,marginBottom:6}}>{title}</div>
+          <div style={{fontSize:12,color:muted,lineHeight:1.8,marginBottom:8}}>{desc}</div>
+          <div style={{fontFamily:"DM Mono,monospace",fontSize:8,letterSpacing:2,color:acc,textTransform:"uppercase"}}>// {tag}</div>
+        </div>)}
+      </div>
+    </div>
+    <div style={{padding:"80px 40px",position:"relative",zIndex:2}}>
+      <div style={{textAlign:"center",marginBottom:36}}>
+        <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:3,color:acc,marginBottom:10,textTransform:"uppercase"}}>// PRICING</div>
+        <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(26px,4vw,46px)",lineHeight:1,color:wh}}>INVEST IN YOUR <span style={{color:acc}}>OWN BRAND.</span></div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:14,maxWidth:800,margin:"0 auto"}}>
+        {[["ROOKIE",rookiePrice,["School search + AI outreach","Euro Teams browser","Brand deal applications","NIL Academy","Direct messaging"],false],["RISING STAR",risingPrice,["Everything in Rookie","AI monetization roadmap","Content vault + caption AI","Coaching hub access","Verified badge eligibility"],true],["PRO ATHLETE",proPrice,["Everything in Rising Star","Overseas pitch builder","Press release generator","Full AI outreach suite","Priority support"],false]].map(([tier,price,feats,featured],i)=><div key={i} style={{background:card,border:"1px solid "+(featured?acc+"55":border),borderRadius:12,padding:"26px 20px",position:"relative",boxShadow:featured?"0 0 30px "+acc+"10":"none"}}>
+          {featured&&<div style={{position:"absolute",top:-11,left:"50%",transform:"translateX(-50%)",background:acc,color:bg,fontWeight:700,fontSize:9,letterSpacing:2,padding:"4px 14px",borderRadius:100,fontFamily:"DM Mono,monospace",whiteSpace:"nowrap"}}>MOST POPULAR</div>}
+          <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:2,color:muted,marginBottom:8,textTransform:"uppercase"}}>{tier}</div>
+          <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:40,color:acc,lineHeight:1,textShadow:"0 0 16px "+acc+"44"}}>{"$"+price}</div>
+          <div style={{fontSize:11,color:muted,marginBottom:16,fontFamily:"DM Mono,monospace"}}>/MONTH</div>
+          <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:20}}>
+            {feats.map((f,j)=><div key={j} style={{display:"flex",alignItems:"flex-start",gap:7,fontSize:12,color:"rgba(224,244,255,.5)",lineHeight:1.5}}><span style={{color:acc,flexShrink:0,fontSize:10,marginTop:1}}>◈</span>{f}</div>)}
+          </div>
+          <button onClick={onEnter} style={{display:"block",width:"100%",padding:"11px",borderRadius:6,fontWeight:700,fontSize:13,letterSpacing:1,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",background:featured?acc:"transparent",color:featured?bg:wh,border:featured?"none":"1px solid "+border,boxShadow:featured?"0 0 16px "+acc+"44":"none"}}>{featured?"START RISING →":"GET STARTED"}</button>
+        </div>)}
+      </div>
+    </div>
+    <div style={{padding:"80px 40px",background:"rgba(6,13,26,.8)",position:"relative",zIndex:2}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:60,alignItems:"center",maxWidth:860,margin:"0 auto"}}>
+        <div>
+          <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:3,color:acc,textTransform:"uppercase",marginBottom:12}}>// FROM THE FOUNDER</div>
+          <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(18px,2.8vw,34px)",lineHeight:1.1,color:wh,marginBottom:18}}>"{fQuote}"</div>
+          <p style={{fontSize:14,color:"rgba(224,244,255,.45)",lineHeight:1.9,fontWeight:300,marginBottom:20}}>{fBio}</p>
+          <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:15,fontWeight:700,letterSpacing:2,color:acc}}>{fName}</div>
+          <div style={{fontFamily:"DM Mono,monospace",fontSize:9,color:muted,letterSpacing:1.5,marginTop:3}}>{fCreds}</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+          {[["GFL1","Played overseas in Germany"],["UTEP","Division I alumnus"],["7V7","Founded Mystix7v7"],["2026","AthleteVault launched"]].map(([n,l],i)=><div key={i} style={{background:card,border:"1px solid "+border,borderRadius:8,padding:16,position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:1,background:"linear-gradient(90deg,transparent,"+acc+"44,transparent)"}}/>
+            <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:24,color:acc,lineHeight:1,textShadow:"0 0 10px "+acc+"44"}}>{n}</div>
+            <div style={{fontSize:10,color:muted,marginTop:3,fontFamily:"DM Mono,monospace"}}>{l}</div>
+          </div>)}
+        </div>
+      </div>
+    </div>
+    <div style={{padding:"72px 40px",textAlign:"center",position:"relative",zIndex:2}}>
+      <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(22px,4vw,44px)",lineHeight:1,marginBottom:28,color:wh}}>DON'T WAIT FOR <span style={{color:acc}}>THEM TO CALL.</span></div>
+      <button onClick={onEnter} style={{background:acc,color:bg,padding:"16px 40px",borderRadius:8,fontWeight:700,fontSize:16,border:"none",cursor:"pointer",letterSpacing:1,boxShadow:"0 0 24px "+acc+"44",fontFamily:"'Rajdhani',sans-serif"}}>CREATE YOUR ACCOUNT →</button>
+      <p style={{fontFamily:"DM Mono,monospace",fontSize:10,color:muted,marginTop:12}}>NO SPAM · CANCEL ANYTIME · BUILT BY AN ATHLETE</p>
+    </div>
+    <footer style={{padding:"28px 40px",borderTop:"1px solid "+border,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12,position:"relative",zIndex:2}}>
+      <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:12,letterSpacing:3,color:muted}}>{pName}</div>
+      <div style={{fontFamily:"DM Mono,monospace",fontSize:9,color:"rgba(42,74,106,.5)",letterSpacing:1}}>© 2026 ATHLETEVAULT LLC · HOUSTON, TX · ATHLETEVAULT.ORG</div>
+    </footer>
+  </div>;
+}
+
 function OnboardingTerms({onAccept}){
   return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif",padding:24}}>
     <Card style={{maxWidth:540,width:"100%"}} glow>
@@ -2212,6 +2347,7 @@ export default function App(){
   const [logs,saveLogs]=useStore("av_logs_v1",SEED_LOGS);
   const [termsOk,setTermsOk]=useStore("av_terms_accepted_v1",false);
   const [session,setSession]=useState(null);
+  const [showLanding,setShowLanding]=useState(()=>!window.location.hash.includes("login"));
   const [tab,setTab]=useState("home");
 
   const addLog=useCallback(entry=>saveLogs(prev=>[{id:Date.now(),ts:stamp(),...entry},...prev.slice(0,199)]),[saveLogs]);
@@ -2219,6 +2355,7 @@ export default function App(){
   const ready=aReady&&cReady&&msgReady&&sReady;
   if(!ready)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}><div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${C.gold},${C.goldDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:C.black,animation:"pulse 2s ease-in-out infinite"}}>AV</div><div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:12,letterSpacing:2}}>LOADING…</div><style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style></div>;
 
+  if(showLanding&&!session)return <MarketingPage onEnter={()=>{setShowLanding(false);window.location.hash="login";}} settings={settings}/>;
   if(!termsOk)return <OnboardingTerms onAccept={()=>setTermsOk(true)}/>;
   if(!session)return <Login onSuccess={(role,user)=>{setSession({role,user});setTab("home");addLog({action:"Login",detail:`${role} ${user?.name||"owner"}`,level:"info"});}} athletes={athletes} coaches={coaches} settings={settings}/>;
 
