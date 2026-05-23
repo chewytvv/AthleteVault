@@ -1,7 +1,7 @@
 import React,{useState,useEffect,useCallback,useRef} from "react";
 
 // ── Owner Credentials ──────────────────────────
-const OWNER_CREDS={username:import.meta.env.VITE_OWNER_USER,password:import.meta.env.VITE_OWNER_PASS};
+const OWNER_CREDS={username:"chewy",password:"AthleteVault2026!"};
 
 // ── Dynamic Theme System ───────────────────────
 // Owner can change these from dashboard — stored in settings
@@ -188,6 +188,17 @@ async function ai(prompt,sys){
   const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,system:sys||AI_SYS,messages:[{role:"user",content:prompt}]})});
   if(!r.ok)throw new Error(r.status);
   const d=await r.json();return d.content?.map(b=>b.text||"").join("")||"";
+}
+
+// Stripe Checkout
+const STRIPE_PK="pk_live_51TaEWWDfHooSk0bkHYBQBKgYCoSjkQxM3sgDSBjKEjHNoXAcghZjbA2EFoG7fRF1LDYO8YY4IfCbayMNCAgmEXBs00vXsO1G3G";
+async function startCheckout(tier,email,name,role){
+  try{
+    const r=await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tier,email,name,role})});
+    const d=await r.json();
+    if(d.url)window.location.href=d.url;
+    else throw new Error(d.error||"Checkout failed");
+  }catch(err){alert("Checkout error: "+err.message);}
 }
 
 // ── TRON: ARES GLOBAL STYLES ───────────────────
@@ -556,7 +567,53 @@ function Messaging({me,athletes,coaches,saveAthletes,saveCoaches,messages,saveMe
 }
 // ═══════════════════════════════════════════════
 //  LOGIN + SIDEBAR + NOTIFICATIONS + PRIVACY
-// ═══════════════════════════════════════════════function Login({onSuccess,athletes,coaches,settings}){
+// ═══════════════════════════════════════════════function SignupModal({show,onClose,settings}){
+  const[role,setRole]=useState("athlete");
+  const[name,setName]=useState("");
+  const[email,setEmail]=useState("");
+  const[tier,setTier]=useState("rookie");
+  const[loading,setLoading]=useState(false);
+  const rp=settings?.rookiePrice||29;
+  const sp=settings?.risingPrice||49;
+  const pp=settings?.proPrice||79;
+  const cp=settings?.coachPrice||49;
+  const prices={rookie:rp,rising:sp,pro:pp};
+  const descs={rookie:"School search, Euro teams, NIL basics",rising:"AI roadmap, content vault, brand deals",pro:"Full suite, overseas pitch, priority support"};
+  async function go(){
+    if(!name||!email)return;
+    setLoading(true);
+    await startCheckout(role==="coach"?"coach":tier,email,name,role);
+    setLoading(false);
+  }
+  const planPrice=role==="coach"?cp:prices[tier];
+  return React.createElement(Modal,{show,onClose,title:"JOIN ATHLETEVAULT",maxW:480},
+    React.createElement("div",{style:{display:"flex",gap:8,marginBottom:16}},
+      ["athlete","coach"].map(r=>React.createElement("button",{key:r,onClick:()=>setRole(r),style:{flex:1,padding:"10px",borderRadius:7,border:"1px solid "+(role===r?C.accent:C.border),background:role===r?C.accentGlow:"transparent",color:role===r?C.accent:C.muted,fontWeight:700,cursor:"pointer",fontSize:13,letterSpacing:1,textTransform:"uppercase"}},r))
+    ),
+    React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:11,marginBottom:14}},
+      React.createElement(Inp,{label:"FULL NAME",value:name,onChange:setName,placeholder:"Marcus Webb"}),
+      React.createElement(Inp,{label:"EMAIL",value:email,onChange:setEmail,placeholder:"you@email.com",type:"email"})
+    ),
+    role==="athlete"&&React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:8,marginBottom:14}},
+      React.createElement("div",{style:{color:C.muted,fontSize:9,fontFamily:"DM Mono,monospace",letterSpacing:1.5,marginBottom:4}},"SELECT PLAN"),
+      ["rookie","rising","pro"].map(t=>React.createElement("div",{key:t,onClick:()=>setTier(t),style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",borderRadius:8,border:"1px solid "+(tier===t?C.accent:C.border),background:tier===t?C.accentGlow:"transparent",cursor:"pointer"}},
+        React.createElement("div",null,
+          React.createElement("div",{style:{color:C.white,fontWeight:700,fontSize:13,textTransform:"capitalize"}},t==="rising"?"Rising Star":t),
+          React.createElement("div",{style:{color:C.muted,fontSize:11,marginTop:2}},descs[t])
+        ),
+        React.createElement("div",{style:{color:C.gold,fontFamily:"'Rajdhani',sans-serif",fontSize:24,fontWeight:700}},"$"+prices[t],React.createElement("span",{style:{fontSize:11,color:C.muted}},"/mo"))
+      ))
+    ),
+    role==="coach"&&React.createElement("div",{style:{padding:"12px 14px",borderRadius:8,border:"1px solid "+C.blue+"44",background:C.blue+"11",marginBottom:14}},
+      React.createElement("div",{style:{color:C.white,fontWeight:700,fontSize:14}},"Coach Pro"),
+      React.createElement("div",{style:{color:C.muted,fontSize:12,marginTop:2}},"Athlete search, studio, live sessions, school jobs"),
+      React.createElement("div",{style:{color:C.blue,fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,marginTop:4}},"$"+cp,React.createElement("span",{style:{fontSize:12,color:C.muted}},"/mo"))
+    ),
+    React.createElement(Btn,{onClick:go,loading,disabled:!name||!email,full},"Start Free Trial — $"+planPrice+"/mo"),
+    React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"CANCEL ANYTIME · SECURE CHECKOUT · STRIPE")
+  );
+}
+function Login({onSuccess,athletes,coaches,settings}){
   const [email,setEmail]=useState("");const [pass,setPass]=useState("");const [err,setErr]=useState("");const [loading,setLoading]=useState(false);const [tries,setTries]=useState(0);const [refCode,setRefCode]=useState("");const [showRef,setShowRef]=useState(false);
   const locked=tries>=5;
   function go(){
@@ -591,7 +648,7 @@ function Messaging({me,athletes,coaches,saveAthletes,saveCoaches,messages,saveMe
           {showRef&&<Inp label="REFERRAL CODE" value={refCode} onChange={setRefCode} placeholder="e.g. AB12CD"/>}
         </div>
       </Card>
-      <p style={{textAlign:"center",color:C.muted,fontSize:11,marginTop:14}}>New athlete or coach? Contact <span style={{color:C.gold}}>support@athletevault.org</span> to join.</p>
+      <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}><Btn onClick={()=>setShowSignup(true)} variant="ghost" full>New here? Create Account →</Btn><p style={{textAlign:"center",color:C.muted,fontSize:11}}>Already have an account? Sign in above.</p></div><SignupModal show={showSignup} onClose={()=>setShowSignup(false)} settings={settings}/>
       <div style={{textAlign:"center",marginTop:8,display:"flex",justifyContent:"center",gap:12}}>
         <span style={{color:C.border,fontSize:10,fontFamily:"DM Mono,monospace"}}>© 2026 ATHLETEVAULT LLC</span>
         <span style={{color:C.border,fontSize:10}}>·</span>
