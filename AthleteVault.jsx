@@ -616,7 +616,7 @@ function SignupModal({show,onClose,settings}){
       React.createElement("div",{style:{color:C.muted,fontSize:12,marginTop:2}},"Athlete search, studio, live sessions, school jobs"),
       React.createElement("div",{style:{color:C.blue,fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,marginTop:4}},"$"+cp,React.createElement("span",{style:{fontSize:12,color:C.muted}},"/mo"))
     ),
-    React.createElement(Btn,{onClick:go,loading,disabled:!name||!email,full},"Start Free Trial — $"+planPrice+"/mo"),
+    React.createElement(Btn,{onClick:go,loading,disabled:!name||!email,full:true},"Start Free Trial — $"+planPrice+"/mo"),
     React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"CANCEL ANYTIME · SECURE CHECKOUT · STRIPE")
   );
 }
