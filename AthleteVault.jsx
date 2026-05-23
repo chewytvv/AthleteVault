@@ -105,6 +105,29 @@ const SCHOOLS=[
   {id:20,name:"Benedictine College",nick:"Ravens",div:"NAIA",conf:"Heart of America",loc:"Atchison, KS",country:"United States",state:"Kansas",sports:["Football","Basketball","Baseball","Track","Soccer","Tennis","Golf"],scholarships:true,schNote:"Athletic + academic scholarships.",tuition:"$32,000",accept:"62%",site:"benedictine.edu",logo:"🦅",type:"NAIA",openings:{Football:"QB, WR, OL",Basketball:"All"}},
 ];
 
+// ── School Contact / Apply / Jobs Data ─────────
+const SCHOOL_CONTACTS={
+  1:{applyUrl:"https://admissions.utexas.edu/apply",athleticsUrl:"https://texassports.com",recruitingEmail:"athletics@utexas.edu",jobsUrl:"https://utexas.edu/jobs"},
+  2:{applyUrl:"https://apply.ua.edu",athleticsUrl:"https://rolltide.com",recruitingEmail:"recruiting@rolltide.com",jobsUrl:"https://rolltide.com/sports/2020/6/10/staff-directory.aspx"},
+  3:{applyUrl:"https://undergrad.osu.edu/apply",athleticsUrl:"https://ohiostatebuckeyes.com",recruitingEmail:"recruiting@ohiostatebuckeyes.com",jobsUrl:"https://ohiostatebuckeyes.com/staff-directory"},
+  4:{applyUrl:"https://applylsu.lsu.edu",athleticsUrl:"https://lsusports.net",recruitingEmail:"athletics@lsu.edu",jobsUrl:"https://lsusports.net/staff-directory"},
+  5:{applyUrl:"https://admissions.ufl.edu/apply",athleticsUrl:"https://floridagators.com",recruitingEmail:"athletics@ufl.edu",jobsUrl:"https://floridagators.com/staff-directory"},
+  6:{applyUrl:"https://apply.uga.edu",athleticsUrl:"https://georgiadogs.com",recruitingEmail:"recruiting@georgiadogs.com",jobsUrl:"https://georgiadogs.com/staff-directory"},
+  7:{applyUrl:"https://admissions.tamu.edu/apply",athleticsUrl:"https://aggieathletics.com",recruitingEmail:"athletics@tamu.edu",jobsUrl:"https://aggieathletics.com/staff-directory"},
+  8:{applyUrl:"https://apply.nd.edu",athleticsUrl:"https://und.com",recruitingEmail:"athletics@nd.edu",jobsUrl:"https://und.com/staff-directory"},
+  9:{applyUrl:"https://admissions.uoregon.edu/apply",athleticsUrl:"https://goducks.com",recruitingEmail:"athletics@uoregon.edu",jobsUrl:"https://goducks.com/staff-directory"},
+  10:{applyUrl:"https://apply.howard.edu",athleticsUrl:"https://howard.edu/athletics",recruitingEmail:"athletics@howard.edu",jobsUrl:"https://howard.edu/athletics/jobs"},
+  11:{applyUrl:"https://gram.edu/admissions",athleticsUrl:"https://gsutigers.com",recruitingEmail:"athletics@gram.edu",jobsUrl:"https://gsutigers.com/staff-directory"},
+  12:{applyUrl:"https://tsu.edu/admissions",athleticsUrl:"https://tsuathletics.com",recruitingEmail:"athletics@tsu.edu",jobsUrl:"https://tsuathletics.com/staff-directory"},
+  13:{applyUrl:"https://pvamu.edu/admissions",athleticsUrl:"https://pvamu.edu/athletics",recruitingEmail:"athletics@pvamu.edu",jobsUrl:"https://pvamu.edu/athletics/jobs"},
+  14:{applyUrl:"https://famu.edu/admissions",athleticsUrl:"https://famuathletics.com",recruitingEmail:"athletics@famu.edu",jobsUrl:"https://famuathletics.com/staff-directory"},
+  15:{applyUrl:"https://jsums.edu/admissions",athleticsUrl:"https://jsums.edu/athletics",recruitingEmail:"athletics@jsums.edu",jobsUrl:"https://jsums.edu/athletics/jobs"},
+  16:{applyUrl:"https://msutexas.edu/apply",athleticsUrl:"https://mwsumustangs.com",recruitingEmail:"athletics@msutexas.edu",jobsUrl:"https://mwsumustangs.com/staff-directory"},
+  17:{applyUrl:"https://tarleton.edu/apply",athleticsUrl:"https://tarletonsports.com",recruitingEmail:"athletics@tarleton.edu",jobsUrl:"https://tarletonsports.com/staff-directory"},
+  18:{applyUrl:"https://kilgore.edu/admissions",athleticsUrl:"https://kcranger.com",recruitingEmail:"athletics@kilgore.edu",jobsUrl:"https://kcranger.com/staff-directory"},
+  19:{applyUrl:"https://blinn.edu/admissions",athleticsUrl:"https://blinnathletics.com",recruitingEmail:"athletics@blinn.edu",jobsUrl:"https://blinnathletics.com/staff-directory"},
+  20:{applyUrl:"https://benedictine.edu/admissions/apply",athleticsUrl:"https://bcravens.com",recruitingEmail:"athletics@benedictine.edu",jobsUrl:"https://bcravens.com/staff-directory"},
+};
 // ── Seed Data ──────────────────────────────────
 const SEED_ATHLETES=[
   {id:1,role:"athlete",name:"Marcus Webb",sport:"Football",school:"Undrafted – C-USA",followers:4200,tier:"rookie",mrr:29,status:"active",joined:"2026-01-12",email:"marcus@email.com",phone:"",country:"United States",state:"Texas",city:"Houston",bio:"WR with speed and route-running. Looking for overseas opportunities.",coachSent:3,brandSent:5,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:47,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
@@ -1022,7 +1045,7 @@ function OGrowth({addLog}){
   const [leads]=useStore("av_leads_v1",[]);
   const tkTopics={nil:"NIL deals — what they are and how college athletes get them",overseas:"Playing overseas in Europe as an American athlete",undrafted:"What to do when you go undrafted but still want to play pro",brand:"How athletes build a personal brand that brands pay for",money:"Real ways college athletes are making money right now",expose:"The recruiting system is broken — here's what scouts don't tell you"};
   const tkHooks={curiosity:"Open with a curiosity gap that makes viewers stop scrolling",shock:"Start with a shocking stat or claim about athletes being overlooked",transformation:"Show a before/after athlete story — broke to getting paid",fomo:"FOMO — what athletes are leaving on the table right now"};
-  const dmTargets={college_d2:"D2/D3 college athletes finishing eligibility",hs_senior:"high school seniors seeking college opportunities",undrafted:"athletes who went undrafted but want to keep playing",nil:"college athletes wanting to monetize their NIL",overseas:"athletes interested in playing overseas professionally"};
+  const dmTargets={college_d2:"D2/D3 college athletes finishing eligibility",hs_senior:"high school seniors seeking college opportunities",undrafted:"athletes who went undrafted but want to keep playing",nil:"college athletes wanting to monetize their NIL",overseas:"athletes interested in playing overseas professionally",coach_hs:"high school coaches looking to grow their program and find recruiting tools",coach_college:"college assistant coaches looking for new staff positions and recruiting advantages",coach_indie:"independent trainers and skill coaches looking to monetize their training online"};
   const adPlatforms={tiktok:"TikTok Ads",meta:"Facebook / Instagram Ads",google:"Google Search Ads"};
   const adAngles={pain:"pain point — athletes struggling to get seen or recruited",proof:"social proof — athletes who got results with AthleteVault",fomo:"FOMO — athletes missing out on money and overseas opportunities",aspiration:"aspirational — become the athlete brands want to work with"};
   async function genTikTok(){setTkLoading(true);setTkOut("");try{const r=await ai(`Write a faceless TikTok video script for AthleteVault. Topic: ${tkTopics[tkTopic]}. Hook style: ${tkHooks[tkHook]}.\nFormat exactly:\nHOOK (0-3s): [hook line — one sentence]\nBODY (3-45s): [5-8 short punchy lines or bullet points]\nCTA (45-60s): [CTA mentioning AthleteVault.org]\nHASHTAGS: [10 relevant hashtags]\nVOICEOVER TONE: [one line description]\nTarget audience: athletes age 16-24. Keep it authentic, not salesy.`);setTkOut(r);setTkHistory(p=>[{id:Date.now(),topic:tkTopic,hook:tkHook,script:r,date:new Date().toLocaleDateString()},...p].slice(0,20));addLog({action:"TikTok script generated",detail:tkTopics[tkTopic].slice(0,50),level:"success"});}catch(e){setTkOut("⚠️ Failed. Retry.");}setTkLoading(false);}
@@ -1484,10 +1507,18 @@ function SchoolSearch({athlete}){
       <div style={{position:"sticky",top:20}}>
         {sel?<Card glow color={divColor[sel.div]}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}><div><div style={{fontSize:30,marginBottom:5}}>{sel.logo}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:C.white,letterSpacing:1,lineHeight:1}}>{sel.name}</div><div style={{color:divColor[sel.div]||C.gold,fontWeight:700,fontSize:12,marginTop:4}}>{sel.nick} · {sel.div}</div></div><button onClick={()=>toggleSave(sel.id)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer"}}>{saved.includes(sel.id)?"⭐":"☆"}</button></div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}><Badge color={divColor[sel.div]||C.muted}>{sel.div}</Badge><Badge color={C.blue}>{sel.conf}</Badge>{sel.type==="HBCU"&&<Badge color={C.teal}>HBCU</Badge>}{sel.scholarships&&<Badge color={C.gold}>Scholarships</Badge>}</div>
-          {[["📍","Location",sel.loc],["🎓","Acceptance",sel.accept],["💰","Tuition",sel.tuition],["🌐","Website",sel.site]].filter(([,k,v])=>v).map(([ic,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>{ic} {k}</span><span style={{color:C.white,fontSize:12,fontWeight:600,textAlign:"right"}}>{v}</span></div>)}
+          {[["📍","Location",sel.loc],["🎓","Acceptance",sel.accept],["💰","Tuition",sel.tuition]].filter(([,k,v])=>v).map(([ic,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>{ic} {k}</span><span style={{color:C.white,fontSize:12,fontWeight:600,textAlign:"right"}}>{v}</span></div>)}
+          {(()=>{const sc=SCHOOL_CONTACTS[sel.id]||{};return<div style={{display:"flex",flexDirection:"column",gap:0}}>
+            {sc.recruitingEmail&&<div style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>📧 Recruiting</span><a href={`mailto:${sc.recruitingEmail}`} style={{color:C.teal,fontSize:11,fontWeight:600,fontFamily:"DM Mono,monospace"}}>{sc.recruitingEmail}</a></div>}
+            {sc.athleticsUrl&&<div style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>🏟️ Athletics</span><a href={`https://${sc.athleticsUrl.replace(/^https?:\/\//,"")}`} target="_blank" rel="noreferrer" style={{color:C.blue,fontSize:11,fontWeight:600}}>{sc.athleticsUrl.replace(/^https?:\/\//,"")}</a></div>}
+          </div>})()}
           {sel.schNote&&<div style={{background:C.card2,borderRadius:8,padding:"9px 12px",margin:"11px 0"}}><div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:3}}>SCHOLARSHIPS</div><div style={{color:C.white,fontSize:12,lineHeight:1.5}}>{sel.schNote}</div></div>}
           {sel.openings&&Object.keys(sel.openings).length>0&&<div style={{marginBottom:12}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:7}}>OPENINGS</div>{Object.entries(sel.openings).map(([sp,pos])=><div key={sp} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.mutedHi,fontSize:12}}>{sp}</span><span style={{color:C.green,fontSize:12,fontWeight:600}}>{pos}</span></div>)}</div>}
           {sel.sports&&<div style={{marginBottom:12}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:7}}>SPORTS</div><div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{sel.sports.map(s=><Badge key={s} color={C.mutedHi}>{s}</Badge>)}</div></div>}
+          <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+            {SCHOOL_CONTACTS[sel.id]?.applyUrl&&<a href={SCHOOL_CONTACTS[sel.id].applyUrl} target="_blank" rel="noreferrer" style={{flex:1,display:"block",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:6,padding:"10px",textAlign:"center",color:C.green,fontWeight:700,fontSize:12,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1,cursor:"pointer",textDecoration:"none"}}>🎓 APPLY NOW →</a>}
+            {SCHOOL_CONTACTS[sel.id]?.athleticsUrl&&<a href={SCHOOL_CONTACTS[sel.id].athleticsUrl} target="_blank" rel="noreferrer" style={{flex:1,display:"block",background:C.blue+"11",border:`1px solid ${C.blue}33`,borderRadius:6,padding:"10px",textAlign:"center",color:C.blue,fontWeight:700,fontSize:12,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1,cursor:"pointer",textDecoration:"none"}}>🏟️ ATHLETICS SITE</a>}
+          </div>
           <Btn onClick={()=>genOutreach(sel)} loading={loading} full>⚡ Generate Outreach Email</Btn>
           <AIOut loading={loading} output={outreach} label="OUTREACH EMAIL"/>
         </Card>:<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:36,marginBottom:12}}>🏫</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:6}}>Select a Program</div><div style={{color:C.muted,fontSize:13}}>View details, scholarships, openings and generate your outreach email.</div></Card>}
@@ -1863,9 +1894,15 @@ function CoachSchoolJobs({coach}){
       </div>
       <div style={{position:"sticky",top:20}}>
         {sel?<Card glow><div style={{fontSize:28,marginBottom:7}}>{sel.logo}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:19,fontWeight:900,color:C.white,marginBottom:3}}>{sel.name}</div><div style={{color:divColor[sel.div]||C.gold,fontWeight:700,fontSize:12,marginBottom:10}}>{sel.nick} · {sel.div} · {sel.conf}</div>
-          {[["Location",sel.loc],["Acceptance",sel.accept],["Tuition",sel.tuition],["Website",sel.site]].map(([k,v])=>v?<div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12}}>{k}</span><span style={{color:C.white,fontSize:12,fontWeight:600}}>{v}</span></div>:null)}
+          {[["Location",sel.loc],["Acceptance",sel.accept],["Tuition",sel.tuition]].map(([k,v])=>v?<div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12}}>{k}</span><span style={{color:C.white,fontSize:12,fontWeight:600}}>{v}</span></div>:null)}
+          {(()=>{const sc=SCHOOL_CONTACTS[sel.id]||{};return sc.recruitingEmail?<div style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12}}>📧 Athletics</span><a href={`mailto:${sc.recruitingEmail}`} style={{color:C.teal,fontSize:11,fontFamily:"DM Mono,monospace",fontWeight:600}}>{sc.recruitingEmail}</a></div>:null;})()}
           {sel.sports&&<div style={{margin:"10px 0"}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:5}}>SPORTS</div><div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{sel.sports.map(s=><Badge key={s} color={C.mutedHi}>{s}</Badge>)}</div></div>}
-          <Btn onClick={()=>genApp(sel)} loading={loading} full style={{marginTop:11}}>⚡ Generate Application Email</Btn>
+          {sel.openings&&sel.openings[coach?.sport]&&<div style={{background:C.green+"11",border:`1px solid ${C.green}33`,borderRadius:8,padding:"9px 12px",marginBottom:10}}><div style={{color:C.green,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:3}}>OPEN POSITIONS — {coach?.sport?.toUpperCase()}</div><div style={{color:C.white,fontSize:13,fontWeight:600}}>{sel.openings[coach?.sport]}</div></div>}
+          <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+            {SCHOOL_CONTACTS[sel.id]?.jobsUrl&&<a href={SCHOOL_CONTACTS[sel.id].jobsUrl} target="_blank" rel="noreferrer" style={{flex:1,display:"block",background:C.gold+"22",border:`1px solid ${C.gold}44`,borderRadius:6,padding:"10px",textAlign:"center",color:C.gold,fontWeight:700,fontSize:12,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1,textDecoration:"none"}}>💼 VIEW OPEN JOBS →</a>}
+            <a href="https://www.higheredjobs.com/search/athletic_detail.cfm" target="_blank" rel="noreferrer" style={{flex:1,display:"block",background:C.blue+"11",border:`1px solid ${C.blue}33`,borderRadius:6,padding:"10px",textAlign:"center",color:C.blue,fontWeight:700,fontSize:12,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1,textDecoration:"none"}}>🔍 HIGHEREDJOBS</a>
+          </div>
+          <Btn onClick={()=>genApp(sel)} loading={loading} full style={{marginTop:4}}>⚡ Generate Application Email</Btn>
           <AIOut loading={loading} output={app} label="APPLICATION EMAIL"/>
         </Card>:<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:32,marginBottom:10}}>🏫</div><div style={{color:C.white,fontWeight:600}}>Select a School</div></Card>}
       </div>
@@ -2408,6 +2445,37 @@ function MarketingPage({onEnter,settings}){
             <div style={{fontSize:10,color:muted,marginTop:3,fontFamily:"DM Mono,monospace"}}>{l}</div>
           </div>)}
         </div>
+      </div>
+    </div>
+    <div style={{padding:"80px 40px",background:"rgba(3,6,16,.95)",position:"relative",zIndex:2}}>
+      <div style={{textAlign:"center",marginBottom:36}}>
+        <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:3,color:acc,marginBottom:10,textTransform:"uppercase"}}>// WHY SWITCH</div>
+        <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(22px,3.5vw,40px)",lineHeight:1,color:wh}}>ONE PLATFORM BEATS <span style={{color:acc}}>ALL OF THEM.</span></div>
+        <p style={{color:"rgba(224,244,255,.35)",fontSize:13,marginTop:10,fontFamily:"DM Mono,monospace"}}>vs. NCSA · EUROPLAYERS · POSTGAME · INFLICR · 247SPORTS</p>
+      </div>
+      <div style={{overflowX:"auto",maxWidth:900,margin:"0 auto"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontFamily:"'Sora',sans-serif",fontSize:13}}>
+          <thead>
+            <tr>
+              {["FEATURE","NCSA","EUROPLAYERS","POSTGAME","247SPORTS","ATHLETEVAULT"].map((h,i)=><th key={i} style={{padding:"12px 10px",borderBottom:"2px solid "+(i===5?acc:border),color:i===5?acc:muted,fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:1.5,textAlign:i===0?"left":"center",whiteSpace:"nowrap"}}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["AI-written pitches & emails","✗","✗","✗","✗","✓"],
+              ["European pro team database","✗","Partial","✗","✗","✓"],
+              ["NIL education & deals","✗","✗","Partial","Partial","✓"],
+              ["College school search","✓","✗","✗","Partial","✓"],
+              ["Coach marketplace","✗","✗","✗","✗","✓"],
+              ["Direct messaging","✗","✗","Partial","✗","✓"],
+              ["Monthly price","$70–200","Free","$50+","Enterprise","$29–79"],
+              ["Built by an athlete","✗","✗","✗","✗","✓"],
+            ].map(([feat,...vals],ri)=><tr key={ri} style={{background:ri%2===0?"rgba(6,13,26,.6)":"transparent"}}>
+              <td style={{padding:"11px 10px",color:wh,fontSize:12,fontWeight:600}}>{feat}</td>
+              {vals.map((v,ci)=>{const isAV=ci===4;const isGood=v==="✓"||v.startsWith("$29");const isBad=v==="✗";return<td key={ci} style={{padding:"11px 10px",textAlign:"center",color:isAV?(isGood?acc:wh):isBad?"rgba(224,244,255,.2)":isGood?"rgba(224,244,255,.6)":"rgba(224,244,255,.45)",fontWeight:isAV?700:400,fontSize:isAV?14:12,fontFamily:isAV?"'Rajdhani',sans-serif":"inherit"}}>{v}</td>;})}
+            </tr>)}
+          </tbody>
+        </table>
       </div>
     </div>
     <div style={{padding:"72px 40px",textAlign:"center",position:"relative",zIndex:2}}>
