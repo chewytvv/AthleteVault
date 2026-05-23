@@ -621,7 +621,7 @@ function SignupModal({show,onClose,settings}){
   );
 }
 function Login({onSuccess,athletes,coaches,settings}){
-  const [email,setEmail]=useState("");const [pass,setPass]=useState("");const [err,setErr]=useState("");const [loading,setLoading]=useState(false);const [tries,setTries]=useState(0);const [refCode,setRefCode]=useState("");const [showRef,setShowRef]=useState(false);
+  const [email,setEmail]=useState("");const [pass,setPass]=useState("");const [err,setErr]=useState("");const [loading,setLoading]=useState(false);const [tries,setTries]=useState(0);const [refCode,setRefCode]=useState("");const [showRef,setShowRef]=useState(false);const [showSignup,setShowSignup]=useState(false);
   const locked=tries>=5;
   function go(){
     if(locked)return;setErr("");setLoading(true);
