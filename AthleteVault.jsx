@@ -573,7 +573,8 @@ function Messaging({me,athletes,coaches,saveAthletes,saveCoaches,messages,saveMe
 }
 // ═══════════════════════════════════════════════
 //  LOGIN + SIDEBAR + NOTIFICATIONS + PRIVACY
-// ═══════════════════════════════════════════════function SignupModal({show,onClose,settings}){
+// ═══════════════════════════════════════════════
+function SignupModal({show,onClose,settings}){
   const[role,setRole]=useState("athlete");
   const[name,setName]=useState("");
   const[email,setEmail]=useState("");
@@ -1474,7 +1475,7 @@ function ACoachNetwork({athlete,coaches,saveAthletes}){
         </Card>)}
         {filtered.length===0&&<div style={{color:C.muted,fontSize:14,padding:"20px 0"}}>No coaches match your filters.</div>}
       </div>
-      <div>{sel?<Card glow><div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>COACH PROFILE</div><Avatar name={sel.name} size={44} color={C.purple} verified={sel.verified}/><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:2,marginTop:9},display:"flex",alignItems:"center",gap:6}}>{sel.name}{sel.verified&&<Badge color={C.blue}>Verified</Badge>}</div><div style={{color:C.purple,fontSize:12,marginBottom:2}}>{sel.title}</div><div style={{color:C.gold,fontSize:13,marginBottom:7}}>{sel.org}</div>
+      <div>{sel?<Card glow><div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>COACH PROFILE</div><Avatar name={sel.name} size={44} color={C.purple} verified={sel.verified}/><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:2,marginTop:9,display:"flex",alignItems:"center",gap:6}}>{sel.name}{sel.verified&&<Badge color={C.blue}>Verified</Badge>}</div><div style={{color:C.purple,fontSize:12,marginBottom:2}}>{sel.title}</div><div style={{color:C.gold,fontSize:13,marginBottom:7}}>{sel.org}</div>
         {priv.showBio&&sel.bio&&<p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6,marginBottom:11}}>{sel.bio}</p>}
         {(sel.recruitingRegions||[]).length>0&&<div style={{marginBottom:11}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:5}}>RECRUITING FROM</div><div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{sel.recruitingRegions.map(r=><Badge key={r} color={C.green}>{r}</Badge>)}</div></div>}
         <div style={{borderTop:`1px solid ${C.border}`,paddingTop:11,marginBottom:11}}>
