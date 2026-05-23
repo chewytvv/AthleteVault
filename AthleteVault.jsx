@@ -1,7 +1,7 @@
 import React,{useState,useEffect,useCallback,useRef} from "react";
 
 // ── Owner Credentials ──────────────────────────
-const OWNER_CREDS={username:"chewy",password:"AthleteVault2026!"};
+const OWNER_CREDS={username:import.meta.env.VITE_OWNER_USER||"chewy",password:import.meta.env.VITE_OWNER_PASS||"AthleteVault2026!"};
 
 // ── Dynamic Theme System ───────────────────────
 // Owner can change these from dashboard — stored in settings
