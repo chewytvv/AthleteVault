@@ -878,7 +878,7 @@ function PrivacySecurity({user,saveUsers,role}){
 // ═══════════════════════════════════════════════
 //  OWNER DASHBOARD — full control center
 // ═══════════════════════════════════════════════
-const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"}];
+const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"wins",icon:"🏆",label:"Wall of Wins"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"}];
 
 function OOverview({athletes,coaches,messages,settings}){
   const active=athletes.filter(a=>a.status==="active");
@@ -922,6 +922,7 @@ function OAthletes({athletes,saveAthletes,addLog}){
   const filtered=athletes.filter(a=>(a.name+a.sport+(a.country||"")+(a.email||"")).toLowerCase().includes(search.toLowerCase()));
   function toggle(id){saveAthletes(prev=>prev.map(a=>{if(String(a.id)!==String(id))return a;const s=a.status==="active"?"paused":"active";addLog({action:"Status change",detail:`${a.name} → ${s}`,level:s==="active"?"success":"warn"});return{...a,status:s};}));}
   function toggleVerify(id){saveAthletes(prev=>prev.map(a=>String(a.id)===String(id)?{...a,verified:!a.verified}:a));addLog({action:"Verification toggle",detail:`Athlete ${id}`,level:"info"});}
+  function toggleFeatured(id){saveAthletes(prev=>prev.map(a=>String(a.id)===String(id)?{...a,featured:!a.featured}:a));addLog({action:"Featured toggle",detail:`Athlete ${id}`,level:"info"});}
   function add(){if(!na.name||!na.sport||!na.email)return;const mrr=na.tier==="pro"?79:na.tier==="rising"?49:29;const a={...na,id:Date.now(),role:"athlete",followers:parseInt(na.followers)||0,mrr,status:"active",joined:new Date().toISOString().slice(0,10),coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:0,notifications:[],verified:false,passwordHash:na.password?hashPass(na.password):""};saveAthletes(prev=>[...prev,a]);addLog({action:"Athlete added",detail:a.name,level:"success"});setNa({name:"",sport:"",school:"",tier:"rookie",email:"",password:"",country:"United States",state:"",city:"",bio:"",followers:""});setShowAdd(false);}
   function remove(id){const a=athletes.find(x=>String(x.id)===String(id));saveAthletes(prev=>prev.filter(x=>String(x.id)!==String(id)));addLog({action:"Athlete removed",detail:a?.name,level:"warn"});}
   function resetPass(id){const np=prompt("New password (min 8 chars):");if(!np||np.length<8){alert("Min 8 chars.");return;}saveAthletes(prev=>prev.map(a=>String(a.id)===String(id)?{...a,passwordHash:hashPass(np)}:a));addLog({action:"Password reset",detail:`Athlete ${id}`,level:"warn"});}
@@ -941,7 +942,8 @@ function OAthletes({athletes,saveAthletes,addLog}){
           <td style={{padding:"10px 14px"}}><Badge color={a.status==="active"?C.green:C.red}>{a.status}</Badge></td>
           <td style={{padding:"10px 14px"}}><div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
             <Btn onClick={()=>toggle(a.id)} variant={a.status==="active"?"danger":"green"} small>{a.status==="active"?"Pause":"Resume"}</Btn>
-            <Btn onClick={()=>toggleVerify(a.id)} variant={a.verified?"ghost":"blue"} small>{a.verified?"✓":"Verify"}</Btn>
+            <Btn onClick={()=>toggleVerify(a.id)} variant={a.verified?"ghost":"blue"} small>{a.verified?"✓ Verified":"Verify"}</Btn>
+            <Btn onClick={()=>toggleFeatured(a.id)} variant={a.featured?"gold":"ghost"} small>{a.featured?"⭐ Featured":"Feature"}</Btn>
             <Btn onClick={()=>resetPass(a.id)} variant="ghost" small>🔑</Btn>
             <Btn onClick={()=>remove(a.id)} variant="danger" small>✕</Btn>
           </div></td>
@@ -1242,6 +1244,10 @@ function AthleteHub({athlete,athletes,coaches,messages,saveMessages,saveAthletes
     {type:"tip",id:"t1",title:"NIL Tip: Know your worth",sub:"Your rate = followers × engagement × 0.05",icon:"💡",color:C.gold,price:null,action:null},
     {type:"tip",id:"t2",title:"Overseas Tip: GFL1 season starts April",sub:"Apply now — rosters fill by January",icon:"✈️",color:C.teal,price:null,action:null},
   ];
+  // Leaderboard — top athletes by profile views
+  const leaderboard=[...athletes].filter(a=>a.status==="active").sort((a,b)=>(b.profileViews||0)-(a.profileViews||0)).slice(0,5);
+  // Wall of wins from localStorage
+  const [wins]=useStore("av_wins_v1",[]);
 
   return <div style={{display:"grid",gridTemplateColumns:"280px 1fr",gap:18,alignItems:"start"}}>
     {/* LEFT — Profile Card (Postgame style) */}
@@ -1310,13 +1316,14 @@ function AthleteHub({athlete,athletes,coaches,messages,saveMessages,saveAthletes
     {/* RIGHT — Feed */}
     <div>
       <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
-        {[["feed","⚡ Feed"],["roadmap","🗺️ Roadmap"],["activity","📋 Activity"]].map(([t,l])=>
+        {[["feed","⚡ Feed"],["leaderboard","🏆 Leaderboard"],["roadmap","🗺️ Roadmap"],["activity","📋 Activity"]].map(([t,l])=>
           <Btn key={t} onClick={()=>setTab(t)} variant={tab===t?"accent":"ghost"} small>{l}</Btn>
         )}
       </div>
 
       {tab==="feed"&&<div>
         {settings?.announcement&&<Card glow style={{marginBottom:12}}><p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6}}>📣 {settings.announcement}</p></Card>}
+        {wins.filter(w=>w.featured).length>0&&<Card glow color={C.gold} style={{marginBottom:12,padding:"12px 16px"}}><div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:8}}>🏆 WALL OF WINS</div>{wins.filter(w=>w.featured).slice(0,2).map(w=><div key={w.id} style={{padding:"6px 0",borderBottom:`1px solid ${C.border}`,marginBottom:4}}><div style={{color:C.white,fontWeight:600,fontSize:13}}>{w.athleteName}</div><div style={{color:C.gold,fontSize:12}}>{w.achievement}</div></div>)}</Card>}
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {feed.map((item,i)=><Card key={item.id} style={{display:"flex",gap:12,alignItems:"flex-start"}}>
             <div style={{width:44,height:44,borderRadius:10,background:`${item.color}18`,border:`1px solid ${item.color}33`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
@@ -1327,6 +1334,25 @@ function AthleteHub({athlete,athletes,coaches,messages,saveMessages,saveAthletes
             {item.price&&<div style={{textAlign:"right",flexShrink:0}}><div style={{color:C.gold,fontFamily:"'Rajdhani',sans-serif",fontSize:20,fontWeight:700}}>${item.price}</div><Badge color={item.color}>{item.action}</Badge></div>}
           </Card>)}
         </div>
+      </div>}
+
+      {tab==="leaderboard"&&<div>
+        <Card glow style={{marginBottom:12,padding:"10px 14px",background:C.card2}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1}}>TOP ATHLETES BY PROFILE VIEWS · THIS WEEK</div></Card>
+        {leaderboard.map((a,i)=>{const isMe=String(a.id)===String(liveUser.id);return <Card key={a.id} glow={isMe} color={isMe?C.gold:i===0?C.teal:undefined} style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:i===0?C.gold:i===1?C.mutedHi:i===2?C.teal:C.muted,width:32,textAlign:"center"}}>{i+1}</div>
+          <Avatar name={a.name} size={36} color={isMe?C.gold:C.blue} verified={a.verified}/>
+          <div style={{flex:1}}>
+            <div style={{color:isMe?C.gold:C.white,fontWeight:700,fontSize:14}}>{a.name}{isMe&&" (You)"}</div>
+            <div style={{color:C.muted,fontSize:11}}>{a.sport} · {a.school||"—"}</div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{color:C.teal,fontFamily:"DM Mono,monospace",fontWeight:700,fontSize:14}}>{fmt(a.profileViews||0)}</div>
+            <div style={{color:C.muted,fontSize:10}}>views</div>
+          </div>
+          {a.featured&&<Badge color={C.purple}>⭐</Badge>}
+          {a.inPortal&&<Badge color={C.gold}>🔄 Portal</Badge>}
+        </Card>;})}
+        <Card style={{background:C.card2,marginTop:8,padding:"10px 14px"}}><p style={{color:C.muted,fontSize:12,lineHeight:1.6,margin:0}}>💡 Complete your stats profile and share your profile link to climb the leaderboard. Featured athletes get boosted coach visibility.</p></Card>
       </div>}
 
       {tab==="roadmap"&&<div>
@@ -1475,7 +1501,7 @@ function OSiteConfig({settings,saveSettings,addLog,setTab}){
     </div>
   </div>;
 }
-const A_NAV=[{id:"home",icon:"🏠",label:"My Vault"},{id:"messages",icon:"💬",label:"Messages"},{id:"notifications",icon:"🔔",label:"Notifications"},{id:"schools",icon:"🏫",label:"Schools"},{id:"euroteams",icon:"🌍",label:"Euro Teams"},{id:"content",icon:"🎬",label:"Content"},{id:"brands",icon:"🤝",label:"Brand Deals"},{id:"coaches",icon:"📡",label:"Coaches"},{id:"money",icon:"💰",label:"Monetize"},{id:"nil",icon:"🎓",label:"NIL Academy"},{id:"coaching",icon:"🎬",label:"Coaching Hub"},{id:"profile",icon:"👤",label:"My Profile"},{id:"privacy",icon:"🔒",label:"Privacy"},{id:"referral",icon:"🎁",label:"Refer & Earn"},{id:"help",icon:"❓",label:"Help"}];
+const A_NAV=[{id:"home",icon:"🏠",label:"My Vault"},{id:"messages",icon:"💬",label:"Messages"},{id:"notifications",icon:"🔔",label:"Notifications"},{id:"schools",icon:"🏫",label:"Schools"},{id:"euroteams",icon:"🌍",label:"Euro Teams"},{id:"content",icon:"🎬",label:"Content"},{id:"brands",icon:"🤝",label:"Brand Deals"},{id:"coaches",icon:"📡",label:"Coaches"},{id:"money",icon:"💰",label:"Monetize"},{id:"stats",icon:"📊",label:"My Stats"},{id:"niltracker",icon:"💸",label:"NIL Tracker"},{id:"nil",icon:"🎓",label:"NIL Academy"},{id:"coaching",icon:"🎬",label:"Coaching Hub"},{id:"profile",icon:"👤",label:"My Profile"},{id:"privacy",icon:"🔒",label:"Privacy"},{id:"referral",icon:"🎁",label:"Refer & Earn"},{id:"help",icon:"❓",label:"Help"}];
 
 function AHome({athlete,settings}){
   const roadmap=[{done:true,label:"Create your AthleteVault profile"},{done:(athlete.videos?.length||0)>0,label:"Upload your first highlight reel"},{done:(athlete.brandSent||0)>0,label:"Apply to 3 brand deals"},{done:false,label:"Complete NIL Academy Basics"},{done:(athlete.coachSent||0)>0,label:"Connect with a coach"},{done:false,label:"Generate your monetization roadmap"},{done:false,label:"Search European teams"},{done:false,label:"Refer a teammate → earn reward"}];
@@ -1731,14 +1757,48 @@ function ANIL(){
 function AProfile({athlete,saveAthletes}){
   const [f,setF]=useState({name:athlete.name,sport:athlete.sport,school:athlete.school,city:athlete.city||"",state:athlete.state||"",country:athlete.country||"United States",bio:athlete.bio||"",phone:athlete.phone||"",followers:String(athlete.followers||0)});
   const [saved,setSaved]=useState(false);
+  const [linkCopied,setLinkCopied]=useState(false);
+  const [showShare,setShowShare]=useState(false);
+  const profileUrl=`${window.location.origin}${window.location.pathname}#/p/${athlete.id}`;
   function save(){saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,...f,followers:Number(f.followers)}:a));setSaved(true);setTimeout(()=>setSaved(false),2000);}
+  function togglePortal(){saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,inPortal:!a.inPortal}:a));}
+  function copyLink(){navigator.clipboard?.writeText(profileUrl);setLinkCopied(true);setTimeout(()=>setLinkCopied(false),2500);}
+  function exportPDF(){
+    const w=window.open("","_blank","width=800,height=1000");
+    const stats=athlete.stats||{};
+    const statRows=Object.keys(stats).filter(k=>stats[k]).map(k=>`<tr><td style="color:#888;font-size:12px;padding:6px 0;border-bottom:1px solid #111;text-transform:capitalize">${k.replace(/([A-Z])/g," $1")}</td><td style="color:#fff;font-weight:700;font-family:monospace;font-size:13px;padding:6px 0;border-bottom:1px solid #111;text-align:right">${stats[k]}</td></tr>`).join("");
+    w.document.write(`<!DOCTYPE html><html><head><title>${athlete.name} — AthleteVault Recruiting Profile</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#020408;color:#E0F4FF;font-family:'Segoe UI',sans-serif;padding:32px;max-width:720px;margin:0 auto}h1{font-size:36px;font-weight:900;letter-spacing:2px;margin-bottom:4px}h2{font-size:12px;color:#2A4A6A;letter-spacing:2px;font-weight:600;margin-bottom:20px}.badge{display:inline-block;background:#00F0FF22;border:1px solid #00F0FF44;color:#00F0FF;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:6px}.section{margin-bottom:24px}.section-title{font-size:10px;color:#2A4A6A;letter-spacing:2px;font-weight:600;margin-bottom:12px;font-family:monospace}table{width:100%}@media print{body{background:#fff;color:#000}}</style></head><body>
+    <h1>${athlete.name}</h1><h2>${athlete.sport?.toUpperCase()||""} · ${athlete.school||""} · ${athlete.city||""}${athlete.country?", "+athlete.country:""}</h2>
+    <div>${athlete.verified?"<span class='badge'>✓ VERIFIED</span>":""}${athlete.inPortal?"<span class='badge' style='color:#E8B84B;border-color:#E8B84B44;background:#E8B84B22'>🔄 IN PORTAL</span>":""}<span class='badge'>${(athlete.tier||"ATHLETE").toUpperCase()}</span></div>
+    ${athlete.bio?`<div class="section" style="margin-top:20px"><div class="section-title">ABOUT</div><p style="font-size:14px;line-height:1.7;color:#4A7A9A">${athlete.bio}</p></div>`:""}
+    ${statRows?`<div class="section"><div class="section-title">COMBINE / ACADEMIC STATS</div><table>${statRows}</table></div>`:""}
+    <div class="section"><div class="section-title">CONTACT</div><p style="font-size:13px;color:#4A7A9A">📧 ${athlete.email||"Contact via AthleteVault"}</p><p style="font-size:13px;color:#4A7A9A;margin-top:4px">🔗 ${profileUrl}</p><p style="font-size:11px;color:#2A4A6A;margin-top:12px">Generated by AthleteVault · athletevault.org</p></div>
+    </body></html>`);
+    w.document.close();setTimeout(()=>w.print(),400);
+  }
   return <div>
     <Sec title="My Profile"/>
+    <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+      <Btn onClick={()=>setShowShare(true)} variant="gold" small>🔗 Share Profile</Btn>
+      <Btn onClick={exportPDF} variant="ghost" small>📄 Export PDF</Btn>
+      <Btn onClick={togglePortal} variant={athlete.inPortal?"danger":"ghost"} small>{athlete.inPortal?"🔄 In Transfer Portal":"Enter Transfer Portal"}</Btn>
+    </div>
+    {athlete.inPortal&&<Card glow color={C.gold} style={{marginBottom:14,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:20}}>🔄</span><div><div style={{color:C.gold,fontWeight:700,fontSize:13}}>TRANSFER PORTAL ACTIVE</div><div style={{color:C.mutedHi,fontSize:12}}>Coaches can see you are available. Your profile is boosted in coach search.</div></div></Card>}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:13}}>
       <Card><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>PERSONAL INFO</div><div style={{display:"flex",flexDirection:"column",gap:11}}>{[["FULL NAME","name"],["SPORT","sport"],["SCHOOL / LEAGUE","school"],["FOLLOWERS","followers"],["PHONE","phone"]].map(([l,k])=><Inp key={k} label={l} value={f[k]} onChange={v=>setF(p=>({...p,[k]:v}))}/>)}</div></Card>
       <div><Card style={{marginBottom:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>LOCATION</div><div style={{display:"flex",flexDirection:"column",gap:11}}><Inp label="CITY" value={f.city} onChange={v=>setF(p=>({...p,city:v}))}/><Inp label="STATE" value={f.state} onChange={v=>setF(p=>({...p,state:v}))}/><Sel label="COUNTRY" value={f.country} onChange={v=>setF(p=>({...p,country:v}))} options={REGIONS}/></div></Card><Card><Inp label="BIO" value={f.bio} onChange={v=>setF(p=>({...p,bio:v}))} rows={4} placeholder="Tell coaches and brands your story…"/></Card></div>
     </div>
-    <div style={{marginTop:13}}><Btn onClick={save}>{saved?"✓ Saved!":"Save Profile"}</Btn></div>
+    <div style={{marginTop:13,display:"flex",gap:8}}><Btn onClick={save}>{saved?"✓ Saved!":"Save Profile"}</Btn></div>
+    <Modal show={showShare} onClose={()=>setShowShare(false)} title="SHARE YOUR PROFILE">
+      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div style={{background:C.dark,borderRadius:8,padding:"12px 14px",border:`1px solid ${C.border}`}}>
+          <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:6}}>YOUR PUBLIC PROFILE LINK</div>
+          <div style={{color:C.teal,fontSize:12,fontFamily:"DM Mono,monospace",wordBreak:"break-all"}}>{profileUrl}</div>
+        </div>
+        <Btn onClick={copyLink} variant="gold" full>{linkCopied?"✓ Copied to Clipboard!":"📋 Copy Link"}</Btn>
+        <div style={{color:C.muted,fontSize:11,lineHeight:1.6}}>Share this link with coaches, scouts, or on your social media. Anyone with the link can view your recruiting profile — no account required.</div>
+      </div>
+    </Modal>
   </div>;
 }
 
@@ -2420,6 +2480,7 @@ function CoachingHub({athlete,coaches,athletes,messages,saveMessages,saveAthlete
 
 function MarketingPage({onEnter,settings}){
   const [lpName,setLpName]=useState("");const [lpEmail,setLpEmail]=useState("");const [lpSport,setLpSport]=useState("");const [lpDone,setLpDone]=useState(false);
+  const [wins]=useStore("av_wins_v1",[]);
   function captureLead(){
     if(lpEmail){try{const ex=JSON.parse(localStorage.getItem("av_leads_v1")||"[]");ex.push({name:lpName,email:lpEmail,sport:lpSport,date:new Date().toLocaleDateString(),source:"landing_page"});localStorage.setItem("av_leads_v1",JSON.stringify(ex));}catch(e){}}
     setLpDone(true);setTimeout(onEnter,400);
@@ -2580,6 +2641,21 @@ function MarketingPage({onEnter,settings}){
         </table>
       </div>
     </div>
+    {wins.filter(w=>w.featured).length>0&&<div style={{padding:"72px 40px",position:"relative",zIndex:2}}>
+      <div style={{textAlign:"center",marginBottom:36}}>
+        <div style={{fontFamily:"DM Mono,monospace",fontSize:9,letterSpacing:3,color:acc,marginBottom:10,textTransform:"uppercase"}}>PROOF IT WORKS</div>
+        <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(22px,3.5vw,40px)",lineHeight:1,color:wh}}>WALL OF WINS</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:14,maxWidth:900,margin:"0 auto"}}>
+        {wins.filter(w=>w.featured).map(w=><div key={w.id} style={{background:card,border:"1px solid "+acc+"22",borderRadius:10,padding:"20px",position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,"+acc+"55,transparent)"}}/>
+          <div style={{fontSize:28,marginBottom:10}}>🏆</div>
+          <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:18,fontWeight:700,color:wh,marginBottom:4}}>{w.athleteName}</div>
+          <div style={{color:acc,fontSize:13,lineHeight:1.5,marginBottom:8}}>{w.achievement}</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{w.sport&&<span style={{background:acc+"15",border:"1px solid "+acc+"33",color:acc,borderRadius:4,padding:"2px 8px",fontSize:10,fontWeight:700}}>{w.sport}</span>}<span style={{color:muted,fontSize:10,fontFamily:"DM Mono,monospace"}}>{w.date}</span></div>
+        </div>)}
+      </div>
+    </div>}
     <div style={{padding:"72px 40px",textAlign:"center",position:"relative",zIndex:2}}>
       <div style={{fontFamily:"'Orbitron',sans-serif",fontSize:"clamp(22px,4vw,44px)",lineHeight:1,marginBottom:28,color:wh}}>DON'T WAIT FOR <span style={{color:acc}}>THEM TO CALL.</span></div>
       <button onClick={onEnter} style={{background:acc,color:bg,padding:"16px 40px",borderRadius:8,fontWeight:700,fontSize:16,border:"none",cursor:"pointer",letterSpacing:1,boxShadow:"0 0 24px "+acc+"44",fontFamily:"'Rajdhani',sans-serif"}}>CREATE YOUR ACCOUNT →</button>
@@ -2603,6 +2679,189 @@ function OnboardingTerms({onAccept}){
   </div>;
 }
 
+// ── AStats ─────────────────────────────────────────
+function AStats({athlete,saveAthletes,athletes}){
+  const liveUser=athletes.find(a=>String(a.id)===String(athlete.id))||athlete;
+  const [draft,setDraft]=useState(liveUser.stats||{});
+  const [saved,setSaved]=useState(false);
+  const statFields={
+    Football:[{k:"position",l:"Position",ph:"WR / QB / DB…"},{k:"height",l:"Height",ph:"6'2\""},{k:"weight",l:"Weight (lbs)",ph:"195"},{k:"forty",l:"40-Yard Dash",ph:"4.45s"},{k:"vertical",l:"Vertical Jump",ph:"38\""},{k:"bench",l:"Bench 225 (reps)",ph:"18"},{k:"shuttle",l:"20-Yd Shuttle",ph:"4.1s"},{k:"wingspan",l:"Wingspan",ph:"75\""},{k:"gradYear",l:"Grad Year",ph:"2026"},{k:"gpa",l:"GPA",ph:"3.2"},{k:"sat",l:"SAT / ACT",ph:"1200 / 26"}],
+    Basketball:[{k:"position",l:"Position",ph:"PG / SG / SF…"},{k:"height",l:"Height",ph:"6'3\""},{k:"weight",l:"Weight (lbs)",ph:"190"},{k:"vertical",l:"Vertical Jump",ph:"40\""},{k:"wingspan",l:"Wingspan",ph:"78\""},{k:"ppg",l:"Points Per Game",ph:"18.5"},{k:"rpg",l:"Rebounds Per Game",ph:"7.2"},{k:"apg",l:"Assists Per Game",ph:"4.8"},{k:"gradYear",l:"Grad Year",ph:"2026"},{k:"gpa",l:"GPA",ph:"3.3"}],
+    Track:[{k:"events",l:"Primary Events",ph:"100m, 200m"},{k:"height",l:"Height",ph:"6'0\""},{k:"weight",l:"Weight (lbs)",ph:"170"},{k:"hundredm",l:"100m PR",ph:"10.45s"},{k:"twohundredm",l:"200m PR",ph:"20.87s"},{k:"fourhundredm",l:"400m PR",ph:"45.2s"},{k:"eightm",l:"800m PR",ph:"1:48.5"},{k:"gradYear",l:"Grad Year",ph:"2026"},{k:"gpa",l:"GPA",ph:"3.5"}],
+    Soccer:[{k:"position",l:"Position",ph:"Forward / MF…"},{k:"height",l:"Height",ph:"5'11\""},{k:"weight",l:"Weight (lbs)",ph:"165"},{k:"goals",l:"Goals (Season)",ph:"12"},{k:"assists",l:"Assists (Season)",ph:"8"},{k:"foot",l:"Preferred Foot",ph:"Right"},{k:"gradYear",l:"Grad Year",ph:"2026"},{k:"gpa",l:"GPA",ph:"3.3"}],
+  };
+  const fields=statFields[liveUser.sport]||[{k:"position",l:"Position",ph:"Your Position"},{k:"height",l:"Height",ph:"6'0\""},{k:"weight",l:"Weight (lbs)",ph:"180"},{k:"gradYear",l:"Grad Year",ph:"2026"},{k:"gpa",l:"GPA",ph:"3.2"},{k:"highlights",l:"Career Highlights",ph:"State champion, 2× All-Conference…"}];
+  function save(){saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,stats:draft}:a));setSaved(true);setTimeout(()=>setSaved(false),2000);}
+  const filled=fields.filter(f=>draft[f.k]);
+  const pct=Math.round(filled.length/fields.length*100);
+  return <div>
+    <Sec title="My Stats" sub="Your recruiting numbers — coaches see this on your profile"/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 320px",gap:16,alignItems:"start"}}>
+      <Card glow>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:14}}>{(liveUser.sport||"ATHLETE").toUpperCase()} COMBINE & ACADEMIC STATS</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          {fields.map(f=><Inp key={f.k} label={f.l} value={draft[f.k]||""} onChange={v=>setDraft(p=>({...p,[f.k]:v}))} placeholder={f.ph}/>)}
+        </div>
+        <div style={{marginTop:14}}><Btn onClick={save} full>{saved?"✓ Saved!":"💾 Save Stats"}</Btn></div>
+      </Card>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <Card>
+          <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>PROFILE PREVIEW (COACH VIEW)</div>
+          {filled.length===0?<p style={{color:C.muted,fontSize:12,lineHeight:1.6}}>Fill in your stats to see how coaches will see your profile.</p>:filled.map(f=><div key={f.k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12}}>{f.l}</span><span style={{color:C.white,fontWeight:700,fontSize:13,fontFamily:"DM Mono,monospace"}}>{draft[f.k]}</span></div>)}
+        </Card>
+        <Card style={{background:C.card2}}>
+          <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:8}}>PROFILE COMPLETENESS</div>
+          <ProgressBar val={filled.length} max={fields.length} color={pct>=80?C.green:pct>=50?C.gold:C.teal}/>
+          <div style={{color:pct>=80?C.green:pct>=50?C.gold:C.teal,fontSize:20,fontWeight:900,fontFamily:"'Barlow Condensed',sans-serif",marginTop:6}}>{pct}% Complete</div>
+        </Card>
+        <Card style={{background:C.card2,border:`1px solid ${C.gold}22`}}>
+          <div style={{color:C.gold,fontSize:11,fontWeight:700,marginBottom:7}}>💡 PRO TIP</div>
+          <p style={{color:C.mutedHi,fontSize:12,lineHeight:1.6,margin:0}}>Athletes with complete stat profiles get 3× more coach views. Fill every field — estimates are better than blanks.</p>
+        </Card>
+      </div>
+    </div>
+  </div>;
+}
+
+// ── ANILTracker ────────────────────────────────────
+function ANILTracker({athlete,saveAthletes,athletes}){
+  const liveUser=athletes.find(a=>String(a.id)===String(athlete.id))||athlete;
+  const deals=liveUser.nilDeals||[];
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({brand:"",amount:"",type:"one-time",deliverable:"",deadline:"",notes:""});
+  function addDeal(){if(!form.brand)return;const d={id:Date.now(),...form,status:"active",signed:new Date().toISOString().slice(0,10)};saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,nilDeals:[...(a.nilDeals||[]),d]}:a));setForm({brand:"",amount:"",type:"one-time",deliverable:"",deadline:"",notes:""});setShowAdd(false);}
+  function updateStatus(id,status){saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,nilDeals:(a.nilDeals||[]).map(d=>d.id===id?{...d,status}:d)}:a));}
+  function removeDeal(id){saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,nilDeals:(a.nilDeals||[]).filter(d=>d.id!==id)}:a));}
+  const totalEarned=deals.filter(d=>d.status==="completed").reduce((s,d)=>s+(parseFloat(d.amount)||0),0);
+  const totalActive=deals.filter(d=>d.status==="active").reduce((s,d)=>s+(parseFloat(d.amount)||0),0);
+  const statusColor={active:C.green,completed:C.teal,expired:C.muted,cancelled:C.red};
+  return <div>
+    <Sec title="NIL Deal Tracker" sub="Track every brand deal, payment, and deadline"/>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:12,marginBottom:18}}>
+      <Stat icon="💸" label="ACTIVE VALUE" value={`$${totalActive.toLocaleString()}`} color={C.green}/>
+      <Stat icon="✅" label="TOTAL EARNED" value={`$${totalEarned.toLocaleString()}`} color={C.gold}/>
+      <Stat icon="🤝" label="TOTAL DEALS" value={deals.length} color={C.blue}/>
+      <Stat icon="🔥" label="ACTIVE NOW" value={deals.filter(d=>d.status==="active").length} color={C.teal}/>
+    </div>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+      <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1}}>ALL DEALS</div>
+      <Btn onClick={()=>setShowAdd(true)} small>+ Log Deal</Btn>
+    </div>
+    {deals.length===0?<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:40,marginBottom:12}}>💸</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:8}}>No deals logged yet</div><p style={{color:C.muted,fontSize:13,marginBottom:16}}>Track your NIL income here. Every deal counts — even gifted product.</p><Btn onClick={()=>setShowAdd(true)}>+ Log Your First Deal</Btn></Card>:
+    <Card style={{padding:0,overflow:"hidden"}}><div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse"}}>
+      <thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["Brand","Type","Amount","Deliverable","Deadline","Status",""].map(h=><th key={h} style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",fontWeight:600,padding:"10px 14px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+      <tbody>{deals.map(d=>{const overdue=d.deadline&&d.status==="active"&&new Date(d.deadline)<new Date();return<tr key={d.id} style={{borderBottom:`1px solid ${C.border}`,background:overdue?C.red+"11":"transparent"}}>
+        <td style={{padding:"10px 14px",color:C.white,fontWeight:600,fontSize:13}}>{d.brand}</td>
+        <td style={{padding:"10px 14px"}}><Badge color={C.blue}>{d.type}</Badge></td>
+        <td style={{padding:"10px 14px",color:C.green,fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700}}>{d.amount?`$${d.amount}`:"-"}</td>
+        <td style={{padding:"10px 14px",color:C.mutedHi,fontSize:12,maxWidth:200}}>{d.deliverable||"—"}</td>
+        <td style={{padding:"10px 14px",color:overdue?C.red:C.muted,fontSize:12,fontFamily:"DM Mono,monospace"}}>{d.deadline||"—"}{overdue&&" ⚠️"}</td>
+        <td style={{padding:"10px 14px"}}><Badge color={statusColor[d.status]||C.muted}>{d.status}</Badge></td>
+        <td style={{padding:"10px 14px"}}><div style={{display:"flex",gap:4}}>{d.status==="active"&&<Btn onClick={()=>updateStatus(d.id,"completed")} variant="green" small>✓ Done</Btn>}<Btn onClick={()=>removeDeal(d.id)} variant="danger" small>✕</Btn></div></td>
+      </tr>;})}
+      </tbody></table></div></Card>}
+    <Modal show={showAdd} onClose={()=>setShowAdd(false)} title="LOG NIL DEAL">
+      <div style={{display:"flex",flexDirection:"column",gap:11}}>
+        <Inp label="BRAND / COMPANY" value={form.brand} onChange={v=>setForm(p=>({...p,brand:v}))} placeholder="Nike, Gatorade, Local Business…"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <Inp label="AMOUNT ($)" value={form.amount} onChange={v=>setForm(p=>({...p,amount:v}))} placeholder="500"/>
+          <Sel label="TYPE" value={form.type} onChange={v=>setForm(p=>({...p,type:v}))} options={[{v:"one-time",l:"One-Time"},{v:"monthly",l:"Monthly Retainer"},{v:"gifted",l:"Gifted Product"},{v:"equity",l:"Equity / Points"},{v:"annual",l:"Annual Contract"}]}/>
+        </div>
+        <Inp label="DELIVERABLE" value={form.deliverable} onChange={v=>setForm(p=>({...p,deliverable:v}))} placeholder="2 Instagram posts, 1 TikTok…"/>
+        <Inp label="DEADLINE" value={form.deadline} onChange={v=>setForm(p=>({...p,deadline:v}))} type="date"/>
+        <Inp label="NOTES" value={form.notes} onChange={v=>setForm(p=>({...p,notes:v}))} rows={2} placeholder="Contract terms, contact info…"/>
+        <Btn onClick={addDeal} disabled={!form.brand} full>Log Deal</Btn>
+      </div>
+    </Modal>
+  </div>;
+}
+
+// ── OWins ─────────────────────────────────────────
+function OWins(){
+  const [wins,saveWins]=useStore("av_wins_v1",[]);
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({athleteName:"",achievement:"",sport:"",date:new Date().toISOString().slice(0,10),featured:false});
+  function addWin(){if(!form.achievement)return;saveWins(prev=>[{id:Date.now(),...form},...prev]);setForm({athleteName:"",achievement:"",sport:"",date:new Date().toISOString().slice(0,10),featured:false});setShowAdd(false);}
+  return <div>
+    <Sec title="Wall of Wins" sub="Athlete success stories — shown on landing page and athlete home feeds"/>
+    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}><Btn onClick={()=>setShowAdd(true)}>+ Add Win</Btn></div>
+    {wins.length===0?<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:40,marginBottom:12}}>🏆</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:8}}>No wins logged yet</div><p style={{color:C.muted,fontSize:13,marginBottom:16}}>Post athlete wins here — they show on the landing page as social proof and on athlete home feeds as motivation.</p><Btn onClick={()=>setShowAdd(true)}>+ Add First Win</Btn></Card>:
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+      {wins.map(w=><Card key={w.id} glow={w.featured} color={w.featured?C.gold:undefined}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+          <div style={{fontSize:28}}>🏆</div>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>{w.featured&&<Badge color={C.gold}>Featured</Badge>}<Btn onClick={()=>saveWins(prev=>prev.filter(x=>x.id!==w.id))} variant="danger" small>✕</Btn></div>
+        </div>
+        <div style={{color:C.white,fontWeight:700,fontSize:15,marginBottom:3}}>{w.athleteName||"Anonymous Athlete"}</div>
+        <div style={{color:w.featured?C.gold:C.teal,fontSize:13,lineHeight:1.5,marginBottom:8}}>{w.achievement}</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>{w.sport&&<Badge color={C.blue}>{w.sport}</Badge>}<Badge color={C.muted}>{w.date}</Badge></div>
+        <Btn onClick={()=>saveWins(prev=>prev.map(x=>x.id===w.id?{...x,featured:!x.featured}:x))} variant={w.featured?"ghost":"gold"} small full>{w.featured?"Unfeature":"⭐ Feature on Landing"}</Btn>
+      </Card>)}
+    </div>}
+    <Modal show={showAdd} onClose={()=>setShowAdd(false)} title="ADD WIN">
+      <div style={{display:"flex",flexDirection:"column",gap:11}}>
+        <Inp label="ATHLETE NAME" value={form.athleteName} onChange={v=>setForm(p=>({...p,athleteName:v}))} placeholder="Marcus Webb"/>
+        <Inp label="ACHIEVEMENT" value={form.achievement} onChange={v=>setForm(p=>({...p,achievement:v}))} placeholder="Signed with GFL Berlin Thunder" rows={2}/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <Inp label="SPORT" value={form.sport} onChange={v=>setForm(p=>({...p,sport:v}))} placeholder="Football"/>
+          <Inp label="DATE" value={form.date} onChange={v=>setForm(p=>({...p,date:v}))} type="date"/>
+        </div>
+        <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}><input type="checkbox" checked={form.featured} onChange={e=>setForm(p=>({...p,featured:e.target.checked}))} style={{accentColor:C.gold}}/><span style={{color:C.white,fontSize:13}}>Feature on landing page</span></label>
+        <Btn onClick={addWin} disabled={!form.achievement} full>Add Win</Btn>
+      </div>
+    </Modal>
+  </div>;
+}
+
+// ── PublicProfile ──────────────────────────────────
+function PublicProfile({athleteId,athletes,onEnter}){
+  const a=athletes.find(x=>String(x.id)===String(athleteId));
+  const stats=a?.stats||{};
+  const statKeys=Object.keys(stats).filter(k=>stats[k]);
+  if(!a)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif",padding:20}}><div style={{fontSize:48,marginBottom:16}}>🔍</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8,textAlign:"center"}}>PROFILE NOT FOUND</div><div style={{color:C.muted,fontSize:14,marginBottom:24,textAlign:"center"}}>This athlete profile doesn't exist or is private.</div><Btn onClick={onEnter} variant="gold">Join AthleteVault →</Btn></div>;
+  return <div style={{minHeight:"100vh",background:C.black,fontFamily:"'Sora',sans-serif",padding:"0 0 60px 0"}}>
+    <TronBg/>
+    <div style={{position:"relative",zIndex:1,maxWidth:740,margin:"0 auto",padding:"24px 16px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:900,color:C.white,letterSpacing:3}}>ATHLETEVAULT</div>
+        <Btn onClick={onEnter} small variant="gold">Join Free →</Btn>
+      </div>
+      <Card glow color={C.accent} style={{marginBottom:16,overflow:"hidden",padding:0}}>
+        <div style={{height:90,background:`linear-gradient(135deg,${C.accent}33,${C.gold}22)`,position:"relative"}}><div className="tron-grid-bg" style={{position:"absolute",inset:0,opacity:.4}}/></div>
+        <div style={{padding:"0 24px 24px",marginTop:-44}}>
+          <div style={{display:"inline-block",padding:4,borderRadius:"50%",background:C.card,border:`3px solid ${C.accent}`,marginBottom:12,boxShadow:`0 0 24px ${C.accent}44`}}>
+            <Avatar name={a.name} size={68} color={C.accent} verified={a.verified}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",flexWrap:"wrap",gap:10}}>
+            <div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:34,fontWeight:900,color:C.white,letterSpacing:1,lineHeight:1}}>{a.name}</div>
+              <div style={{color:C.accent,fontWeight:700,fontSize:14,marginTop:4}}>{a.sport}</div>
+              {a.school&&<div style={{color:C.muted,fontSize:13,marginTop:2}}>{a.school}</div>}
+            </div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              {a.verified&&<Badge color={C.blue}>✓ VERIFIED</Badge>}
+              {a.inPortal&&<Badge color={C.gold}>🔄 IN PORTAL</Badge>}
+              {a.featured&&<Badge color={C.purple}>⭐ FEATURED</Badge>}
+            </div>
+          </div>
+        </div>
+      </Card>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:16}}>
+        <Stat icon="👥" label="FOLLOWERS" value={fmt(a.followers||0)} color={C.blue}/>
+        <Stat icon="👁️" label="PROFILE VIEWS" value={fmt(a.profileViews||0)} color={C.gold}/>
+        <Stat icon="📍" label="LOCATION" value={`${a.city||""}${a.country&&a.city?", ":""}${a.country||""}`||"—"} color={C.teal}/>
+      </div>
+      {a.bio&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:8}}>ABOUT</div><p style={{color:C.white,fontSize:14,lineHeight:1.7,margin:0}}>{a.bio}</p></Card>}
+      {statKeys.length>0&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>COMBINE / ACADEMIC STATS</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>{statKeys.map(k=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12,textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1")}</span><span style={{color:C.white,fontWeight:700,fontFamily:"DM Mono,monospace",fontSize:13}}>{stats[k]}</span></div>)}</div></Card>}
+      <Card glow color={C.gold} style={{textAlign:"center",padding:28}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:C.white,letterSpacing:1,marginBottom:8}}>CONNECT WITH {a.name.split(" ")[0].toUpperCase()}</div>
+        <p style={{color:C.mutedHi,fontSize:13,marginBottom:16}}>Join AthleteVault to message athletes, recruit talent, and find your next opportunity. Free to start.</p>
+        <Btn onClick={onEnter} variant="gold" full>Join AthleteVault Free →</Btn>
+      </Card>
+    </div>
+  </div>;
+}
+
 export default function App(){
   const [athletes,saveAthletes,aReady]=useStore("av_ath_v1",SEED_ATHLETES);
   const [coaches,saveCoaches,cReady]=useStore("av_coa_v1",SEED_COACHES);
@@ -2611,15 +2870,18 @@ export default function App(){
   const [logs,saveLogs]=useStore("av_logs_v1",SEED_LOGS);
   const [termsOk,setTermsOk]=useStore("av_terms_accepted_v1",false);
   const [session,setSession]=useState(null);
-  const [showLanding,setShowLanding]=useState(()=>!window.location.hash.includes("login"));
+  const [showLanding,setShowLanding]=useState(()=>{const h=window.location.hash;return !h.includes("login")&&!h.match(/#\/p\/\d+/);});
   const [tab,setTab]=useState("home");
+  const publicProfileMatch=window.location.hash.match(/#\/p\/(\d+)/);
+  const publicProfileId=publicProfileMatch?publicProfileMatch[1]:null;
 
   const addLog=useCallback(entry=>saveLogs(prev=>[{id:Date.now(),ts:stamp(),...entry},...prev.slice(0,199)]),[saveLogs]);
 
   const ready=aReady&&cReady&&msgReady&&sReady;
   if(!ready)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}><div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${C.gold},${C.goldDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:C.black,animation:"pulse 2s ease-in-out infinite"}}>AV</div><div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:12,letterSpacing:2}}>LOADING…</div><style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style></div>;
 
-  if(showLanding&&!session)return <MarketingPage onEnter={()=>{setShowLanding(false);window.location.hash="login";}} settings={settings}/>;
+  if(publicProfileId)return <PublicProfile athleteId={publicProfileId} athletes={athletes} onEnter={()=>{window.location.hash="login";window.location.reload();}}/>;
+  if(showLanding&&!session)return <MarketingPage onEnter={()=>{setShowLanding(false);window.location.hash="login";}} settings={settings} athletes={athletes}/>;
   if(!termsOk)return <OnboardingTerms onAccept={()=>setTermsOk(true)}/>;
   if(!session)return <Login onSuccess={(role,user)=>{setSession({role,user});setTab("home");addLog({action:"Login",detail:`${role} ${user?.name||"owner"}`,level:"info"});}} athletes={athletes} coaches={coaches} settings={settings}/>;
 
@@ -2649,6 +2911,7 @@ export default function App(){
       if(tab==="revenue")return <ORevenue athletes={athletes} coaches={coaches}/>;
       if(tab==="ai")return <OAITools athletes={athletes} saveAthletes={saveAthletes} addLog={addLog}/>;
       if(tab==="outreach")return <OOutreach athletes={athletes} saveAthletes={saveAthletes} addLog={addLog}/>;
+      if(tab==="wins")return <OWins/>;
       if(tab==="growth")return <OGrowth addLog={addLog}/>;
       if(tab==="referrals")return <OReferrals athletes={athletes} coaches={coaches} settings={settings} saveSettings={saveSettings}/>;
       if(tab==="discounts")return <ODiscounts settings={settings} saveSettings={saveSettings} addLog={addLog}/>;
@@ -2669,6 +2932,8 @@ export default function App(){
       if(tab==="brands")return <ABrands athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
       if(tab==="coaches")return <ACoachNetwork athlete={liveUser} coaches={coaches} saveAthletes={saveAthletes}/>;
       if(tab==="money")return <AMoney athlete={liveUser}/>;
+      if(tab==="stats")return <AStats athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
+      if(tab==="niltracker")return <ANILTracker athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
       if(tab==="nil")return <ANIL/>;
       if(tab==="coaching")return <CoachingHub athlete={liveUser} coaches={coaches} athletes={athletes} messages={messages} saveMessages={saveMessages} saveAthletes={saveAthletes}/>;
       if(tab==="profile")return <AProfile athlete={liveUser} saveAthletes={saveAthletes}/>;
