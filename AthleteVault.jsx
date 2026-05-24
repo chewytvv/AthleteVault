@@ -228,14 +228,112 @@ const SCHOOL_CONTACTS={
   18:{applyUrl:"https://kilgore.edu/admissions",athleticsUrl:"https://kcranger.com",recruitingEmail:"athletics@kilgore.edu",jobsUrl:"https://kcranger.com/staff-directory"},
   19:{applyUrl:"https://blinn.edu/admissions",athleticsUrl:"https://blinnathletics.com",recruitingEmail:"athletics@blinn.edu",jobsUrl:"https://blinnathletics.com/staff-directory"},
   20:{applyUrl:"https://benedictine.edu/admissions/apply",athleticsUrl:"https://bcravens.com",recruitingEmail:"athletics@benedictine.edu",jobsUrl:"https://bcravens.com/staff-directory"},
+  // SEC (continued)
+  21:{applyUrl:"https://auburn.edu/admissions",athleticsUrl:"https://auburntigers.com",recruitingEmail:"athletics@auburn.edu",jobsUrl:"https://auburntigers.com/staff-directory"},
+  22:{applyUrl:"https://admissions.utk.edu",athleticsUrl:"https://utsports.com",recruitingEmail:"athletics@utk.edu",jobsUrl:"https://utsports.com/staff-directory"},
+  23:{applyUrl:"https://admissions.olemiss.edu",athleticsUrl:"https://olemisssports.com",recruitingEmail:"athletics@olemiss.edu",jobsUrl:"https://olemisssports.com/staff-directory"},
+  24:{applyUrl:"https://admissions.msstate.edu",athleticsUrl:"https://hailstate.com",recruitingEmail:"athletics@msstate.edu",jobsUrl:"https://hailstate.com/staff-directory"},
+  25:{applyUrl:"https://admissions.uark.edu",athleticsUrl:"https://razorbacksports.com",recruitingEmail:"athletics@uark.edu",jobsUrl:"https://razorbacksports.com/staff-directory"},
+  26:{applyUrl:"https://admissions.sc.edu",athleticsUrl:"https://gamecocksonline.com",recruitingEmail:"athletics@sc.edu",jobsUrl:"https://gamecocksonline.com/staff-directory"},
+  27:{applyUrl:"https://admissions.missouri.edu",athleticsUrl:"https://mutigers.com",recruitingEmail:"athletics@missouri.edu",jobsUrl:"https://mutigers.com/staff-directory"},
+  28:{applyUrl:"https://admissions.vanderbilt.edu",athleticsUrl:"https://vucommodores.com",recruitingEmail:"athletics@vanderbilt.edu",jobsUrl:"https://vucommodores.com/staff-directory"},
+  29:{applyUrl:"https://www.uky.edu/admissions",athleticsUrl:"https://ukathletics.com",recruitingEmail:"athletics@uky.edu",jobsUrl:"https://ukathletics.com/staff-directory"},
+  30:{applyUrl:"https://www.ou.edu/admissions",athleticsUrl:"https://soonersports.com",recruitingEmail:"athletics@ou.edu",jobsUrl:"https://soonersports.com/staff-directory"},
+  // Big Ten
+  31:{applyUrl:"https://admissions.umich.edu",athleticsUrl:"https://mgoblue.com",recruitingEmail:"athletics@umich.edu",jobsUrl:"https://mgoblue.com/staff-directory"},
+  32:{applyUrl:"https://admissions.psu.edu",athleticsUrl:"https://gopsusports.com",recruitingEmail:"athletics@psu.edu",jobsUrl:"https://gopsusports.com/staff-directory"},
+  33:{applyUrl:"https://admissions.msu.edu",athleticsUrl:"https://msuspartans.com",recruitingEmail:"athletics@msu.edu",jobsUrl:"https://msuspartans.com/staff-directory"},
+  34:{applyUrl:"https://admissions.uiowa.edu",athleticsUrl:"https://hawkeyesports.com",recruitingEmail:"athletics@uiowa.edu",jobsUrl:"https://hawkeyesports.com/staff-directory"},
+  35:{applyUrl:"https://admissions.wisc.edu",athleticsUrl:"https://uwbadgers.com",recruitingEmail:"athletics@wisc.edu",jobsUrl:"https://uwbadgers.com/staff-directory"},
+  36:{applyUrl:"https://admissions.umn.edu",athleticsUrl:"https://gophersports.com",recruitingEmail:"athletics@umn.edu",jobsUrl:"https://gophersports.com/staff-directory"},
+  37:{applyUrl:"https://admissions.unl.edu",athleticsUrl:"https://huskers.com",recruitingEmail:"athletics@unl.edu",jobsUrl:"https://huskers.com/staff-directory"},
+  38:{applyUrl:"https://admissions.umd.edu",athleticsUrl:"https://umterps.com",recruitingEmail:"athletics@umd.edu",jobsUrl:"https://umterps.com/staff-directory"},
+  39:{applyUrl:"https://admissions.rutgers.edu",athleticsUrl:"https://scarletknights.com",recruitingEmail:"athletics@rutgers.edu",jobsUrl:"https://scarletknights.com/staff-directory"},
+  40:{applyUrl:"https://admissions.indiana.edu",athleticsUrl:"https://iuhoosiers.com",recruitingEmail:"athletics@indiana.edu",jobsUrl:"https://iuhoosiers.com/staff-directory"},
+  41:{applyUrl:"https://admissions.illinois.edu",athleticsUrl:"https://fightingillini.com",recruitingEmail:"athletics@illinois.edu",jobsUrl:"https://fightingillini.com/staff-directory"},
+  42:{applyUrl:"https://admissions.purdue.edu",athleticsUrl:"https://purduesports.com",recruitingEmail:"athletics@purdue.edu",jobsUrl:"https://purduesports.com/staff-directory"},
+  43:{applyUrl:"https://admissions.northwestern.edu",athleticsUrl:"https://nusports.com",recruitingEmail:"athletics@northwestern.edu",jobsUrl:"https://nusports.com/staff-directory"},
+  44:{applyUrl:"https://admissions.ucla.edu",athleticsUrl:"https://uclabruins.com",recruitingEmail:"athletics@ucla.edu",jobsUrl:"https://uclabruins.com/staff-directory"},
+  45:{applyUrl:"https://admission.usc.edu",athleticsUrl:"https://usctrojans.com",recruitingEmail:"athletics@usc.edu",jobsUrl:"https://usctrojans.com/staff-directory"},
+  46:{applyUrl:"https://admissions.washington.edu",athleticsUrl:"https://gohuskies.com",recruitingEmail:"athletics@washington.edu",jobsUrl:"https://gohuskies.com/staff-directory"},
+  // ACC
+  47:{applyUrl:"https://admissions.clemson.edu",athleticsUrl:"https://clemsontigers.com",recruitingEmail:"athletics@clemson.edu",jobsUrl:"https://clemsontigers.com/staff-directory"},
+  48:{applyUrl:"https://admissions.fsu.edu",athleticsUrl:"https://seminoles.com",recruitingEmail:"athletics@fsu.edu",jobsUrl:"https://seminoles.com/staff-directory"},
+  49:{applyUrl:"https://admissions.miami.edu",athleticsUrl:"https://hurricanesports.com",recruitingEmail:"athletics@miami.edu",jobsUrl:"https://hurricanesports.com/staff-directory"},
+  50:{applyUrl:"https://admissions.duke.edu",athleticsUrl:"https://goduke.com",recruitingEmail:"athletics@duke.edu",jobsUrl:"https://goduke.com/staff-directory"},
+  51:{applyUrl:"https://admissions.unc.edu",athleticsUrl:"https://goheels.com",recruitingEmail:"athletics@unc.edu",jobsUrl:"https://goheels.com/staff-directory"},
+  52:{applyUrl:"https://admissions.ncsu.edu",athleticsUrl:"https://gopack.com",recruitingEmail:"athletics@ncsu.edu",jobsUrl:"https://gopack.com/staff-directory"},
+  53:{applyUrl:"https://admission.gatech.edu",athleticsUrl:"https://ramblinwreck.com",recruitingEmail:"athletics@gatech.edu",jobsUrl:"https://ramblinwreck.com/staff-directory"},
+  54:{applyUrl:"https://admissions.virginia.edu",athleticsUrl:"https://virginiasports.com",recruitingEmail:"athletics@virginia.edu",jobsUrl:"https://virginiasports.com/staff-directory"},
+  55:{applyUrl:"https://admissions.vt.edu",athleticsUrl:"https://hokiesports.com",recruitingEmail:"athletics@vt.edu",jobsUrl:"https://hokiesports.com/staff-directory"},
+  56:{applyUrl:"https://admissions.syracuse.edu",athleticsUrl:"https://cuse.com",recruitingEmail:"athletics@syr.edu",jobsUrl:"https://cuse.com/staff-directory"},
+  57:{applyUrl:"https://admissions.louisville.edu",athleticsUrl:"https://gocards.com",recruitingEmail:"athletics@louisville.edu",jobsUrl:"https://gocards.com/staff-directory"},
+  58:{applyUrl:"https://admissions.pitt.edu",athleticsUrl:"https://pittsburghpanthers.com",recruitingEmail:"athletics@pitt.edu",jobsUrl:"https://pittsburghpanthers.com/staff-directory"},
+  59:{applyUrl:"https://admission.stanford.edu",athleticsUrl:"https://gostanford.com",recruitingEmail:"athletics@stanford.edu",jobsUrl:"https://gostanford.com/staff-directory"},
+  60:{applyUrl:"https://admissions.bc.edu",athleticsUrl:"https://bceagles.com",recruitingEmail:"athletics@bc.edu",jobsUrl:"https://bceagles.com/staff-directory"},
+  61:{applyUrl:"https://admissions.wfu.edu",athleticsUrl:"https://godeacs.com",recruitingEmail:"athletics@wfu.edu",jobsUrl:"https://godeacs.com/staff-directory"},
+  // Big 12
+  62:{applyUrl:"https://admissions.okstate.edu",athleticsUrl:"https://okstate.com",recruitingEmail:"athletics@okstate.edu",jobsUrl:"https://okstate.com/staff-directory"},
+  63:{applyUrl:"https://admissions.ku.edu",athleticsUrl:"https://kuathletics.com",recruitingEmail:"athletics@ku.edu",jobsUrl:"https://kuathletics.com/staff-directory"},
+  64:{applyUrl:"https://admissions.k-state.edu",athleticsUrl:"https://kstatesports.com",recruitingEmail:"athletics@ksu.edu",jobsUrl:"https://kstatesports.com/staff-directory"},
+  65:{applyUrl:"https://admissions.iastate.edu",athleticsUrl:"https://cyclones.com",recruitingEmail:"athletics@iastate.edu",jobsUrl:"https://cyclones.com/staff-directory"},
+  66:{applyUrl:"https://admissions.tcu.edu",athleticsUrl:"https://gofrogs.com",recruitingEmail:"athletics@tcu.edu",jobsUrl:"https://gofrogs.com/staff-directory"},
+  67:{applyUrl:"https://admissions.baylor.edu",athleticsUrl:"https://baylorbears.com",recruitingEmail:"athletics@baylor.edu",jobsUrl:"https://baylorbears.com/staff-directory"},
+  68:{applyUrl:"https://admissions.wvu.edu",athleticsUrl:"https://wvusports.com",recruitingEmail:"athletics@wvu.edu",jobsUrl:"https://wvusports.com/staff-directory"},
+  69:{applyUrl:"https://admissions.uc.edu",athleticsUrl:"https://gobearcats.com",recruitingEmail:"athletics@uc.edu",jobsUrl:"https://gobearcats.com/staff-directory"},
+  70:{applyUrl:"https://admissions.byu.edu",athleticsUrl:"https://byucougars.com",recruitingEmail:"athletics@byu.edu",jobsUrl:"https://byucougars.com/staff-directory"},
+  71:{applyUrl:"https://uh.edu/admissions",athleticsUrl:"https://uhcougars.com",recruitingEmail:"athletics@uh.edu",jobsUrl:"https://uhcougars.com/staff-directory"},
+  72:{applyUrl:"https://admissions.ucf.edu",athleticsUrl:"https://ucfknights.com",recruitingEmail:"athletics@ucf.edu",jobsUrl:"https://ucfknights.com/staff-directory"},
+  73:{applyUrl:"https://admissions.arizona.edu",athleticsUrl:"https://arizonawildcats.com",recruitingEmail:"athletics@arizona.edu",jobsUrl:"https://arizonawildcats.com/staff-directory"},
+  74:{applyUrl:"https://admissions.asu.edu",athleticsUrl:"https://thesundevils.com",recruitingEmail:"athletics@asu.edu",jobsUrl:"https://thesundevils.com/staff-directory"},
+  75:{applyUrl:"https://admissions.colorado.edu",athleticsUrl:"https://cubuffs.com",recruitingEmail:"athletics@colorado.edu",jobsUrl:"https://cubuffs.com/staff-directory"},
+  76:{applyUrl:"https://admissions.utah.edu",athleticsUrl:"https://utahutes.com",recruitingEmail:"athletics@utah.edu",jobsUrl:"https://utahutes.com/staff-directory"},
+  // Other D1
+  77:{applyUrl:"https://admissions.boisestate.edu",athleticsUrl:"https://broncosports.com",recruitingEmail:"athletics@boisestate.edu",jobsUrl:"https://broncosports.com/staff-directory"},
+  78:{applyUrl:"https://admissions.sdsu.edu",athleticsUrl:"https://goaztecs.com",recruitingEmail:"athletics@sdsu.edu",jobsUrl:"https://goaztecs.com/staff-directory"},
+  79:{applyUrl:"https://admissions.memphis.edu",athleticsUrl:"https://gotigersgo.com",recruitingEmail:"athletics@memphis.edu",jobsUrl:"https://gotigersgo.com/staff-directory"},
+  80:{applyUrl:"https://admissions.tulane.edu",athleticsUrl:"https://tulanegreenwave.com",recruitingEmail:"athletics@tulane.edu",jobsUrl:"https://tulanegreenwave.com/staff-directory"},
+  81:{applyUrl:"https://admissions.usma.edu",athleticsUrl:"https://goarmywestpoint.com",recruitingEmail:"athletics@usma.edu",jobsUrl:"https://goarmywestpoint.com/staff-directory"},
+  82:{applyUrl:"https://www.usna.edu/Admissions",athleticsUrl:"https://navysports.com",recruitingEmail:"athletics@usna.edu",jobsUrl:"https://navysports.com/staff-directory"},
+  83:{applyUrl:"https://admissions.usafa.edu",athleticsUrl:"https://goairforcefalcons.com",recruitingEmail:"athletics@usafa.edu",jobsUrl:"https://goairforcefalcons.com/staff-directory"},
+  84:{applyUrl:"https://utep.edu/admissions",athleticsUrl:"https://miners.utep.edu",recruitingEmail:"athletics@utep.edu",jobsUrl:"https://miners.utep.edu/staff-directory"},
+  85:{applyUrl:"https://admissions.utsa.edu",athleticsUrl:"https://utsaroadrunners.com",recruitingEmail:"athletics@utsa.edu",jobsUrl:"https://utsaroadrunners.com/staff-directory"},
+  86:{applyUrl:"https://admissions.unt.edu",athleticsUrl:"https://meangreensports.com",recruitingEmail:"athletics@unt.edu",jobsUrl:"https://meangreensports.com/staff-directory"},
+  87:{applyUrl:"https://shsu.edu/admissions",athleticsUrl:"https://gobearkats.com",recruitingEmail:"athletics@shsu.edu",jobsUrl:"https://gobearkats.com/staff-directory"},
+  88:{applyUrl:"https://admissions.appstate.edu",athleticsUrl:"https://appstatesports.com",recruitingEmail:"athletics@appstate.edu",jobsUrl:"https://appstatesports.com/staff-directory"},
+  89:{applyUrl:"https://louisiana.edu/admissions",athleticsUrl:"https://ragincajuns.com",recruitingEmail:"athletics@louisiana.edu",jobsUrl:"https://ragincajuns.com/staff-directory"},
+  90:{applyUrl:"https://admissions.georgiasouthern.edu",athleticsUrl:"https://gseagles.com",recruitingEmail:"athletics@georgiasouthern.edu",jobsUrl:"https://gseagles.com/staff-directory"},
+  91:{applyUrl:"https://admissions.txst.edu",athleticsUrl:"https://txstatebobcats.com",recruitingEmail:"athletics@txst.edu",jobsUrl:"https://txstatebobcats.com/staff-directory"},
+  92:{applyUrl:"https://admissions.fau.edu",athleticsUrl:"https://fausports.com",recruitingEmail:"athletics@fau.edu",jobsUrl:"https://fausports.com/staff-directory"},
+  // HBCUs
+  93:{applyUrl:"https://admissions.ncat.edu",athleticsUrl:"https://ncataggies.com",recruitingEmail:"athletics@ncat.edu",jobsUrl:"https://ncataggies.com/staff-directory"},
+  94:{applyUrl:"https://www.morgan.edu/admissions",athleticsUrl:"https://morganstatebears.com",recruitingEmail:"athletics@morgan.edu",jobsUrl:"https://morganstatebears.com/staff-directory"},
+  95:{applyUrl:"https://hamptonu.edu/admissions",athleticsUrl:"https://hamptonpirates.com",recruitingEmail:"athletics@hamptonu.edu",jobsUrl:"https://hamptonpirates.com/staff-directory"},
+  96:{applyUrl:"https://www.cookman.edu/admissions",athleticsUrl:"https://bcuwildcats.com",recruitingEmail:"athletics@cookman.edu",jobsUrl:"https://bcuwildcats.com/staff-directory"},
+  97:{applyUrl:"https://www.alcorn.edu/admissions",athleticsUrl:"https://alcornsports.com",recruitingEmail:"athletics@alcorn.edu",jobsUrl:"https://alcornsports.com/staff-directory"},
+  98:{applyUrl:"https://www.subr.edu/admissions",athleticsUrl:"https://sujaguars.com",recruitingEmail:"athletics@subr.edu",jobsUrl:"https://sujaguars.com/staff-directory"},
+  99:{applyUrl:"https://nsu.edu/admissions",athleticsUrl:"https://nsuspartans.com",recruitingEmail:"athletics@nsu.edu",jobsUrl:"https://nsuspartans.com/staff-directory"},
+  100:{applyUrl:"https://www.tuskegee.edu/admissions",athleticsUrl:"https://tuskegeetigers.com",recruitingEmail:"athletics@tuskegee.edu",jobsUrl:"https://tuskegeetigers.com/staff-directory"},
+  // D2 / NAIA / JUCO
+  101:{applyUrl:"https://admissions.gvsu.edu",athleticsUrl:"https://athletics.gvsu.edu",recruitingEmail:"athletics@gvsu.edu",jobsUrl:"https://athletics.gvsu.edu/staff-directory"},
+  102:{applyUrl:"https://www.angelo.edu/admissions",athleticsUrl:"https://ramsports.net",recruitingEmail:"athletics@angelo.edu",jobsUrl:"https://ramsports.net/staff-directory"},
+  103:{applyUrl:"https://www.wtamu.edu/admissions",athleticsUrl:"https://wtamusports.com",recruitingEmail:"athletics@wtamu.edu",jobsUrl:"https://wtamusports.com/staff-directory"},
+  104:{applyUrl:"https://admissions.valdosta.edu",athleticsUrl:"https://vstateblazers.com",recruitingEmail:"athletics@valdosta.edu",jobsUrl:"https://vstateblazers.com/staff-directory"},
+  105:{applyUrl:"https://www.ferris.edu/admissions",athleticsUrl:"https://ferrisstatebulldogs.com",recruitingEmail:"athletics@ferris.edu",jobsUrl:"https://ferrisstatebulldogs.com/staff-directory"},
+  106:{applyUrl:"https://www.morningside.edu/admissions",athleticsUrl:"https://morningstsidemustangs.com",recruitingEmail:"athletics@morningside.edu",jobsUrl:"https://morningsidemustangs.com/staff-directory"},
+  107:{applyUrl:"https://www.lindsey.edu/admissions",athleticsUrl:"https://lindseywilson.com/sports",recruitingEmail:"athletics@lindsey.edu",jobsUrl:"https://lindseywilson.com/sports/staff"},
+  108:{applyUrl:"https://www.tjc.edu/admissions",athleticsUrl:"https://tjcapaches.com",recruitingEmail:"athletics@tjc.edu",jobsUrl:"https://tjcapaches.com/staff-directory"},
+  109:{applyUrl:"https://www.navarrocollege.edu/admissions",athleticsUrl:"https://navarrocollege.edu/athletics",recruitingEmail:"athletics@navarrocollege.edu",jobsUrl:"https://navarrocollege.edu/athletics/staff"},
+  110:{applyUrl:"https://www.iowawestern.edu/admissions",athleticsUrl:"https://iowawesternreivers.com",recruitingEmail:"athletics@iowawestern.edu",jobsUrl:"https://iowawesternreivers.com/staff-directory"},
+  111:{applyUrl:"https://www.hutchcc.edu/admissions",athleticsUrl:"https://hutchcc.edu/athletics",recruitingEmail:"athletics@hutchcc.edu",jobsUrl:"https://hutchcc.edu/athletics/staff"},
 };
 // ── Seed Data ──────────────────────────────────
 const SEED_ATHLETES=[
-  {id:1,role:"athlete",name:"Marcus Webb",sport:"Football",school:"Undrafted – C-USA",followers:4200,tier:"rookie",mrr:29,status:"active",joined:"2026-01-12",email:"marcus@email.com",phone:"",country:"United States",state:"Texas",city:"Houston",bio:"WR with speed and route-running. Looking for overseas opportunities.",coachSent:3,brandSent:5,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:47,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
-  {id:2,role:"athlete",name:"Jaylen Cross",sport:"Basketball",school:"HBCU – MEAC",followers:11800,tier:"pro",mrr:79,status:"active",joined:"2026-01-20",email:"jaylen@email.com",phone:"",country:"United States",state:"Georgia",city:"Atlanta",bio:"PG 6'2\". HBCU standout targeting pro opportunities in Europe or Asia.",coachSent:8,brandSent:14,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:132,notifications:[],verified:true,pinnedStats:[],achievements:[],following:[],followers_list:[]},
-  {id:3,role:"athlete",name:"Deja Monroe",sport:"Track",school:"D2 – GLIAC",followers:2100,tier:"rookie",mrr:29,status:"active",joined:"2026-02-03",email:"deja@email.com",phone:"",country:"United States",state:"Michigan",city:"Detroit",bio:"Sprinter 100m/200m. NCAA D2 record holder.",coachSent:2,brandSent:3,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:28,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
-  {id:4,role:"athlete",name:"Chris Okafor",sport:"Football",school:"GFL1 – Germany",followers:8400,tier:"pro",mrr:79,status:"active",joined:"2026-02-11",email:"chris@email.com",phone:"",country:"Germany",state:"",city:"Berlin",bio:"DB in GFL1 Germany. UTEP alum. Experienced internationally.",coachSent:9,brandSent:11,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:89,notifications:[],verified:true,pinnedStats:[],achievements:[],following:[],followers_list:[]},
-  {id:5,role:"athlete",name:"Aaliyah Stone",sport:"Soccer",school:"NWSL Hopeful",followers:6700,tier:"rising",mrr:49,status:"active",joined:"2026-02-28",email:"aaliyah@email.com",phone:"",country:"United States",state:"California",city:"Los Angeles",bio:"Forward, 30 goals last season. Targeting NWSL or European club.",coachSent:5,brandSent:7,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:61,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
+  {id:1,role:"athlete",name:"Marcus Webb",sport:"Football",school:"Undrafted – C-USA",followers:4200,tier:"rookie",mrr:29,plan:"pro",highlightUrl:"",status:"active",joined:"2026-01-12",email:"marcus@email.com",phone:"",country:"United States",state:"Texas",city:"Houston",bio:"WR with speed and route-running. Looking for overseas opportunities.",coachSent:3,brandSent:5,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:47,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
+  {id:2,role:"athlete",name:"Jaylen Cross",sport:"Basketball",school:"HBCU – MEAC",followers:11800,tier:"pro",mrr:79,plan:"pro",highlightUrl:"",status:"active",joined:"2026-01-20",email:"jaylen@email.com",phone:"",country:"United States",state:"Georgia",city:"Atlanta",bio:"PG 6'2\". HBCU standout targeting pro opportunities in Europe or Asia.",coachSent:8,brandSent:14,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:132,notifications:[],verified:true,pinnedStats:[],achievements:[],following:[],followers_list:[]},
+  {id:3,role:"athlete",name:"Deja Monroe",sport:"Track",school:"D2 – GLIAC",followers:2100,tier:"rookie",mrr:29,plan:"pro",highlightUrl:"",status:"active",joined:"2026-02-03",email:"deja@email.com",phone:"",country:"United States",state:"Michigan",city:"Detroit",bio:"Sprinter 100m/200m. NCAA D2 record holder.",coachSent:2,brandSent:3,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:28,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
+  {id:4,role:"athlete",name:"Chris Okafor",sport:"Football",school:"GFL1 – Germany",followers:8400,tier:"pro",mrr:79,plan:"pro",highlightUrl:"",status:"active",joined:"2026-02-11",email:"chris@email.com",phone:"",country:"Germany",state:"",city:"Berlin",bio:"DB in GFL1 Germany. UTEP alum. Experienced internationally.",coachSent:9,brandSent:11,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:89,notifications:[],verified:true,pinnedStats:[],achievements:[],following:[],followers_list:[]},
+  {id:5,role:"athlete",name:"Aaliyah Stone",sport:"Soccer",school:"NWSL Hopeful",followers:6700,tier:"rising",mrr:49,plan:"pro",highlightUrl:"",status:"active",joined:"2026-02-28",email:"aaliyah@email.com",phone:"",country:"United States",state:"California",city:"Los Angeles",bio:"Forward, 30 goals last season. Targeting NWSL or European club.",coachSent:5,brandSent:7,videos:[],deals:[],passwordHash:"",privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:61,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[]},
 ];
 const SEED_COACHES=[
   {id:101,role:"coach",name:"Coach Ray Thompson",sport:"Football",org:"Texas Southern University",title:"Offensive Coordinator",email:"rthompson@tsu.edu",phone:"(713)555-0182",country:"United States",state:"Texas",city:"Houston",twitter:"@CoachRayTSU",instagram:"@coachray_tsu",linkedin:"linkedin.com/in/raythompson",bio:"15 years developing skill positions. Looking for WRs and DBs.",recruitingRegions:["United States","Germany","Canada"],status:"active",joined:"2026-01-05",passwordHash:"",privacy:{...DEF_C_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:34,notifications:[],verified:true,coachVideos:[],liveSessions:[],stripeConnected:false,earnings:0},
@@ -698,36 +796,53 @@ function Messaging({me,athletes,coaches,saveAthletes,saveCoaches,messages,saveMe
 // ═══════════════════════════════════════════════
 //  LOGIN + SIDEBAR + NOTIFICATIONS + PRIVACY
 // ═══════════════════════════════════════════════
-function SignupModal({show,onClose,settings}){
+function SignupModal({show,onClose,settings,onFreeSignup}){
   const[role,setRole]=useState("athlete");
   const[name,setName]=useState("");
   const[email,setEmail]=useState("");
+  const[pass,setPass]=useState("");
+  const[sport,setSport]=useState("Football");
   const[tier,setTier]=useState("rookie");
+  const[planType,setPlanType]=useState("paid");
   const[loading,setLoading]=useState(false);
   const rp=settings?.rookiePrice||29;
   const sp=settings?.risingPrice||49;
   const pp=settings?.proPrice||79;
   const cp=settings?.coachPrice||49;
   const prices={rookie:rp,rising:sp,pro:pp};
-  const descs={rookie:"School search, Euro teams, NIL basics",rising:"AI roadmap, content vault, brand deals",pro:"Full suite, overseas pitch, priority support"};
-  async function go(){
+  const descs={rookie:"School contacts, Euro teams, messaging, NIL basics",rising:"AI roadmap, content vault, brand deals, priority support",pro:"Full suite, overseas pitch, coaching hub, NIL tracker"};
+  async function goPaid(){
     if(!name||!email)return;
     setLoading(true);
     await startCheckout(role==="coach"?"coach":tier,email,name,role);
     setLoading(false);
   }
+  function goFree(){
+    if(!name||!email||!pass)return;
+    onFreeSignup&&onFreeSignup({name,email,password:pass,sport,role});
+    onClose();
+  }
   const planPrice=role==="coach"?cp:prices[tier];
-  return React.createElement(Modal,{show,onClose,title:"JOIN ATHLETEVAULT",maxW:480},
-    React.createElement("div",{style:{display:"flex",gap:8,marginBottom:16}},
+  return React.createElement(Modal,{show,onClose,title:"JOIN ATHLETEVAULT",maxW:500},
+    React.createElement("div",{style:{display:"flex",gap:8,marginBottom:14}},
       ["athlete","coach"].map(r=>React.createElement("button",{key:r,onClick:()=>setRole(r),style:{flex:1,padding:"10px",borderRadius:7,border:"1px solid "+(role===r?C.accent:C.border),background:role===r?C.accentGlow:"transparent",color:role===r?C.accent:C.muted,fontWeight:700,cursor:"pointer",fontSize:13,letterSpacing:1,textTransform:"uppercase"}},r))
+    ),
+    React.createElement("div",{style:{display:"flex",gap:6,marginBottom:14}},
+      [{v:"free",l:"Free Recruiting Profile"},{v:"paid",l:"Pro — Full Access"}].map(({v,l})=>React.createElement("button",{key:v,onClick:()=>setPlanType(v),style:{flex:1,padding:"9px 12px",borderRadius:7,border:"1px solid "+(planType===v?(v==="paid"?C.gold:C.green):C.border),background:planType===v?(v==="paid"?C.goldGlow:C.green+"11"):"transparent",color:planType===v?(v==="paid"?C.gold:C.green):C.muted,fontWeight:700,cursor:"pointer",fontSize:12}},l))
+    ),
+    planType==="free"&&React.createElement("div",{style:{background:C.green+"11",border:`1px solid ${C.green}33`,borderRadius:8,padding:"10px 12px",marginBottom:12,fontSize:12,color:C.mutedHi,lineHeight:1.6}},
+      React.createElement("strong",{style:{color:C.green}},"Free includes: "),
+      "Public recruiting profile · Shareable link · Combine stats · School database · Coach network browsing. Upgrade anytime to unlock messaging, NIL tracker, Euro teams, AI tools & more."
     ),
     React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:11,marginBottom:14}},
       React.createElement(Inp,{label:"FULL NAME",value:name,onChange:setName,placeholder:"Marcus Webb"}),
-      React.createElement(Inp,{label:"EMAIL",value:email,onChange:setEmail,placeholder:"you@email.com",type:"email"})
+      React.createElement(Inp,{label:"EMAIL",value:email,onChange:setEmail,placeholder:"you@email.com",type:"email"}),
+      planType==="free"&&React.createElement(Inp,{label:"SPORT",value:sport,onChange:setSport,placeholder:"Football, Basketball…"}),
+      planType==="free"&&React.createElement(Inp,{label:"PASSWORD",value:pass,onChange:setPass,placeholder:"Min 8 characters",type:"password"})
     ),
-    role==="athlete"&&React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:8,marginBottom:14}},
-      React.createElement("div",{style:{color:C.muted,fontSize:9,fontFamily:"DM Mono,monospace",letterSpacing:1.5,marginBottom:4}},"SELECT PLAN"),
-      ["rookie","rising","pro"].map(t=>React.createElement("div",{key:t,onClick:()=>setTier(t),style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",borderRadius:8,border:"1px solid "+(tier===t?C.accent:C.border),background:tier===t?C.accentGlow:"transparent",cursor:"pointer"}},
+    planType==="paid"&&role==="athlete"&&React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:8,marginBottom:14}},
+      React.createElement("div",{style:{color:C.muted,fontSize:9,fontFamily:"DM Mono,monospace",letterSpacing:1.5,marginBottom:4}},"SELECT PRO PLAN"),
+      ["rookie","rising","pro"].map(t=>React.createElement("div",{key:t,onClick:()=>setTier(t),style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",borderRadius:8,border:"1px solid "+(tier===t?C.gold:C.border),background:tier===t?C.goldGlow:"transparent",cursor:"pointer"}},
         React.createElement("div",null,
           React.createElement("div",{style:{color:C.white,fontWeight:700,fontSize:13,textTransform:"capitalize"}},t==="rising"?"Rising Star":t),
           React.createElement("div",{style:{color:C.muted,fontSize:11,marginTop:2}},descs[t])
@@ -735,16 +850,19 @@ function SignupModal({show,onClose,settings}){
         React.createElement("div",{style:{color:C.gold,fontFamily:"'Rajdhani',sans-serif",fontSize:24,fontWeight:700}},"$"+prices[t],React.createElement("span",{style:{fontSize:11,color:C.muted}},"/mo"))
       ))
     ),
-    role==="coach"&&React.createElement("div",{style:{padding:"12px 14px",borderRadius:8,border:"1px solid "+C.blue+"44",background:C.blue+"11",marginBottom:14}},
+    planType==="paid"&&role==="coach"&&React.createElement("div",{style:{padding:"12px 14px",borderRadius:8,border:"1px solid "+C.blue+"44",background:C.blue+"11",marginBottom:14}},
       React.createElement("div",{style:{color:C.white,fontWeight:700,fontSize:14}},"Coach Pro"),
       React.createElement("div",{style:{color:C.muted,fontSize:12,marginTop:2}},"Athlete search, studio, live sessions, school jobs"),
       React.createElement("div",{style:{color:C.blue,fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,marginTop:4}},"$"+cp,React.createElement("span",{style:{fontSize:12,color:C.muted}},"/mo"))
     ),
-    React.createElement(Btn,{onClick:go,loading,disabled:!name||!email,full:true},"Start Free Trial — $"+planPrice+"/mo"),
-    React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"CANCEL ANYTIME · SECURE CHECKOUT · STRIPE")
+    planType==="free"
+      ?React.createElement(Btn,{onClick:goFree,disabled:!name||!email||pass.length<8,full:true,variant:"green"},"Create Free Account →")
+      :React.createElement(Btn,{onClick:goPaid,loading,disabled:!name||!email,full:true},"Start Free Trial — $"+planPrice+"/mo"),
+    planType==="paid"&&React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"CANCEL ANYTIME · SECURE CHECKOUT · STRIPE"),
+    planType==="free"&&React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"FREE FOREVER · UPGRADE ANYTIME · NO CREDIT CARD")
   );
 }
-function Login({onSuccess,athletes,coaches,settings}){
+function Login({onSuccess,athletes,coaches,settings,onFreeSignup}){
   const [email,setEmail]=useState("");const [pass,setPass]=useState("");const [err,setErr]=useState("");const [loading,setLoading]=useState(false);const [tries,setTries]=useState(0);const [refCode,setRefCode]=useState("");const [showRef,setShowRef]=useState(false);const [showSignup,setShowSignup]=useState(false);
   const locked=tries>=5;
   function go(){
@@ -779,7 +897,7 @@ function Login({onSuccess,athletes,coaches,settings}){
           {showRef&&<Inp label="REFERRAL CODE" value={refCode} onChange={setRefCode} placeholder="e.g. AB12CD"/>}
         </div>
       </Card>
-      <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}><Btn onClick={()=>setShowSignup(true)} variant="ghost" full>New here? Create Account →</Btn><p style={{textAlign:"center",color:C.muted,fontSize:11}}>Already have an account? Sign in above.</p></div><SignupModal show={showSignup} onClose={()=>setShowSignup(false)} settings={settings}/>
+      <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}><Btn onClick={()=>setShowSignup(true)} variant="ghost" full>New here? Create Account →</Btn><p style={{textAlign:"center",color:C.muted,fontSize:11}}>Already have an account? Sign in above.</p></div><SignupModal show={showSignup} onClose={()=>setShowSignup(false)} settings={settings} onFreeSignup={data=>{onFreeSignup&&onFreeSignup(data);setShowSignup(false);}}/>
       <div style={{textAlign:"center",marginTop:8,display:"flex",justifyContent:"center",gap:12}}>
         <span style={{color:C.border,fontSize:10,fontFamily:"DM Mono,monospace"}}>© 2026 ATHLETEVAULT LLC</span>
         <span style={{color:C.border,fontSize:10}}>·</span>
@@ -793,6 +911,7 @@ function Sidebar({navItems,tab,setTab,user,role,onLogout,msgCount,notifCount}){
   const rc={owner:C.gold,athlete:C.blue,coach:C.purple};
   const rl={owner:"Owner",athlete:"Athlete",coach:"Coach"};
   const [collapsed,setCollapsed]=useState(false);
+  const isFree=role==="athlete"&&user?.plan==="free";
   return <div style={{width:collapsed?64:220,flexShrink:0,background:C.dark,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",minHeight:"100vh",position:"sticky",top:0,transition:"width .2s"}}>
     <div style={{padding:collapsed?"12px 8px":"16px 13px",borderBottom:`1px solid ${C.border}`}}>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:collapsed?0:12,justifyContent:collapsed?"center":"flex-start"}}>
@@ -802,17 +921,19 @@ function Sidebar({navItems,tab,setTab,user,role,onLogout,msgCount,notifCount}){
       {!collapsed&&<div style={{background:C.card,borderRadius:9,padding:"10px 12px"}}>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}><Avatar name={user?.name||"O"} size={28} color={rc[role]} verified={user?.verified}/><div style={{color:C.white,fontWeight:700,fontSize:12,lineHeight:1.2}}>{user?.name||"Chewy Barnes"}</div></div>
         <Badge color={rc[role]}>{rl[role]}</Badge>
-        {user?.tier&&<div style={{color:C.muted,fontSize:10,marginTop:4,fontFamily:"DM Mono,monospace"}}>{user.tier.toUpperCase()} PLAN</div>}
+        {isFree&&<div style={{color:C.gold,fontSize:10,marginTop:5,fontFamily:"DM Mono,monospace",background:C.goldGlow,borderRadius:4,padding:"2px 6px",display:"inline-block"}}>FREE PLAN — UPGRADE</div>}
+        {!isFree&&user?.tier&&<div style={{color:C.muted,fontSize:10,marginTop:4,fontFamily:"DM Mono,monospace"}}>{user.tier.toUpperCase()} PLAN</div>}
       </div>}
     </div>
     <nav style={{flex:1,padding:collapsed?"6px 4px":"9px 6px",overflowY:"auto"}}>
-      {navItems.map(n=><button key={n.id} onClick={()=>setTab(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:8,width:"100%",padding:collapsed?"10px 8px":"9px 10px",borderRadius:7,border:"none",background:tab===n.id?C.goldGlow:"transparent",color:tab===n.id?C.gold:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12,cursor:"pointer",textAlign:"left",marginBottom:1,borderLeft:`2px solid ${tab===n.id&&!collapsed?C.gold:"transparent"}`,transition:"all .15s",position:"relative"}}>
+      {navItems.map(n=>{const locked=isFree&&n.pro;return <button key={n.id} onClick={()=>setTab(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:8,width:"100%",padding:collapsed?"10px 8px":"9px 10px",borderRadius:7,border:"none",background:tab===n.id?C.goldGlow:"transparent",color:tab===n.id?C.gold:locked?C.border:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12,cursor:"pointer",textAlign:"left",marginBottom:1,borderLeft:`2px solid ${tab===n.id&&!collapsed?C.gold:"transparent"}`,transition:"all .15s",position:"relative"}}>
         <span style={{fontSize:15,flexShrink:0}}>{n.icon}</span>
         {!collapsed&&<span style={{flex:1}}>{n.label}</span>}
-        {!collapsed&&n.id==="messages"&&msgCount>0&&<NotifDot count={msgCount}/>}
-        {!collapsed&&n.id==="notifications"&&notifCount>0&&<NotifDot count={notifCount}/>}
+        {!collapsed&&locked&&<span style={{fontSize:10,color:C.muted}}>🔒</span>}
+        {!collapsed&&!locked&&n.id==="messages"&&msgCount>0&&<NotifDot count={msgCount}/>}
+        {!collapsed&&!locked&&n.id==="notifications"&&notifCount>0&&<NotifDot count={notifCount}/>}
         {collapsed&&(n.id==="messages"&&msgCount>0||n.id==="notifications"&&notifCount>0)&&<div style={{position:"absolute",top:4,right:4,width:8,height:8,borderRadius:"50%",background:C.red}}/>}
-      </button>)}
+      </button>;})}
     </nav>
     <div style={{padding:collapsed?"6px 4px":"9px 6px",borderTop:`1px solid ${C.border}`}}>
       <button onClick={()=>setCollapsed(p=>!p)} style={{display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:8,width:"100%",padding:"8px 10px",borderRadius:7,border:"none",background:"transparent",color:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12,cursor:"pointer",marginBottom:4}}><span>{collapsed?"→":"←"}</span>{!collapsed&&"Collapse"}</button>
@@ -878,9 +999,9 @@ function PrivacySecurity({user,saveUsers,role}){
 // ═══════════════════════════════════════════════
 //  OWNER DASHBOARD — full control center
 // ═══════════════════════════════════════════════
-const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"wins",icon:"🏆",label:"Wall of Wins"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"}];
+const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"wins",icon:"🏆",label:"Wall of Wins"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"},{id:"myaccount",icon:"🏃",label:"My Athlete Profile"}];
 
-function OOverview({athletes,coaches,messages,settings}){
+function OOverview({athletes,coaches,messages,settings,onPreview}){
   const active=athletes.filter(a=>a.status==="active");
   const mrr=active.reduce((s,a)=>s+(a.tier==="pro"?79:a.tier==="rising"?49:29),0)+coaches.filter(c=>c.status==="active").length*49;
   const tc={rookie:0,rising:0,pro:0};active.forEach(a=>{tc[a.tier]=(tc[a.tier]||0)+1;});
@@ -890,6 +1011,12 @@ function OOverview({athletes,coaches,messages,settings}){
   return <div>
     <Sec title="Command Center" sub={`Live · ${stamp()}`}/>
     {settings?.announcement&&<Card glow style={{marginBottom:16,display:"flex",gap:12,alignItems:"center"}}><span style={{fontSize:20}}>📣</span><p style={{color:C.white,fontSize:13,lineHeight:1.6}}>{settings.announcement}</p></Card>}
+    <Card style={{marginBottom:16,padding:"12px 16px",display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+      <span style={{color:C.muted,fontSize:12,flex:1,fontFamily:"DM Mono,monospace"}}>👁️ PREVIEW SITE AS:</span>
+      <Btn onClick={()=>onPreview("athlete")} variant="ghost" small>👤 Athlete View</Btn>
+      <Btn onClick={()=>onPreview("coach")} variant="ghost" small>🏈 Coach View</Btn>
+      <Btn onClick={()=>onPreview("free")} variant="ghost" small>🔒 Free User View</Btn>
+    </Card>
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:12,marginBottom:18}}>
       <Stat icon="👥" label="ATHLETES" value={fmt(active.length)} delta={`${athletes.length} total`} color={C.blue}/>
       <Stat icon="🏈" label="COACHES" value={fmt(coaches.length)} delta={`${[...new Set(coaches.map(c=>c.country))].length} countries`} color={C.purple}/>
@@ -944,6 +1071,7 @@ function OAthletes({athletes,saveAthletes,addLog}){
             <Btn onClick={()=>toggle(a.id)} variant={a.status==="active"?"danger":"green"} small>{a.status==="active"?"Pause":"Resume"}</Btn>
             <Btn onClick={()=>toggleVerify(a.id)} variant={a.verified?"ghost":"blue"} small>{a.verified?"✓ Verified":"Verify"}</Btn>
             <Btn onClick={()=>toggleFeatured(a.id)} variant={a.featured?"gold":"ghost"} small>{a.featured?"⭐ Featured":"Feature"}</Btn>
+            <Btn onClick={()=>{saveAthletes(prev=>prev.map(x=>String(x.id)===String(a.id)?{...x,plan:a.plan==="pro"?"free":"pro"}:x));addLog({action:"Plan toggle",detail:`${a.name} → ${a.plan==="pro"?"free":"pro"}`,level:"info"});}} variant={a.plan==="pro"?"ghost":"green"} small>{a.plan==="pro"?"PRO ✓":"⬆ Upgrade"}</Btn>
             <Btn onClick={()=>resetPass(a.id)} variant="ghost" small>🔑</Btn>
             <Btn onClick={()=>remove(a.id)} variant="danger" small>✕</Btn>
           </div></td>
@@ -1501,7 +1629,7 @@ function OSiteConfig({settings,saveSettings,addLog,setTab}){
     </div>
   </div>;
 }
-const A_NAV=[{id:"home",icon:"🏠",label:"My Vault"},{id:"messages",icon:"💬",label:"Messages"},{id:"notifications",icon:"🔔",label:"Notifications"},{id:"schools",icon:"🏫",label:"Schools"},{id:"euroteams",icon:"🌍",label:"Euro Teams"},{id:"content",icon:"🎬",label:"Content"},{id:"brands",icon:"🤝",label:"Brand Deals"},{id:"coaches",icon:"📡",label:"Coaches"},{id:"money",icon:"💰",label:"Monetize"},{id:"stats",icon:"📊",label:"My Stats"},{id:"niltracker",icon:"💸",label:"NIL Tracker"},{id:"nil",icon:"🎓",label:"NIL Academy"},{id:"coaching",icon:"🎬",label:"Coaching Hub"},{id:"profile",icon:"👤",label:"My Profile"},{id:"privacy",icon:"🔒",label:"Privacy"},{id:"referral",icon:"🎁",label:"Refer & Earn"},{id:"help",icon:"❓",label:"Help"}];
+const A_NAV=[{id:"home",icon:"🏠",label:"My Vault"},{id:"messages",icon:"💬",label:"Messages",pro:true},{id:"notifications",icon:"🔔",label:"Notifications"},{id:"schools",icon:"🏫",label:"Schools"},{id:"euroteams",icon:"🌍",label:"Euro Teams",pro:true},{id:"content",icon:"🎬",label:"Content",pro:true},{id:"brands",icon:"🤝",label:"Brand Deals",pro:true},{id:"coaches",icon:"📡",label:"Coaches",pro:true},{id:"money",icon:"💰",label:"Monetize",pro:true},{id:"stats",icon:"📊",label:"My Stats"},{id:"niltracker",icon:"💸",label:"NIL Tracker",pro:true},{id:"nil",icon:"🎓",label:"NIL Academy",pro:true},{id:"coaching",icon:"🎬",label:"Coaching Hub",pro:true},{id:"profile",icon:"👤",label:"My Profile"},{id:"privacy",icon:"🔒",label:"Privacy"},{id:"referral",icon:"🎁",label:"Refer & Earn"},{id:"help",icon:"❓",label:"Help"}];
 
 function AHome({athlete,settings}){
   const roadmap=[{done:true,label:"Create your AthleteVault profile"},{done:(athlete.videos?.length||0)>0,label:"Upload your first highlight reel"},{done:(athlete.brandSent||0)>0,label:"Apply to 3 brand deals"},{done:false,label:"Complete NIL Academy Basics"},{done:(athlete.coachSent||0)>0,label:"Connect with a coach"},{done:false,label:"Generate your monetization roadmap"},{done:false,label:"Search European teams"},{done:false,label:"Refer a teammate → earn reward"}];
@@ -1594,7 +1722,7 @@ Under 200 words. Confident. International ready.`);setPitch(r);}catch(e){setPitc
   </div>;
 }
 
-function SchoolSearch({athlete}){
+function SchoolSearch({athlete,isFree,onUpgrade}){
   const [search,setSearch]=useState("");const [divF,setDivF]=useState("all");const [sportF,setSportF]=useState(athlete?.sport||"all");const [typeF,setTypeF]=useState("all");const [schF,setSchF]=useState("all");const [sel,setSel]=useState(null);const [saved,setSaved]=useStore("av_saved_schools_v2",[]);const [contacted,setContacted]=useStore("av_contacted_v2",[]);const [notes,setNotes]=useStore("av_school_notes_v2",{});const [view,setView]=useState("search");const [loading,setLoading]=useState(false);const [outreach,setOutreach]=useState("");const [matchOut,setMatchOut]=useState("");const [matchLoading,setMatchLoading]=useState(false);
   const divs=["all","NCAA D1","NCAA D2","NAIA","NJCAA"];const types=["all","Public","Private","HBCU","JUCO"];
   const filtered=SCHOOLS.filter(s=>{const mS=(s.name+(s.nick||"")+(s.loc||"")).toLowerCase().includes(search.toLowerCase());const mD=divF==="all"||s.div===divF;const mSp=sportF==="all"||s.sports?.includes(sportF);const mT=typeF==="all"||s.type===typeF;const mSch=schF==="all"||(schF==="yes"&&s.scholarships)||(schF==="no"&&!s.scholarships);return mS&&mD&&mSp&&mT&&mSch;});
@@ -1636,19 +1764,19 @@ function SchoolSearch({athlete}){
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}><Badge color={divColor[sel.div]||C.muted}>{sel.div}</Badge><Badge color={C.blue}>{sel.conf}</Badge>{sel.type==="HBCU"&&<Badge color={C.teal}>HBCU</Badge>}{sel.type==="JUCO"&&<Badge color={C.blue}>JUCO</Badge>}{sel.type==="Military"&&<Badge color={C.purple}>Military</Badge>}{sel.scholarships&&<Badge color={C.gold}>Scholarships</Badge>}</div>
           {sel.desc&&<div style={{background:C.card2,borderRadius:8,padding:"10px 13px",margin:"0 0 13px 0"}}><div style={{color:C.teal,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:5}}>ABOUT THIS PROGRAM</div><p style={{color:C.white,fontSize:12,lineHeight:1.7,margin:0}}>{sel.desc}</p></div>}
           {[["📍","Location",sel.loc],["🎓","Acceptance",sel.accept],["💰","Tuition",sel.tuition],["👥","Enrollment",sel.enrollment?sel.enrollment.toLocaleString()+" students":null]].filter(([,k,v])=>v).map(([ic,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>{ic} {k}</span><span style={{color:C.white,fontSize:12,fontWeight:600,textAlign:"right"}}>{v}</span></div>)}
-          {(()=>{const sc=SCHOOL_CONTACTS[sel.id]||(sel.site?{athleticsUrl:`https://${sel.site}`,applyUrl:`https://${sel.site}/admissions`,recruitingEmail:null}:{});return<div style={{display:"flex",flexDirection:"column",gap:0}}>
+          {isFree?<div style={{background:C.card2,borderRadius:8,padding:"10px 14px",margin:"8px 0",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:18}}>🔒</span><div style={{flex:1}}><div style={{color:C.gold,fontSize:11,fontWeight:700,marginBottom:2}}>PRO — Contact Info</div><div style={{color:C.muted,fontSize:11}}>Recruiting email &amp; athletics portal</div></div><button onClick={onUpgrade} style={{background:C.goldGlow,border:`1px solid ${C.gold}`,borderRadius:6,padding:"5px 10px",color:C.gold,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",letterSpacing:1}}>UPGRADE</button></div>:(()=>{const sc=SCHOOL_CONTACTS[sel.id]||(sel.site?{athleticsUrl:`https://${sel.site}`,applyUrl:`https://${sel.site}/admissions`,recruitingEmail:null}:{});return<div style={{display:"flex",flexDirection:"column",gap:0}}>
             {sc.recruitingEmail&&<div style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>📧 Recruiting</span><a href={`mailto:${sc.recruitingEmail}`} style={{color:C.teal,fontSize:11,fontWeight:600,fontFamily:"DM Mono,monospace"}}>{sc.recruitingEmail}</a></div>}
             {sc.athleticsUrl&&<div style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8}}><span style={{color:C.muted,fontSize:12}}>🏟️ Athletics</span><a href={`https://${sc.athleticsUrl.replace(/^https?:\/\//,"")}`} target="_blank" rel="noreferrer" style={{color:C.blue,fontSize:11,fontWeight:600}}>{sc.athleticsUrl.replace(/^https?:\/\//,"")}</a></div>}
           </div>})()}
           {sel.schNote&&<div style={{background:C.card2,borderRadius:8,padding:"9px 12px",margin:"11px 0"}}><div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:3}}>SCHOLARSHIPS</div><div style={{color:C.white,fontSize:12,lineHeight:1.5}}>{sel.schNote}</div></div>}
           {sel.openings&&Object.keys(sel.openings).length>0&&<div style={{marginBottom:12}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:7}}>OPENINGS</div>{Object.entries(sel.openings).map(([sp,pos])=><div key={sp} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.mutedHi,fontSize:12}}>{sp}</span><span style={{color:C.green,fontSize:12,fontWeight:600}}>{pos}</span></div>)}</div>}
           {sel.sports&&<div style={{marginBottom:12}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:7}}>SPORTS</div><div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{sel.sports.map(s=><Badge key={s} color={C.mutedHi}>{s}</Badge>)}</div></div>}
-          {(()=>{const sc2=SCHOOL_CONTACTS[sel.id]||(sel.site?{applyUrl:`https://${sel.site}/admissions`,athleticsUrl:`https://${sel.site}`}:{});return<div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+          {isFree?<div style={{background:C.card2,borderRadius:8,padding:"10px 14px",margin:"8px 0 10px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:18}}>🔒</span><div style={{flex:1}}><div style={{color:C.gold,fontSize:11,fontWeight:700,marginBottom:2}}>PRO — Apply &amp; Outreach</div><div style={{color:C.muted,fontSize:11}}>Application links &amp; AI email generator</div></div><button onClick={onUpgrade} style={{background:C.goldGlow,border:`1px solid ${C.gold}`,borderRadius:6,padding:"5px 10px",color:C.gold,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",letterSpacing:1}}>UPGRADE</button></div>:(()=>{const sc2=SCHOOL_CONTACTS[sel.id]||(sel.site?{applyUrl:`https://${sel.site}/admissions`,athleticsUrl:`https://${sel.site}`}:{});return<div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
             {sc2.applyUrl&&<a href={sc2.applyUrl} target="_blank" rel="noreferrer" style={{flex:1,display:"block",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:6,padding:"10px",textAlign:"center",color:C.green,fontWeight:700,fontSize:12,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1,cursor:"pointer",textDecoration:"none"}}>🎓 APPLY NOW →</a>}
             {sc2.athleticsUrl&&<a href={sc2.athleticsUrl} target="_blank" rel="noreferrer" style={{flex:1,display:"block",background:C.blue+"11",border:`1px solid ${C.blue}33`,borderRadius:6,padding:"10px",textAlign:"center",color:C.blue,fontWeight:700,fontSize:12,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1,cursor:"pointer",textDecoration:"none"}}>🏟️ ATHLETICS SITE</a>}
           </div>;})()}
-          <Btn onClick={()=>genOutreach(sel)} loading={loading} full>⚡ Generate Outreach Email</Btn>
-          <AIOut loading={loading} output={outreach} label="OUTREACH EMAIL"/>
+          {!isFree&&<Btn onClick={()=>genOutreach(sel)} loading={loading} full>⚡ Generate Outreach Email</Btn>}
+          {!isFree&&<AIOut loading={loading} output={outreach} label="OUTREACH EMAIL"/>}
         </Card>:<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:36,marginBottom:12}}>🏫</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:6}}>Select a Program</div><div style={{color:C.muted,fontSize:13}}>View details, scholarships, openings and generate your outreach email.</div></Card>}
       </div>
     </div>}
@@ -1755,7 +1883,7 @@ function ANIL(){
 }
 
 function AProfile({athlete,saveAthletes}){
-  const [f,setF]=useState({name:athlete.name,sport:athlete.sport,school:athlete.school,city:athlete.city||"",state:athlete.state||"",country:athlete.country||"United States",bio:athlete.bio||"",phone:athlete.phone||"",followers:String(athlete.followers||0)});
+  const [f,setF]=useState({name:athlete.name,sport:athlete.sport,school:athlete.school,city:athlete.city||"",state:athlete.state||"",country:athlete.country||"United States",bio:athlete.bio||"",phone:athlete.phone||"",followers:String(athlete.followers||0),highlightUrl:athlete.highlightUrl||""});
   const [saved,setSaved]=useState(false);
   const [linkCopied,setLinkCopied]=useState(false);
   const [showShare,setShowShare]=useState(false);
@@ -1785,7 +1913,7 @@ function AProfile({athlete,saveAthletes}){
     </div>
     {athlete.inPortal&&<Card glow color={C.gold} style={{marginBottom:14,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:20}}>🔄</span><div><div style={{color:C.gold,fontWeight:700,fontSize:13}}>TRANSFER PORTAL ACTIVE</div><div style={{color:C.mutedHi,fontSize:12}}>Coaches can see you are available. Your profile is boosted in coach search.</div></div></Card>}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:13}}>
-      <Card><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>PERSONAL INFO</div><div style={{display:"flex",flexDirection:"column",gap:11}}>{[["FULL NAME","name"],["SPORT","sport"],["SCHOOL / LEAGUE","school"],["FOLLOWERS","followers"],["PHONE","phone"]].map(([l,k])=><Inp key={k} label={l} value={f[k]} onChange={v=>setF(p=>({...p,[k]:v}))}/>)}</div></Card>
+      <Card><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>PERSONAL INFO</div><div style={{display:"flex",flexDirection:"column",gap:11}}>{[["FULL NAME","name"],["SPORT","sport"],["SCHOOL / LEAGUE","school"],["FOLLOWERS","followers"],["PHONE","phone"]].map(([l,k])=><Inp key={k} label={l} value={f[k]} onChange={v=>setF(p=>({...p,[k]:v}))}/>)}<Inp label="HIGHLIGHT REEL (YouTube / Hudl URL)" value={f.highlightUrl} onChange={v=>setF(p=>({...p,highlightUrl:v}))} placeholder="https://youtube.com/watch?v=..."/></div></Card>
       <div><Card style={{marginBottom:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>LOCATION</div><div style={{display:"flex",flexDirection:"column",gap:11}}><Inp label="CITY" value={f.city} onChange={v=>setF(p=>({...p,city:v}))}/><Inp label="STATE" value={f.state} onChange={v=>setF(p=>({...p,state:v}))}/><Sel label="COUNTRY" value={f.country} onChange={v=>setF(p=>({...p,country:v}))} options={REGIONS}/></div></Card><Card><Inp label="BIO" value={f.bio} onChange={v=>setF(p=>({...p,bio:v}))} rows={4} placeholder="Tell coaches and brands your story…"/></Card></div>
     </div>
     <div style={{marginTop:13,display:"flex",gap:8}}><Btn onClick={save}>{saved?"✓ Saved!":"Save Profile"}</Btn></div>
@@ -1926,29 +2054,62 @@ function CoachHome({coach,athletes,settings}){
   </div>;
 }
 
+const CRM_STAGES=["Prospect","Contacted","Offer Sent","Signed"];
+const CRM_COLORS={"Prospect":C.mutedHi,"Contacted":C.blue,"Offer Sent":C.gold,"Signed":C.green};
 function CoachAthletes({coach,athletes,coaches,saveCoaches,messages,saveMessages,settings}){
-  const [search,setSearch]=useState("");const [sportF,setSportF]=useState("all");const [countryF,setCountryF]=useState("all");const [tierF,setTierF]=useState("all");const [verF,setVerF]=useState("all");const [sel,setSel]=useState(null);const [loading,setLoading]=useState(false);const [msg,setMsg]=useState("");const [shortlisted,setShortlisted]=useState([]);const [view,setView]=useState("search");
+  const [search,setSearch]=useState("");const [sportF,setSportF]=useState("all");const [countryF,setCountryF]=useState("all");const [tierF,setTierF]=useState("all");const [verF,setVerF]=useState("all");const [portalF,setPortalF]=useState(false);const [sel,setSel]=useState(null);const [loading,setLoading]=useState(false);const [msg,setMsg]=useState("");const [shortlisted,setShortlisted]=useState([]);const [view,setView]=useState("search");const [crmNote,setCrmNote]=useState({});const [selCrm,setSelCrm]=useState(null);
+  const prospects=coach.prospects||[];
   const sports=[...new Set(athletes.map(a=>a.sport))];
   const countries=[...new Set(athletes.map(a=>a.country).filter(Boolean))];
   const visible=athletes.filter(a=>a.status==="active"&&a.privacy?.profileVisible!==false&&a.privacy?.searchable!==false);
-  const filtered=visible.filter(a=>{
+  const portalAthletes=visible.filter(a=>a.inPortal);
+  const listBase=portalF?portalAthletes:visible;
+  const filtered=listBase.filter(a=>{
     const mS=(a.name+a.sport+(a.school||"")+(a.bio||"")).toLowerCase().includes(search.toLowerCase());
     const mSp=sportF==="all"||a.sport===sportF;
     const mC=countryF==="all"||a.country===countryF;
     const mT=tierF==="all"||a.tier===tierF;
     const mV=verF==="all"||(verF==="yes"&&a.verified)||(verF==="no"&&!a.verified);
     return mS&&mSp&&mC&&mT&&mV;
-  });
+  }).sort((a,b)=>(b.inPortal?1:0)-(a.inPortal?1:0));
   const shortlistedAthletes=athletes.filter(a=>shortlisted.includes(a.id));
   function toggleShortlist(id){setShortlisted(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);}
   async function genOutreach(athlete){setLoading(true);setMsg("");try{const r=await ai(`Recruiting outreach email from ${coach.name}, ${coach.title} at ${coach.org}, to ${athlete.name} (${athlete.sport}, ${fmt(athlete.followers)} followers, ${athlete.city||""} ${athlete.country}).Coach is recruiting ${coach.sport} from ${(coach.recruitingRegions||[]).join(", ")}.Bio: "${athlete.bio||""}".Under 160 words. Specific, compelling, professional. Include program details.`);setMsg(r);}catch(e){setMsg("⚠️ Failed.");}setLoading(false);}
   function startMsg(athlete){const tid=makeThreadId(coach.id,athlete.id);const m={id:Date.now(),senderId:coach.id,text:msg||`Hi ${athlete.name}, ${coach.name} at ${coach.org} here. I've been following your work and I'd love to connect.`,ts:new Date().toISOString(),read:false};saveMessages(prev=>({...prev,[tid]:[...(prev[tid]||[]),m]}));}
+  function addToBoard(athlete,stage){const ex=prospects.find(p=>String(p.athleteId)===String(athlete.id));if(ex)return;saveCoaches(prev=>prev.map(c=>String(c.id)===String(coach.id)?{...c,prospects:[...(c.prospects||[]),{athleteId:athlete.id,stage:stage||"Prospect",notes:"",addedDate:new Date().toISOString().slice(0,10)}]}:c));}
+  function updateStage(athleteId,stage){saveCoaches(prev=>prev.map(c=>String(c.id)===String(coach.id)?{...c,prospects:(c.prospects||[]).map(p=>String(p.athleteId)===String(athleteId)?{...p,stage}:p)}:c));}
+  function updateNote(athleteId,notes){saveCoaches(prev=>prev.map(c=>String(c.id)===String(coach.id)?{...c,prospects:(c.prospects||[]).map(p=>String(p.athleteId)===String(athleteId)?{...p,notes}:p)}:c));}
+  function removeFromBoard(athleteId){saveCoaches(prev=>prev.map(c=>String(c.id)===String(coach.id)?{...c,prospects:(c.prospects||[]).filter(p=>String(p.athleteId)!==String(athleteId))}:c));}
   const tierColor={rookie:C.mutedHi,rising:C.gold,pro:C.purple};
   const priv=sel?.privacy||DEF_A_PRIV;
   return <div>
-    <Sec title="Find Athletes" sub="Search worldwide. Filter. Outreach instantly."/>
-    <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{[["search","🔍 Search"],["shortlist",`⭐ Shortlist (${shortlisted.length})`]].map(([t,l])=><Btn key={t} onClick={()=>setView(t)} variant={view===t?"gold":"ghost"} small>{l}</Btn>)}</div>
+    <Sec title="Find Athletes" sub="Search, recruit, manage your pipeline."/>
+    <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{[["search","🔍 Search"],["shortlist",`⭐ Shortlist (${shortlisted.length})`],["board",`📋 Board (${prospects.length})`]].map(([t,l])=><Btn key={t} onClick={()=>setView(t)} variant={view===t?"gold":"ghost"} small>{l}</Btn>)}{view==="search"&&<Btn onClick={()=>setPortalF(p=>!p)} variant={portalF?"accent":"ghost"} small>{portalF?"🔄 Portal Athletes Only":"🔄 Show Portal Only"}</Btn>}</div>
     {view==="shortlist"&&<div>{shortlistedAthletes.length===0?<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:36,marginBottom:10}}>⭐</div><div style={{color:C.white,fontWeight:700}}>Shortlist empty</div><div style={{color:C.muted,fontSize:13,marginTop:6}}>Star athletes in search to add them.</div></Card>:<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>{shortlistedAthletes.map(a=><Card key={a.id} onClick={()=>{setSel(a);setView("search");setMsg("");}} style={{cursor:"pointer"}}><div style={{display:"flex",gap:9,alignItems:"center",marginBottom:10}}><Avatar name={a.name} size={34} color={C.blue} verified={a.verified}/><div><div style={{color:C.white,fontWeight:700,fontSize:13}}>{a.name}</div><div style={{color:C.blue,fontSize:11}}>{a.sport}</div></div></div><div style={{color:C.muted,fontSize:12,marginBottom:6}}>{a.country}</div><Badge color={tierColor[a.tier]}>{a.tier}</Badge></Card>)}</div>}</div>}
+    {view==="board"&&<div>
+      <p style={{color:C.muted,fontSize:12,marginBottom:14,fontFamily:"DM Mono,monospace"}}>{prospects.length} prospects in pipeline</p>
+      {prospects.length===0?<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:36,marginBottom:10}}>📋</div><div style={{color:C.white,fontWeight:700}}>Board is empty</div><div style={{color:C.muted,fontSize:13,marginTop:6}}>Find athletes in Search, then click "Add to Board" to start tracking them.</div></Card>:
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:14}}>{prospects.map(p=>{
+        const a=athletes.find(x=>String(x.id)===String(p.athleteId));
+        if(!a)return null;
+        const isEditing=selCrm===String(p.athleteId);
+        return <Card key={p.athleteId} glow={isEditing} color={CRM_COLORS[p.stage]}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+            <div style={{display:"flex",gap:9,alignItems:"center"}}><Avatar name={a.name} size={32} color={C.blue} verified={a.verified}/><div><div style={{color:C.white,fontWeight:700,fontSize:13}}>{a.name}</div><div style={{color:C.blue,fontSize:11}}>{a.sport}</div></div></div>
+            <button onClick={()=>removeFromBoard(p.athleteId)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:14}}>✕</button>
+          </div>
+          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10}}>
+            {CRM_STAGES.map(s=><button key={s} onClick={()=>updateStage(p.athleteId,s)} style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${p.stage===s?CRM_COLORS[s]:C.border}`,background:p.stage===s?CRM_COLORS[s]+"22":"transparent",color:p.stage===s?CRM_COLORS[s]:C.muted,fontSize:11,fontWeight:700,cursor:"pointer"}}>{s}</button>)}
+          </div>
+          {isEditing?<div><textarea value={crmNote[p.athleteId]!==undefined?crmNote[p.athleteId]:p.notes} onChange={e=>setCrmNote(prev=>({...prev,[p.athleteId]:e.target.value}))} placeholder="Notes about this recruit…" style={{width:"100%",background:C.dark,border:`1px solid ${C.border}`,borderRadius:6,padding:"8px 10px",color:C.white,fontSize:12,fontFamily:"'Sora',sans-serif",resize:"vertical",minHeight:64,boxSizing:"border-box",outline:"none"}} onBlur={()=>{updateNote(p.athleteId,crmNote[p.athleteId]!==undefined?crmNote[p.athleteId]:p.notes);setSelCrm(null);}}/></div>:<div onClick={()=>setSelCrm(String(p.athleteId))} style={{color:p.notes?C.mutedHi:C.muted,fontSize:12,fontStyle:p.notes?"normal":"italic",cursor:"pointer",minHeight:32,padding:"4px 0",lineHeight:1.5}}>{p.notes||"Click to add notes…"}</div>}
+          <div style={{display:"flex",gap:6,marginTop:10,flexWrap:"wrap"}}>
+            {a.inPortal&&<Badge color={C.gold}>🔄 Portal</Badge>}
+            <Badge color={CRM_COLORS[p.stage]||C.muted}>{p.stage}</Badge>
+            <div style={{color:C.muted,fontSize:10,marginLeft:"auto",alignSelf:"center",fontFamily:"DM Mono,monospace"}}>Added {p.addedDate}</div>
+          </div>
+        </Card>;
+      })}</div>}
+    </div>}
     {view==="search"&&<div>
       <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search name, sport, school, bio…" style={{flex:1,minWidth:160,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.white,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif"}}/>
@@ -1957,10 +2118,10 @@ function CoachAthletes({coach,athletes,coaches,saveCoaches,messages,saveMessages
         <select value={tierF} onChange={e=>setTierF(e.target.value)} style={{background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.white,fontSize:13,outline:"none"}}><option value="all">All Tiers</option><option value="rookie">Rookie</option><option value="rising">Rising Star</option><option value="pro">Pro Athlete</option></select>
         <select value={verF} onChange={e=>setVerF(e.target.value)} style={{background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.white,fontSize:13,outline:"none"}}><option value="all">All</option><option value="yes">✓ Verified Only</option></select>
       </div>
-      <p style={{color:C.muted,fontSize:12,marginBottom:12,fontFamily:"DM Mono,monospace"}}>{filtered.length} athletes found</p>
+      <p style={{color:C.muted,fontSize:12,marginBottom:12,fontFamily:"DM Mono,monospace"}}>{filtered.length} athletes found{portalF&&<span style={{color:C.gold}}> · 🔄 Transfer Portal Only</span>}{filtered.filter(a=>a.inPortal).length>0&&!portalF&&<span style={{color:C.gold}}> · {filtered.filter(a=>a.inPortal).length} in portal</span>}</p>
       <div style={{display:"grid",gridTemplateColumns:"1fr 380px",gap:18,alignItems:"start"}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:12}}>
-          {filtered.map(a=><Card key={a.id} glow={sel?.id===a.id} onClick={()=>{setSel(a);setMsg("");}} style={{cursor:"pointer"}}>
+          {filtered.map(a=><Card key={a.id} glow={sel?.id===a.id} onClick={()=>{setSel(a);setMsg("");}} style={{cursor:"pointer",borderColor:a.inPortal?C.gold:undefined}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
               <Avatar name={a.name} size={36} color={C.blue} verified={a.verified}/>
               <button onClick={e=>{e.stopPropagation();toggleShortlist(a.id);}} style={{background:"none",border:"none",fontSize:16,cursor:"pointer"}}>{shortlisted.includes(a.id)?"⭐":"☆"}</button>
@@ -1969,14 +2130,14 @@ function CoachAthletes({coach,athletes,coaches,saveCoaches,messages,saveMessages
             <div style={{color:C.blue,fontSize:12,marginBottom:5}}>{a.sport}</div>
             <div style={{color:C.muted,fontSize:11,marginBottom:7}}>{a.school||"Independent"}</div>
             <div style={{color:C.muted,fontSize:11,marginBottom:7}}>📍 {a.city}{a.country?`, ${a.country}`:""}</div>
-            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}><Badge color={tierColor[a.tier]}>{a.tier}</Badge>{priv.showFollowers!==false&&<Badge color={C.mutedHi}>{fmt(a.followers)} followers</Badge>}</div>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}><Badge color={tierColor[a.tier]}>{a.tier}</Badge>{a.inPortal&&<Badge color={C.gold}>🔄 Portal</Badge>}{priv.showFollowers!==false&&<Badge color={C.mutedHi}>{fmt(a.followers)} followers</Badge>}</div>
             {a.privacy?.showBio!==false&&a.bio&&<p style={{color:C.mutedHi,fontSize:12,lineHeight:1.5,marginTop:8}}>{a.bio.slice(0,80)}{a.bio.length>80?"…":""}</p>}
           </Card>)}
           {filtered.length===0&&<div style={{color:C.muted,fontSize:14,padding:"20px 0",gridColumn:"1/-1"}}>No athletes match your filters.</div>}
         </div>
         <div style={{position:"sticky",top:20}}>{sel?<Card glow>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:13}}>
-            <div style={{display:"flex",gap:11,alignItems:"center"}}><Avatar name={sel.name} size={44} color={C.blue} verified={sel.verified}/><div><div style={{color:C.white,fontWeight:700,fontSize:16,display:"flex",alignItems:"center",gap:5}}>{sel.name}{sel.verified&&<Badge color={C.blue}>Verified</Badge>}</div><div style={{color:C.blue,fontSize:13}}>{sel.sport}</div></div></div>
+            <div style={{display:"flex",gap:11,alignItems:"center"}}><Avatar name={sel.name} size={44} color={C.blue} verified={sel.verified}/><div><div style={{color:C.white,fontWeight:700,fontSize:16,display:"flex",alignItems:"center",gap:5}}>{sel.name}{sel.verified&&<Badge color={C.blue}>Verified</Badge>}{sel.inPortal&&<Badge color={C.gold}>🔄 Portal</Badge>}</div><div style={{color:C.blue,fontSize:13}}>{sel.sport}</div></div></div>
             <button onClick={()=>toggleShortlist(sel.id)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer"}}>{shortlisted.includes(sel.id)?"⭐":"☆"}</button>
           </div>
           {priv.showBio!==false&&sel.bio&&<p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6,marginBottom:11}}>{sel.bio}</p>}
@@ -1987,8 +2148,12 @@ function CoachAthletes({coach,athletes,coaches,saveCoaches,messages,saveMessages
             {priv.showPhone&&sel.phone&&<div style={{padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:2}}>PHONE</div><div style={{color:C.white,fontSize:13}}>{sel.phone}</div></div>}
             {!priv.showEmail&&!priv.showPhone&&<p style={{color:C.muted,fontSize:12,marginTop:6}}>Contact info private. Use direct message.</p>}
           </div>
-          <Btn onClick={()=>genOutreach(sel)} loading={loading} full style={{marginBottom:8}}>⚡ Generate Outreach Message</Btn>
-          {msg&&<><Btn onClick={()=>startMsg(sel)} variant="green" full>💬 Send via Messages</Btn><AIOut loading={loading} output={msg} label="OUTREACH EMAIL"/></>}
+          <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>
+            <Btn onClick={()=>genOutreach(sel)} loading={loading} full>⚡ Generate Outreach</Btn>
+            {!prospects.find(p=>String(p.athleteId)===String(sel.id))&&<Btn onClick={()=>addToBoard(sel,"Prospect")} variant="ghost" small>📋 Add to Board</Btn>}
+            {prospects.find(p=>String(p.athleteId)===String(sel.id))&&<Badge color={CRM_COLORS[prospects.find(p=>String(p.athleteId)===String(sel.id))?.stage]||C.muted}>{prospects.find(p=>String(p.athleteId)===String(sel.id))?.stage}</Badge>}
+          </div>
+          {msg&&<><Btn onClick={()=>startMsg(sel)} variant="green" full style={{marginBottom:8}}>💬 Send via Messages</Btn><AIOut loading={loading} output={msg} label="OUTREACH EMAIL"/></>}
         </Card>:<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:32,marginBottom:10}}>🔍</div><div style={{color:C.white,fontWeight:600}}>Select an Athlete</div></Card>}</div>
       </div>
     </div>}
@@ -2813,6 +2978,63 @@ function OWins(){
   </div>;
 }
 
+// ── PaywallGate ─────────────────────────────────────
+function PaywallGate({feature,onUpgrade}){
+  return <div style={{minHeight:"60vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:40,textAlign:"center"}}>
+    <div style={{fontSize:56,marginBottom:16}}>🔒</div>
+    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:32,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8}}>PRO FEATURE</div>
+    <p style={{color:C.mutedHi,fontSize:14,lineHeight:1.7,maxWidth:400,marginBottom:24}}><strong style={{color:C.gold}}>{feature}</strong> is available on the Pro plan. Upgrade to unlock messaging, NIL tracking, Euro teams, brand deals, AI tools, and your full recruiting toolkit.</p>
+    <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center",marginBottom:20}}>
+      {[["🎯","School Contacts"],["💬","Coach Messaging"],["🌍","Euro Teams"],["💸","NIL Tracker"],["🤝","Brand Deals"],["⚡","AI Outreach"],["🎬","Content Tools"],["💰","Monetize"]].map(([icon,f])=><div key={f} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 14px",color:C.muted,fontSize:12,display:"flex",gap:6,alignItems:"center"}}><span>{icon}</span>{f}</div>)}
+    </div>
+    <Btn onClick={onUpgrade} variant="gold" style={{padding:"14px 36px",fontSize:15}}>Upgrade to Pro →</Btn>
+    <p style={{color:C.muted,fontSize:11,marginTop:12,fontFamily:"DM Mono,monospace"}}>STARTING AT $29/MO · CANCEL ANYTIME</p>
+  </div>;
+}
+
+// ── OMyAccount ───────────────────────────────────────
+function OMyAccount({athletes,saveAthletes,coaches,saveCoaches,settings,onSwitchToAthlete}){
+  const existing=athletes.find(a=>a.ownerAccount);
+  const [f,setF]=useState({name:existing?.name||"",sport:existing?.sport||"Football",school:existing?.school||"",city:existing?.city||"",state:existing?.state||"",country:existing?.country||"United States",bio:existing?.bio||"",email:existing?.email||"",password:"",highlightUrl:existing?.highlightUrl||""});
+  const [saved,setSaved]=useState(false);
+  function saveAccount(){
+    if(!f.name||!f.email)return;
+    if(existing){
+      saveAthletes(prev=>prev.map(a=>a.ownerAccount?{...a,...f,followers:a.followers||0,passwordHash:f.password?hashPass(f.password):a.passwordHash}:a));
+    } else {
+      const na={id:Date.now(),role:"athlete",ownerAccount:true,name:f.name,sport:f.sport,school:f.school||"AthleteVault Owner",city:f.city,state:f.state,country:f.country,bio:f.bio,email:f.email,passwordHash:f.password?hashPass(f.password):"",plan:"pro",tier:"pro",mrr:0,status:"active",joined:new Date().toISOString().slice(0,10),followers:0,coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:0,notifications:[],verified:true,pinnedStats:[],achievements:[],following:[],followers_list:[],highlightUrl:f.highlightUrl||""};
+      saveAthletes(prev=>[...prev,na]);
+    }
+    setSaved(true);setTimeout(()=>setSaved(false),2000);
+  }
+  return <div>
+    <Sec title="My Athlete Profile" sub="Play your sport. Own your brand. Log in as yourself."/>
+    {existing&&<Card glow color={C.gold} style={{marginBottom:16,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+      <div><div style={{color:C.gold,fontWeight:700,fontSize:13}}>ACCOUNT ACTIVE — {existing.name}</div><div style={{color:C.mutedHi,fontSize:12}}>Login: {existing.email} · Plan: PRO ✓</div></div>
+      <Btn onClick={()=>onSwitchToAthlete(existing)} variant="gold" small>Switch to My Profile →</Btn>
+    </Card>}
+    <Card>
+      <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:14}}>YOUR ATHLETE ACCOUNT</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+        <Inp label="FULL NAME" value={f.name} onChange={v=>setF(p=>({...p,name:v}))} placeholder="Dennis Barnes"/>
+        <Inp label="SPORT" value={f.sport} onChange={v=>setF(p=>({...p,sport:v}))} placeholder="Football"/>
+        <Inp label="SCHOOL / LEAGUE" value={f.school} onChange={v=>setF(p=>({...p,school:v}))} placeholder="UTEP / GFL Berlin"/>
+        <Inp label="EMAIL" value={f.email} onChange={v=>setF(p=>({...p,email:v}))} placeholder="you@email.com"/>
+        <Inp label="PASSWORD" value={f.password} onChange={v=>setF(p=>({...p,password:v}))} type="password" placeholder="Set/change password"/>
+        <Inp label="HIGHLIGHT REEL URL" value={f.highlightUrl} onChange={v=>setF(p=>({...p,highlightUrl:v}))} placeholder="YouTube or Hudl link"/>
+        <Inp label="CITY" value={f.city} onChange={v=>setF(p=>({...p,city:v}))} placeholder="El Paso"/>
+        <Inp label="STATE" value={f.state} onChange={v=>setF(p=>({...p,state:v}))} placeholder="Texas"/>
+      </div>
+      <Inp label="BIO" value={f.bio} onChange={v=>setF(p=>({...p,bio:v}))} rows={3} placeholder="Your story — position, accomplishments, goals..."/>
+      <div style={{marginTop:12,display:"flex",gap:10,flexWrap:"wrap"}}>
+        <Btn onClick={saveAccount} disabled={!f.name||!f.email}>{saved?"✓ Saved!":existing?"Update Profile":"Create My Athlete Account"}</Btn>
+        {existing&&<Btn onClick={()=>onSwitchToAthlete(existing)} variant="gold">Switch to Athlete View →</Btn>}
+      </div>
+      {!existing&&<p style={{color:C.muted,fontSize:12,marginTop:10,lineHeight:1.6}}>After creating your account you can log in with this email/password as an athlete, or use the "Switch to My Profile" button above to jump directly. Your owner dashboard is always accessible by logging out and back in as the owner.</p>}
+    </Card>
+  </div>;
+}
+
 // ── PublicProfile ──────────────────────────────────
 function PublicProfile({athleteId,athletes,onEnter}){
   const a=athletes.find(x=>String(x.id)===String(athleteId));
@@ -2852,6 +3074,7 @@ function PublicProfile({athleteId,athletes,onEnter}){
         <Stat icon="📍" label="LOCATION" value={`${a.city||""}${a.country&&a.city?", ":""}${a.country||""}`||"—"} color={C.teal}/>
       </div>
       {a.bio&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:8}}>ABOUT</div><p style={{color:C.white,fontSize:14,lineHeight:1.7,margin:0}}>{a.bio}</p></Card>}
+      {a.highlightUrl&&(()=>{const yt=a.highlightUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);const embedId=yt?yt[1]:null;return <Card style={{marginBottom:16,padding:0,overflow:"hidden"}}><div style={{padding:"12px 16px 8px",color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1}}>HIGHLIGHT REEL</div>{embedId?<div style={{position:"relative",paddingBottom:"56.25%",height:0}}><iframe src={`https://www.youtube.com/embed/${embedId}`} style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",border:"none"}} allowFullScreen title="Highlight reel"/></div>:<div style={{padding:"0 16px 16px"}}><a href={a.highlightUrl} target="_blank" rel="noopener noreferrer" style={{color:C.teal,fontSize:14,textDecoration:"none",display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:20}}>▶️</span>Watch Highlight Reel</a></div>}</Card>;})()}
       {statKeys.length>0&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>COMBINE / ACADEMIC STATS</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>{statKeys.map(k=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12,textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1")}</span><span style={{color:C.white,fontWeight:700,fontFamily:"DM Mono,monospace",fontSize:13}}>{stats[k]}</span></div>)}</div></Card>}
       <Card glow color={C.gold} style={{textAlign:"center",padding:28}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:C.white,letterSpacing:1,marginBottom:8}}>CONNECT WITH {a.name.split(" ")[0].toUpperCase()}</div>
@@ -2872,10 +3095,32 @@ export default function App(){
   const [session,setSession]=useState(null);
   const [showLanding,setShowLanding]=useState(()=>{const h=window.location.hash;return !h.includes("login")&&!h.match(/#\/p\/\d+/);});
   const [tab,setTab]=useState("home");
+  const [previewAs,setPreviewAs]=useState(null); // {role,user}
   const publicProfileMatch=window.location.hash.match(/#\/p\/(\d+)/);
   const publicProfileId=publicProfileMatch?publicProfileMatch[1]:null;
 
   const addLog=useCallback(entry=>saveLogs(prev=>[{id:Date.now(),ts:stamp(),...entry},...prev.slice(0,199)]),[saveLogs]);
+
+  function createFreeAccount({name,email,password,sport,role:r}){
+    if(r==="coach"){
+      const nc={id:Date.now(),role:"coach",name,email,sport:sport||"Football",org:"Independent",title:"Coach",status:"active",plan:"free",joined:new Date().toISOString().slice(0,10),privacy:{...DEF_C_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:0,notifications:[],verified:false,passwordHash:hashPass(password)};
+      saveCoaches(prev=>[...prev,nc]);
+      setSession({role:"coach",user:nc});
+    } else {
+      const na={id:Date.now(),role:"athlete",name,email,sport:sport||"Football",tier:"rookie",plan:"free",mrr:0,status:"active",joined:new Date().toISOString().slice(0,10),followers:0,coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:0,notifications:[],verified:false,passwordHash:hashPass(password),pinnedStats:[],achievements:[],following:[],followers_list:[],highlightUrl:""};
+      saveAthletes(prev=>[...prev,na]);
+      setSession({role:"athlete",user:na});
+    }
+    setShowLanding(false);
+    addLog({action:"Free signup",detail:`${name} (${r})`,level:"success"});
+  }
+
+  function handlePreview(type){
+    if(type==="athlete"){const u=athletes.find(a=>a.status==="active")||athletes[0];setPreviewAs({role:"athlete",user:u});}
+    else if(type==="coach"){const c=coaches.find(c=>c.status==="active")||coaches[0];setPreviewAs({role:"coach",user:c});}
+    else if(type==="free"){const u=athletes.find(a=>a.status==="active")||athletes[0];setPreviewAs({role:"athlete",user:{...u,plan:"free"}});}
+    setTab("home");
+  }
 
   const ready=aReady&&cReady&&msgReady&&sReady;
   if(!ready)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}><div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${C.gold},${C.goldDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:C.black,animation:"pulse 2s ease-in-out infinite"}}>AV</div><div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:12,letterSpacing:2}}>LOADING…</div><style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style></div>;
@@ -2883,15 +3128,17 @@ export default function App(){
   if(publicProfileId)return <PublicProfile athleteId={publicProfileId} athletes={athletes} onEnter={()=>{window.location.hash="login";window.location.reload();}}/>;
   if(showLanding&&!session)return <MarketingPage onEnter={()=>{setShowLanding(false);window.location.hash="login";}} settings={settings} athletes={athletes}/>;
   if(!termsOk)return <OnboardingTerms onAccept={()=>setTermsOk(true)}/>;
-  if(!session)return <Login onSuccess={(role,user)=>{setSession({role,user});setTab("home");addLog({action:"Login",detail:`${role} ${user?.name||"owner"}`,level:"info"});}} athletes={athletes} coaches={coaches} settings={settings}/>;
+  if(!session)return <Login onSuccess={(role,user)=>{setSession({role,user});setTab("home");addLog({action:"Login",detail:`${role} ${user?.name||"owner"}`,level:"info"});}} athletes={athletes} coaches={coaches} settings={settings} onFreeSignup={createFreeAccount}/>;
 
   // Rebuild theme whenever settings change
   C=buildTheme(settings);
-  const {role,user}=session;
-  function logout(){setSession(null);setTab("home");addLog({action:"Logout",detail:role,level:"info"});}
+  const {role:sessionRole,user:sessionUser}=session;
+  const role=previewAs?previewAs.role:sessionRole;
+  const previewUser=previewAs?.user;
+  function logout(){setSession(null);setTab("home");setPreviewAs(null);addLog({action:"Logout",detail:sessionRole,level:"info"});}
 
   // Identify current user from live data
-  const liveUser=role==="athlete"?athletes.find(a=>String(a.id)===String(user?.id)):role==="coach"?coaches.find(c=>String(c.id)===String(user?.id)):null;
+  const liveUser=previewAs?previewUser:sessionRole==="athlete"?athletes.find(a=>String(a.id)===String(sessionUser?.id)):sessionRole==="coach"?coaches.find(c=>String(c.id)===String(sessionUser?.id)):null;
 
   // Message unread count
   const myId=role==="owner"?null:liveUser?.id;
@@ -2899,13 +3146,16 @@ export default function App(){
   const unreadNotifs=liveUser?(liveUser.notifications||[]).filter(n=>!n.read).length:0;
 
   // Maintenance mode
-  if(settings.maintenanceMode&&role!=="owner")return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif"}}><div style={{fontSize:48,marginBottom:16}}>🔧</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8}}>MAINTENANCE MODE</div><div style={{color:C.muted,fontSize:14,marginBottom:20}}>{settings.welcomeMsg||"Platform is temporarily down for maintenance. Check back soon."}</div><Btn onClick={logout} variant="ghost">Back to Login</Btn></div>;
+  if(settings.maintenanceMode&&sessionRole!=="owner"&&!previewAs)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif"}}><div style={{fontSize:48,marginBottom:16}}>🔧</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8}}>MAINTENANCE MODE</div><div style={{color:C.muted,fontSize:14,marginBottom:20}}>{settings.welcomeMsg||"Platform is temporarily down for maintenance. Check back soon."}</div><Btn onClick={logout} variant="ghost">Back to Login</Btn></div>;
+
+  const isFreeUser=role==="athlete"&&liveUser?.plan==="free";
+  function upgrade(){startCheckout("rookie",liveUser?.email||"",liveUser?.name||"",role);}
 
   // Render content
   function renderTab(){
     if(role==="owner"){
       if(tab==="messages")return <Messaging me={{id:"owner_1",role:"owner",name:"Chewy Barnes"}} athletes={athletes} coaches={coaches} saveAthletes={saveAthletes} saveCoaches={saveCoaches} messages={messages} saveMessages={saveMessages} settings={settings}/>;
-      if(tab==="overview")return <OOverview athletes={athletes} coaches={coaches} messages={messages} settings={settings}/>;
+      if(tab==="overview")return <OOverview athletes={athletes} coaches={coaches} messages={messages} settings={settings} onPreview={handlePreview}/>;
       if(tab==="athletes")return <OAthletes athletes={athletes} saveAthletes={saveAthletes} addLog={addLog}/>;
       if(tab==="coaches")return <OCoaches coaches={coaches} saveCoaches={saveCoaches} addLog={addLog}/>;
       if(tab==="revenue")return <ORevenue athletes={athletes} coaches={coaches}/>;
@@ -2918,24 +3168,27 @@ export default function App(){
       if(tab==="siteconfig")return <OSiteConfig settings={settings} saveSettings={saveSettings} addLog={addLog} setTab={setTab}/>;
       if(tab==="theme")return <OThemeEditor settings={settings} saveSettings={saveSettings} addLog={addLog}/>;
       if(tab==="security")return <OSecurity logs={logs} addLog={addLog} onLogout={logout}/>;
+      if(tab==="myaccount")return <OMyAccount athletes={athletes} saveAthletes={saveAthletes} coaches={coaches} saveCoaches={saveCoaches} settings={settings} onSwitchToAthlete={a=>{setSession({role:"athlete",user:a});setPreviewAs(null);setTab("home");}}/>;
     }
+    const isPro=!isFreeUser;
+    function gate(feature,el){return isFreeUser?<PaywallGate feature={feature} onUpgrade={upgrade}/>:el;}
     if(role==="athlete"&&liveUser){
       if(tab==="home")return <AthleteHub athlete={liveUser} athletes={athletes} coaches={coaches} messages={messages} saveMessages={saveMessages} saveAthletes={saveAthletes} settings={settings}/>;
-      if(tab==="messages")return <Messaging me={liveUser} athletes={athletes} coaches={coaches} saveAthletes={saveAthletes} saveCoaches={saveCoaches} messages={messages} saveMessages={saveMessages} settings={settings}/>;
+      if(tab==="messages")return gate("Direct Messaging",<Messaging me={liveUser} athletes={athletes} coaches={coaches} saveAthletes={saveAthletes} saveCoaches={saveCoaches} messages={messages} saveMessages={saveMessages} settings={settings}/>);
       if(tab==="notifications"){
         function markRead(){saveAthletes(prev=>prev.map(a=>String(a.id)===String(liveUser.id)?{...a,notifications:(a.notifications||[]).map(n=>({...n,read:true}))}:a));}
         return <NotificationsTab user={liveUser} allUsers={[...athletes,...coaches]} messages={messages} markRead={markRead}/>;
       }
-      if(tab==="schools")return <SchoolSearch athlete={liveUser}/>;
-      if(tab==="euroteams")return <EuroTeams athlete={liveUser}/>;
-      if(tab==="content")return <AContent athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
-      if(tab==="brands")return <ABrands athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
-      if(tab==="coaches")return <ACoachNetwork athlete={liveUser} coaches={coaches} saveAthletes={saveAthletes}/>;
-      if(tab==="money")return <AMoney athlete={liveUser}/>;
+      if(tab==="schools")return <SchoolSearch athlete={liveUser} isFree={isFreeUser} onUpgrade={upgrade}/>;
+      if(tab==="euroteams")return gate("European Teams Database",<EuroTeams athlete={liveUser}/>);
+      if(tab==="content")return gate("Content Creator Tools",<AContent athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>);
+      if(tab==="brands")return gate("Brand Deal Finder",<ABrands athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>);
+      if(tab==="coaches")return gate("Coach Network & Outreach",<ACoachNetwork athlete={liveUser} coaches={coaches} saveAthletes={saveAthletes}/>);
+      if(tab==="money")return gate("Monetization Tools",<AMoney athlete={liveUser}/>);
       if(tab==="stats")return <AStats athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
-      if(tab==="niltracker")return <ANILTracker athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
-      if(tab==="nil")return <ANIL/>;
-      if(tab==="coaching")return <CoachingHub athlete={liveUser} coaches={coaches} athletes={athletes} messages={messages} saveMessages={saveMessages} saveAthletes={saveAthletes}/>;
+      if(tab==="niltracker")return gate("NIL Deal Tracker",<ANILTracker athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>);
+      if(tab==="nil")return gate("NIL Academy",<ANIL/>);
+      if(tab==="coaching")return gate("Coaching Hub",<CoachingHub athlete={liveUser} coaches={coaches} athletes={athletes} messages={messages} saveMessages={saveMessages} saveAthletes={saveAthletes}/>);
       if(tab==="profile")return <AProfile athlete={liveUser} saveAthletes={saveAthletes}/>;
       if(tab==="privacy")return <PrivacySecurity user={liveUser} saveUsers={saveAthletes} role="athlete"/>;
       if(tab==="referral")return <AReferral athlete={liveUser} athletes={athletes} coaches={coaches} saveAthletes={saveAthletes} settings={settings}/>;
@@ -2964,8 +3217,13 @@ export default function App(){
   const navItems=role==="owner"?O_NAV:role==="athlete"?A_NAV:C_NAV;
   const isMsgFull=tab==="messages";
 
-  return <div style={{display:"flex",fontFamily:"'Sora',sans-serif",background:C.black,minHeight:"100vh"}}>
-    <Sidebar navItems={navItems} tab={tab} setTab={setTab} user={liveUser} role={role} onLogout={logout} msgCount={unreadMsgs} notifCount={unreadNotifs}/>
+  return <div style={{display:"flex",fontFamily:"'Sora',sans-serif",background:C.black,minHeight:"100vh",flexDirection:"column"}}>
+    {previewAs&&<div style={{background:C.gold,color:C.black,padding:"9px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:900,letterSpacing:1,flexShrink:0,zIndex:100}}>
+      <span>👁️ PREVIEW MODE — {role.toUpperCase()} VIEW {previewAs.user?.plan==="free"?"(FREE PLAN)":""}: {previewAs.user?.name||"User"}</span>
+      <Btn onClick={()=>{setPreviewAs(null);setTab("overview");}} variant="danger" small>✕ EXIT PREVIEW</Btn>
+    </div>}
+    <div style={{display:"flex",flex:1}}>
+    <Sidebar navItems={navItems} tab={tab} setTab={setTab} user={liveUser} role={role} onLogout={previewAs?()=>{setPreviewAs(null);setTab("overview");}:logout} msgCount={unreadMsgs} notifCount={unreadNotifs}/>
     <TronBg/><TronStyles C={C} settings={settings}/><main style={{position:"relative",zIndex:1,flex:1,padding:isMsgFull?0:28,overflowY:isMsgFull?"hidden":"auto",minHeight:"100vh",background:C.black}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0;}
@@ -2982,5 +3240,6 @@ export default function App(){
       `}</style>
       {renderTab()}
     </main>
+  </div>
   </div>;
 }
