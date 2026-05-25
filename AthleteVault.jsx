@@ -2,40 +2,13 @@
 import {SCHOOLS} from "./src/data/schools.js";
 import {GLOBAL_TEAMS} from "./src/data/teams.js";
 import {supabase} from "./src/lib/supabase.js";
+import {buildTheme,C,setTheme} from "./src/lib/theme.js";
+import {Card,Badge,Btn,Inp,Sel,Sec,Stat,Modal,AIOut,TronBg,TronStyles,Avatar,NotifDot} from "./src/components/ui.jsx";
+import {Sidebar,BottomNav,useMobile} from "./src/components/layout.jsx";
 
 // ── Owner identity (env-only, never hardcoded) ──
 const OWNER_EMAIL=(import.meta.env.VITE_OWNER_EMAIL||"").toLowerCase();
 
-// ── Dynamic Theme System ───────────────────────
-// Owner can change these from dashboard — stored in settings
-function buildTheme(s){
-  const accent=s?.themeAccent||"#00F0FF";
-  const accent2=s?.themeAccent2||"#E8B84B";
-  const bg=s?.themeBg||"#020408";
-  return{
-    accent,accent2,
-    accentGlow:`rgba(0,240,255,0.12)`,
-    accentGlow2:`rgba(232,184,75,0.1)`,
-    black:bg,
-    dark:s?.themeDark||"#030610",
-    card:s?.themeCard||"#060D1A",
-    card2:s?.themeCard2||"#080F1F",
-    border:s?.themeBorder||"#0A1628",
-    borderHi:s?.themeBorderHi||"#0F1E38",
-    white:s?.themeWhite||"#E0F4FF",
-    muted:s?.themeMuted||"#2A4A6A",
-    mutedHi:s?.themeMutedHi||"#4A7A9A",
-    green:"#0FFFB0",red:"#FF2D6E",blue:"#00AAFF",purple:"#9D4EDD",
-    teal:"#00F0FF",orange:"#FF6B35",pink:"#FF0080",gold:accent2,goldDim:"#C49A2A",
-    goldGlow:`rgba(232,184,75,0.1)`,
-    // Tron scan-line glow
-    scanGlow:`0 0 20px ${accent}44, 0 0 60px ${accent}22`,
-    gridColor:accent,
-  };
-}
-
-// Global C — overwritten after settings load
-let C=buildTheme({});
 
 // ── Helpers ────────────────────────────────────
 const fmt=n=>new Intl.NumberFormat().format(n||0);
@@ -313,136 +286,7 @@ async function startCheckout(tier,email,name,role,discountCode=""){
   }catch(err){alert("Checkout error: "+err.message);}
 }
 
-// ── TRON: ARES GLOBAL STYLES ───────────────────
-function TronStyles({C,settings}){
-  const accent=C.accent||"#00F0FF";
-  const accent2=C.gold||"#E8B84B";
-  const displayFont=settings?.themeDisplayFont||"'Rajdhani', sans-serif";
-  const bodyFont=settings?.themeFont||"'Sora', sans-serif";
-  return <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&family=Exo+2:wght@400;700;900&display=swap');
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:${bodyFont};background:${C.black};color:${C.white};}
-    ::-webkit-scrollbar{width:4px;height:4px;}
-    ::-webkit-scrollbar-track{background:${C.dark};}
-    ::-webkit-scrollbar-thumb{background:${accent}33;border-radius:2px;}
-    ::-webkit-scrollbar-thumb:hover{background:${accent}66;}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes scanline{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
-    @keyframes tronPulse{0%,100%{box-shadow:0 0 8px ${accent}44,0 0 24px ${accent}22;}50%{box-shadow:0 0 16px ${accent}88,0 0 48px ${accent}33;}}
-    @keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:.7;}94%{opacity:1;}97%{opacity:.85;}98%{opacity:1;}}
-    @keyframes gridScroll{from{background-position:0 0;}to{background-position:0 40px;}}
-    @keyframes dataIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-    .tron-grid-bg{
-      background-image:linear-gradient(${accent}08 1px,transparent 1px),linear-gradient(90deg,${accent}08 1px,transparent 1px);
-      background-size:40px 40px;animation:gridScroll 6s linear infinite;
-    }
-    .tron-glow{animation:tronPulse 3s ease-in-out infinite;}
-    .tron-flicker{animation:flicker 8s ease-in-out infinite;}
-    select option{background:${C.dark};color:${C.white};}
-    button:focus,input:focus,textarea:focus,select:focus{outline:none;}
-    input::placeholder,textarea::placeholder{color:${C.muted};}
-    input:focus,textarea:focus,select:focus{border-color:${accent}55!important;}
-    .reveal-data{animation:dataIn .4s ease both;}
-  `}</style>;
-}
-
-// ── UI COMPONENTS — Tron: Ares ─────────────────
-function Badge({color,children,style:x}){const col=color||C.muted;return <span style={{background:col+"18",color:col,border:`1px solid ${col}33`,borderRadius:4,padding:"2px 8px",fontSize:10,fontWeight:700,letterSpacing:.8,whiteSpace:"nowrap",fontFamily:"DM Mono,monospace",...x}}>{children}</span>;}
-
-function Btn({onClick,children,variant="accent",small,disabled,loading,full,style:x}){
-  const vs={
-    accent:{background:`linear-gradient(135deg,${C.accent},${C.accent}AA)`,color:C.black,border:"none",boxShadow:`0 0 20px ${C.accent}44`,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1},
-    gold:{background:`linear-gradient(135deg,${C.gold},${C.goldDim})`,color:C.black,border:"none",boxShadow:`0 4px 14px ${C.gold}33`,fontFamily:"'Rajdhani',sans-serif",letterSpacing:1},
-    ghost:{background:"transparent",color:C.white,border:`1px solid ${C.border}`},
-    danger:{background:C.red+"18",color:C.red,border:`1px solid ${C.red}33`},
-    green:{background:C.green+"18",color:C.green,border:`1px solid ${C.green}33`},
-    blue:{background:C.blue+"18",color:C.blue,border:`1px solid ${C.blue}33`},
-    purple:{background:C.purple+"18",color:C.purple,border:`1px solid ${C.purple}33`},
-    teal:{background:C.teal+"18",color:C.teal,border:`1px solid ${C.teal}33`},
-  };
-  return <button onClick={disabled||loading?undefined:onClick} style={{...vs[variant||"ghost"],borderRadius:6,cursor:disabled||loading?"not-allowed":"pointer",fontWeight:700,fontFamily:"'Sora',sans-serif",opacity:disabled?.35:1,padding:small?"6px 13px":"10px 20px",fontSize:small?11:13,width:full?"100%":"auto",transition:"all .15s",...x}}>{loading?"⟳ Working…":children}</button>;
-}
-
-function Card({children,style:x,glow,color,onClick,tron}){
-  const glowColor=color||C.accent;
-  return <div onClick={onClick} className={tron?"tron-glow":""} style={{
-    background:C.card,
-    border:`1px solid ${glow?glowColor+"44":C.border}`,
-    borderRadius:10,padding:18,
-    boxShadow:glow?`0 0 30px ${glowColor}18,inset 0 1px 0 ${glowColor}11`:"none",
-    cursor:onClick?"pointer":"default",
-    position:"relative",overflow:"hidden",
-    transition:"border-color .15s,box-shadow .15s",
-    ...x
-  }}>{children}</div>;
-}
-
-function Stat({label,value,delta,color,icon}){
-  const col=color||C.accent;
-  return <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"16px 18px",position:"relative",overflow:"hidden"}}>
-    <div style={{position:"absolute",top:0,right:0,width:70,height:70,background:`radial-gradient(circle at 80% 20%,${col}15,transparent 70%)`}}/>
-    <div style={{position:"absolute",bottom:0,left:0,right:0,height:2,background:`linear-gradient(90deg,${col}44,transparent)`}}/>
-    {icon&&<div style={{fontSize:16,marginBottom:4}}>{icon}</div>}
-    <div style={{color:C.muted,fontSize:9,fontWeight:700,letterSpacing:1.5,marginBottom:4,fontFamily:"DM Mono,monospace",textTransform:"uppercase"}}>{label}</div>
-    <div style={{color:col,fontFamily:"'Rajdhani',sans-serif",fontSize:32,fontWeight:700,lineHeight:1}}>{value}</div>
-    {delta&&<div style={{color:C.mutedHi,fontSize:10,marginTop:3,fontFamily:"DM Mono,monospace"}}>{delta}</div>}
-  </div>;
-}
-
-function Sec({title,sub,action}){
-  return <div style={{marginBottom:20,display:"flex",justifyContent:"space-between",alignItems:"flex-end",flexWrap:"wrap",gap:10}}>
-    <div>
-      <h2 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,color:C.white,letterSpacing:2,textTransform:"uppercase",lineHeight:1,textShadow:`0 0 20px ${C.accent}33`}}>{title}</h2>
-      {sub&&<p style={{color:C.muted,fontSize:12,marginTop:3,fontFamily:"DM Mono,monospace"}}>{sub}</p>}
-    </div>
-    {action}
-  </div>;
-}
-
-function AIOut({loading,output,label}){
-  if(!loading&&!output)return null;
-  return <div style={{background:C.card2,border:`1px solid ${C.accent}22`,borderRadius:8,padding:16,marginTop:12,position:"relative",overflow:"hidden"}}>
-    <div style={{position:"absolute",top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${C.accent}66,transparent)`}}/>
-    <div style={{color:C.accent,fontSize:9,fontFamily:"DM Mono,monospace",letterSpacing:1.5,marginBottom:8}}>⚡ {label||"AI OUTPUT"}</div>
-    {loading
-      ?<div style={{color:C.muted,fontSize:12,fontFamily:"DM Mono,monospace",display:"flex",alignItems:"center",gap:8}}><span style={{display:"inline-block",animation:"spin 1s linear infinite"}}>◈</span> CLAUDE IS PROCESSING…</div>
-      :<><p style={{color:C.white,fontSize:13,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{output}</p><button onClick={()=>navigator.clipboard?.writeText(output)} style={{marginTop:8,background:"none",border:`1px solid ${C.border}`,borderRadius:5,padding:"4px 10px",color:C.muted,fontSize:11,cursor:"pointer"}}>◈ COPY</button></>
-    }
-  </div>;
-}
-
-function Modal({show,onClose,title,children,maxW=520}){
-  if(!show)return null;
-  return <div style={{position:"fixed",inset:0,background:"rgba(2,4,8,.9)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:20,backdropFilter:"blur(8px)"}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-    <Card style={{width:"100%",maxWidth:maxW,maxHeight:"90vh",overflowY:"auto",border:`1px solid ${C.accent}33`}} glow>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${C.accent},transparent)`}}/>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-        <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:18,fontWeight:700,color:C.white,letterSpacing:2,textTransform:"uppercase"}}>{title}</div>
-        <button onClick={onClose} style={{background:"none",border:"none",color:C.muted,fontSize:18,cursor:"pointer"}}>✕</button>
-      </div>
-      {children}
-    </Card>
-  </div>;
-}
-
-function Inp({label,value,onChange,type="text",placeholder,rows}){
-  const base={background:C.dark,border:`1px solid ${C.border}`,borderRadius:7,padding:"9px 12px",color:C.white,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif",width:"100%",boxSizing:"border-box",transition:"border-color .15s"};
-  return <div style={{display:"flex",flexDirection:"column",gap:4}}>
-    {label&&<label style={{color:C.muted,fontSize:9,fontWeight:700,letterSpacing:1.5,fontFamily:"DM Mono,monospace",textTransform:"uppercase"}}>{label}</label>}
-    {rows?<textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{...base,resize:"vertical"}}/>
-    :<input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} style={base}/>}
-  </div>;
-}
-
-function Sel({label,value,onChange,options}){
-  return <div style={{display:"flex",flexDirection:"column",gap:4}}>
-    {label&&<label style={{color:C.muted,fontSize:9,fontWeight:700,letterSpacing:1.5,fontFamily:"DM Mono,monospace",textTransform:"uppercase"}}>{label}</label>}
-    <select value={value} onChange={e=>onChange(e.target.value)} style={{background:C.dark,border:`1px solid ${C.border}`,borderRadius:7,padding:"9px 12px",color:C.white,fontSize:13,outline:"none"}}>
-      {options.map(o=><option key={o.v||o} value={o.v||o}>{o.l||o}</option>)}
-    </select>
-  </div>;
-}
+// ── UI COMPONENTS — imported from src/components/ui.jsx ──
 
 function Tog({label,sub,val,onChange}){
   return <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
@@ -461,20 +305,6 @@ function ProgressBar({val,max,color}){
   </div>;
 }
 
-function Avatar({name,size=36,color,verified,photo}){
-  const col=color||C.accent;
-  return <div style={{position:"relative",flexShrink:0}}>
-    <div style={{width:size,height:size,borderRadius:"50%",background:`linear-gradient(135deg,${col}33,${col}11)`,border:`1px solid ${col}44`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Rajdhani',sans-serif",fontSize:Math.round(size*.44),fontWeight:700,color:col,boxShadow:`0 0 12px ${col}22`,overflow:"hidden"}}>
-      {photo?<img src={photo} style={{width:size,height:size,objectFit:"cover"}} alt={name}/>:<span>{(name||"?")[0].toUpperCase()}</span>}
-    </div>
-    {verified&&<div style={{position:"absolute",bottom:-1,right:-1,width:Math.round(size*.36),height:Math.round(size*.36),borderRadius:"50%",background:C.blue,border:`2px solid ${C.card}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:Math.round(size*.16),color:C.white}}>✓</div>}
-  </div>;
-}
-
-function NotifDot({count}){
-  if(!count)return null;
-  return <div style={{background:C.red,color:C.white,borderRadius:"50%",minWidth:16,height:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,marginLeft:"auto",boxShadow:`0 0 8px ${C.red}66`}}>{count>9?"9+":count}</div>;
-}
 
 function RegionPicker({selected,onChange}){
   return <div style={{display:"flex",gap:5,flexWrap:"wrap",maxHeight:140,overflowY:"auto"}}>
@@ -482,14 +312,6 @@ function RegionPicker({selected,onChange}){
   </div>;
 }
 
-// ── TRON SCAN-LINE BACKGROUND ──────────────────
-function TronBg(){
-  return <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:0,overflow:"hidden"}}>
-    <div className="tron-grid-bg" style={{position:"absolute",inset:0,opacity:.4}}/>
-    <div style={{position:"absolute",inset:0,background:`radial-gradient(ellipse 80% 60% at 50% 0%,${C.accent}08,transparent 60%)`}}/>
-    <div style={{position:"absolute",inset:0,background:`radial-gradient(ellipse 60% 40% at 80% 80%,${C.gold}06,transparent 50%)`}}/>
-  </div>;
-}
 
 function makeThreadId(a,b){return[String(a),String(b)].sort().join("_");}
 function Messaging({me,athletes,coaches,saveAthletes,saveCoaches,messages,saveMessages,settings}){
@@ -831,87 +653,7 @@ function Login({onSuccess,athletes,coaches,settings,onFreeSignup}){
   </div>;
 }
 
-function useMobile(){
-  const [m,setM]=useState(()=>typeof window!=="undefined"&&window.innerWidth<640);
-  useEffect(()=>{const f=()=>setM(window.innerWidth<640);window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
-  return m;
-}
-
-const MOBILE_PRIMARY={
-  athlete:[{id:"home",icon:"🏠",label:"Vault"},{id:"schools",icon:"🏫",label:"Schools"},{id:"messages",icon:"💬",label:"Messages"},{id:"profile",icon:"👤",label:"Profile"}],
-  coach:[{id:"home",icon:"🏠",label:"Home"},{id:"athletes",icon:"🔍",label:"Athletes"},{id:"messages",icon:"💬",label:"Messages"},{id:"profile",icon:"👤",label:"Profile"}],
-  owner:[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"ai",icon:"⚡",label:"AI"}],
-};
-
-function BottomNav({role,tab,setTab,navItems,msgCount,notifCount,user,onLogout}){
-  const [moreOpen,setMoreOpen]=useState(false);
-  const primary=MOBILE_PRIMARY[role]||MOBILE_PRIMARY.athlete;
-  const primaryIds=new Set(primary.map(t=>t.id));
-  const secondary=navItems.filter(n=>!primaryIds.has(n.id));
-  const isFree=role==="athlete"&&user?.plan==="free";
-  return <>
-    {moreOpen&&<div onClick={()=>setMoreOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.75)",zIndex:198}}/>}
-    <div style={{position:"fixed",bottom:58,left:0,right:0,background:C.dark,borderTop:`1px solid ${C.border}`,zIndex:199,padding:"12px 16px 8px",display:moreOpen?"block":"none",maxHeight:"60vh",overflowY:"auto",borderRadius:"16px 16px 0 0"}}>
-      <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:2,marginBottom:10}}>ALL TABS</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-        {secondary.map(n=>{const locked=isFree&&n.pro;return <button key={n.id} onClick={()=>{if(!locked){setTab(n.id);setMoreOpen(false);}}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"10px 4px",borderRadius:9,border:"none",background:tab===n.id?C.goldGlow:C.card,color:locked?C.muted:tab===n.id?C.gold:C.mutedHi,cursor:locked?"not-allowed":"pointer",fontFamily:"'Sora',sans-serif",fontSize:10,fontWeight:600}}>
-          <span style={{fontSize:18}}>{n.icon}</span>
-          <span style={{textAlign:"center",lineHeight:1.2}}>{n.label}</span>
-          {locked&&<span style={{fontSize:9,color:C.muted}}>🔒</span>}
-        </button>;})}
-        <button onClick={()=>{onLogout();setMoreOpen(false);}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"10px 4px",borderRadius:9,border:"none",background:C.card,color:C.red,cursor:"pointer",fontFamily:"'Sora',sans-serif",fontSize:10,fontWeight:600}}>
-          <span style={{fontSize:18}}>🚪</span><span>Sign Out</span>
-        </button>
-      </div>
-    </div>
-    <div style={{position:"fixed",bottom:0,left:0,right:0,height:58,background:C.dark,borderTop:`1px solid ${C.border}`,display:"flex",zIndex:200,alignItems:"stretch",padding:"0 4px",paddingBottom:"env(safe-area-inset-bottom)"}}>
-      {primary.map(t=>{const count=t.id==="messages"?msgCount:t.id==="notifications"?notifCount:0;const active=tab===t.id;return <button key={t.id} onClick={()=>{setTab(t.id);setMoreOpen(false);}} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,border:"none",background:"transparent",cursor:"pointer",position:"relative",borderTop:`2px solid ${active?C.gold:"transparent"}`}}>
-        <span style={{fontSize:21}}>{t.icon}</span>
-        <span style={{fontFamily:"'Sora',sans-serif",fontSize:9,fontWeight:600,color:active?C.gold:C.muted}}>{t.label}</span>
-        {count>0&&<div style={{position:"absolute",top:4,right:"18%",minWidth:16,height:16,borderRadius:8,background:C.red,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"white",fontWeight:700,padding:"0 3px"}}>{count>9?"9+":count}</div>}
-      </button>;})}
-      <button onClick={()=>setMoreOpen(p=>!p)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,border:"none",background:"transparent",cursor:"pointer",borderTop:`2px solid ${moreOpen?C.gold:"transparent"}`}}>
-        <span style={{fontSize:21,letterSpacing:-2,color:moreOpen?C.gold:C.muted}}>•••</span>
-        <span style={{fontFamily:"'Sora',sans-serif",fontSize:9,fontWeight:600,color:moreOpen?C.gold:C.muted}}>More</span>
-      </button>
-    </div>
-  </>;
-}
-
-function Sidebar({navItems,tab,setTab,user,role,onLogout,msgCount,notifCount}){
-  const rc={owner:C.gold,athlete:C.blue,coach:C.purple};
-  const rl={owner:"Owner",athlete:"Athlete",coach:"Coach"};
-  const [collapsed,setCollapsed]=useState(false);
-  const isFree=role==="athlete"&&user?.plan==="free";
-  return <div style={{width:collapsed?64:220,flexShrink:0,background:C.dark,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",minHeight:"100vh",position:"sticky",top:0,transition:"width .2s"}}>
-    <div style={{padding:collapsed?"12px 8px":"16px 13px",borderBottom:`1px solid ${C.border}`}}>
-      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:collapsed?0:12,justifyContent:collapsed?"center":"flex-start"}}>
-        <div style={{width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${C.gold},${C.goldDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:900,color:C.black,flexShrink:0}}>AV</div>
-        {!collapsed&&<div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:900,color:C.white,letterSpacing:1.5}}>ATHLETEVAULT</div>}
-      </div>
-      {!collapsed&&<div style={{background:C.card,borderRadius:9,padding:"10px 12px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}><Avatar name={user?.name||"O"} size={28} color={rc[role]} verified={user?.verified}/><div style={{color:C.white,fontWeight:700,fontSize:12,lineHeight:1.2}}>{user?.name||"Chewy Barnes"}</div></div>
-        <Badge color={rc[role]}>{rl[role]}</Badge>
-        {isFree&&<div style={{color:C.gold,fontSize:10,marginTop:5,fontFamily:"DM Mono,monospace",background:C.goldGlow,borderRadius:4,padding:"2px 6px",display:"inline-block"}}>FREE PLAN — UPGRADE</div>}
-        {!isFree&&user?.tier&&<div style={{color:C.muted,fontSize:10,marginTop:4,fontFamily:"DM Mono,monospace"}}>{user.tier.toUpperCase()} PLAN</div>}
-      </div>}
-    </div>
-    <nav style={{flex:1,padding:collapsed?"6px 4px":"9px 6px",overflowY:"auto"}}>
-      {navItems.map(n=>{const locked=isFree&&n.pro;return <button key={n.id} onClick={()=>setTab(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:8,width:"100%",padding:collapsed?"10px 8px":"9px 10px",borderRadius:7,border:"none",background:tab===n.id?C.goldGlow:"transparent",color:tab===n.id?C.gold:locked?C.border:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12,cursor:"pointer",textAlign:"left",marginBottom:1,borderLeft:`2px solid ${tab===n.id&&!collapsed?C.gold:"transparent"}`,transition:"all .15s",position:"relative"}}>
-        <span style={{fontSize:15,flexShrink:0}}>{n.icon}</span>
-        {!collapsed&&<span style={{flex:1}}>{n.label}</span>}
-        {!collapsed&&locked&&<span style={{fontSize:10,color:C.muted}}>🔒</span>}
-        {!collapsed&&!locked&&n.id==="messages"&&msgCount>0&&<NotifDot count={msgCount}/>}
-        {!collapsed&&!locked&&n.id==="notifications"&&notifCount>0&&<NotifDot count={notifCount}/>}
-        {collapsed&&(n.id==="messages"&&msgCount>0||n.id==="notifications"&&notifCount>0)&&<div style={{position:"absolute",top:4,right:4,width:8,height:8,borderRadius:"50%",background:C.red}}/>}
-      </button>;})}
-    </nav>
-    <div style={{padding:collapsed?"6px 4px":"9px 6px",borderTop:`1px solid ${C.border}`}}>
-      <button onClick={()=>setCollapsed(p=>!p)} style={{display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:8,width:"100%",padding:"8px 10px",borderRadius:7,border:"none",background:"transparent",color:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12,cursor:"pointer",marginBottom:4}}><span>{collapsed?"→":"←"}</span>{!collapsed&&"Collapse"}</button>
-      <button onClick={onLogout} style={{display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:7,width:"100%",padding:"8px 10px",borderRadius:7,border:"none",background:"transparent",color:C.red,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12,cursor:"pointer"}}>🚪{!collapsed&&" Sign Out"}</button>
-    </div>
-  </div>;
-}
+// ── LAYOUT — imported from src/components/layout.jsx ──
 
 function NotificationsTab({user,allUsers,messages,markRead}){
   const notifs=user.notifications||[];
@@ -1803,7 +1545,9 @@ Under 200 words. Confident. International ready.`);setPitch(r);}catch(e){setPitc
 }
 
 function SchoolSearch({athlete,isFree,onUpgrade}){
+  const isMobile=useMobile();
   const [search,setSearch]=useState("");const [divF,setDivF]=useState("all");const [sportF,setSportF]=useState(athlete?.sport||"all");const [typeF,setTypeF]=useState("all");const [schF,setSchF]=useState("all");const [sel,setSel]=useState(null);const [saved,setSaved]=useStore("av_saved_schools_v2",[]);const [contacted,setContacted]=useStore("av_contacted_v2",[]);const [notes,setNotes]=useStore("av_school_notes_v2",{});const [view,setView]=useState("search");const [loading,setLoading]=useState(false);const [outreach,setOutreach]=useState("");const [matchOut,setMatchOut]=useState("");const [matchLoading,setMatchLoading]=useState(false);
+  const [fitAnalysis,setFitAnalysis]=useState("");const [fitLoading,setFitLoading]=useState(false);
   const divs=["all","NCAA D1","NCAA D2","NAIA","NJCAA"];const types=["all","Public","Private","HBCU","JUCO"];
   const filtered=SCHOOLS.filter(s=>{const mS=(s.name+(s.nick||"")+(s.loc||"")).toLowerCase().includes(search.toLowerCase());const mD=divF==="all"||s.div===divF;const mSp=sportF==="all"||s.sports?.includes(sportF);const mT=typeF==="all"||s.type===typeF;const mSch=schF==="all"||(schF==="yes"&&s.scholarships)||(schF==="no"&&!s.scholarships);return mS&&mD&&mSp&&mT&&mSch;});
   const savedSchools=SCHOOLS.filter(s=>saved.includes(s.id));
@@ -1812,6 +1556,7 @@ function SchoolSearch({athlete,isFree,onUpgrade}){
   function markContacted(school){setContacted(prev=>[...prev.filter(c=>c.id!==school.id),{id:school.id,date:new Date().toISOString().slice(0,10),status:"contacted"}]);}
   async function genOutreach(school){setLoading(true);setOutreach("");try{const r=await ai(`Write a personalized recruiting email from ${athlete?.name||"an athlete"} (${athlete?.sport}, ${fmt(athlete?.followers||0)} social followers, ${athlete?.school||"current program"}, ${athlete?.city||""} ${athlete?.country||"USA"}) to the coaching staff at ${school.name} (${school.nick}, ${school.div}, ${school.conf}).Open positions: ${JSON.stringify(school.openings)}. Scholarships: ${school.schNote}.Complete email with subject line, personal opening, athletic credentials, why this school, academic mention, clear ask. Under 200 words.`);setOutreach(r);markContacted(school);}catch(e){setOutreach("⚠️ Failed.");}setLoading(false);}
   async function genMatch(){setMatchLoading(true);setMatchOut("");try{const r=await ai(`Recommend top 10 school matches for: ${athlete?.name}, ${athlete?.sport}, ${fmt(athlete?.followers||0)} followers, ${athlete?.city||""} ${athlete?.country}, school: ${athlete?.school||"unknown"}, bio: "${athlete?.bio||""}".Schools available: ${SCHOOLS.filter(s=>s.sports?.includes(athlete?.sport||"Football")).map(s=>`${s.name} (${s.div}, ${s.loc}, scholarships:${s.scholarships})`).join("; ")}.For each: school name, match score 1-100, why they fit, realistic scholarship chance, first action. Be honest about realistic levels.`);setMatchOut(r);}catch(e){setMatchOut("⚠️ Failed.");}setMatchLoading(false);}
+  async function genFitAnalysis(school){setFitAnalysis("");setFitLoading(true);try{const r=await ai(`Give a detailed AI recruiting fit analysis for ${athlete?.name||"this athlete"} (${athlete?.sport}, ${fmt(athlete?.followers||0)} social followers, GPA: ${athlete?.stats?.gpa||"unknown"}, 40-yd: ${athlete?.stats?.forty||"unknown"}, from ${athlete?.city||""} ${athlete?.country||"USA"}, bio: "${athlete?.bio||""}") applying to ${school.name} (${school.div}, ${school.conf}, ${school.loc}). Scholarships: ${school.scholarships?school.schNote:"None"}. Cover: fit score breakdown, strengths in this match, weaknesses/gaps, scholarship likelihood, what to lead with in outreach, realistic timeline, one bold insight they probably haven't thought of. Be direct, specific, and brutally honest.`);setFitAnalysis(r);}catch(e){setFitAnalysis("⚠️ Failed.");}setFitLoading(false);}
   const divColor={"NCAA D1":C.gold,"NCAA D2":C.blue,"NAIA":C.green,"NJCAA":C.teal};
 
   // Algorithmic fit score (0-100) based on athlete profile
@@ -1855,7 +1600,7 @@ function SchoolSearch({athlete,isFree,onUpgrade}){
     </div>}
     {view==="saved"&&<div>{savedSchools.length===0?<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:36,marginBottom:10}}>⭐</div><div style={{color:C.white,fontWeight:700}}>No saved schools yet</div></Card>:<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>{savedSchools.map(s=><Card key={s.id} onClick={()=>{setSel(s);setView("search");}} style={{cursor:"pointer"}}><div style={{fontSize:22,marginBottom:7}}>{s.logo}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:900,color:C.white,marginBottom:3}}>{s.name}</div><div style={{color:divColor[s.div]||C.gold,fontSize:12,marginBottom:6}}>{s.div} · {s.conf}</div><Badge color={s.scholarships?C.green:C.muted}>{s.scholarships?"Scholarships":"No Scholarship"}</Badge></Card>)}</div>}</div>}
     {view==="tracker"&&<div>{contactedSchools.length===0?<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:36,marginBottom:10}}>📋</div><div style={{color:C.white,fontWeight:700}}>Tracker empty</div><div style={{color:C.muted,fontSize:13}}>Generate outreach emails to track schools here.</div></Card>:<Card>{contactedSchools.map(s=>{const c=contacted.find(x=>x.id===s.id);const nk=`s_${s.id}`;return <div key={s.id} style={{padding:"12px 0",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:6}}><div><div style={{color:C.white,fontWeight:700,fontSize:14}}>{s.logo} {s.name}</div><div style={{color:C.muted,fontSize:12}}>{s.div} · Contacted {c?.date}</div></div><Badge color={c?.status==="committed"?C.gold:c?.status==="replied"?C.green:c?.status==="visit"?C.purple:C.muted}>{c?.status}</Badge></div><div style={{display:"flex",gap:5,marginBottom:8,flexWrap:"wrap"}}>{["contacted","replied","visit","committed","declined"].map(st=><button key={st} onClick={()=>setContacted(prev=>prev.map(x=>x.id===s.id?{...x,status:st}:x))} style={{background:c?.status===st?C.goldGlow:"transparent",border:`1px solid ${c?.status===st?C.gold:C.border}`,borderRadius:5,padding:"3px 8px",cursor:"pointer",color:c?.status===st?C.gold:C.muted,fontSize:10,fontFamily:"'Sora',sans-serif",fontWeight:600,textTransform:"capitalize"}}>{st}</button>)}</div><input value={notes[nk]||""} onChange={e=>setNotes(p=>({...p,[nk]:e.target.value}))} placeholder="Notes…" style={{width:"100%",background:C.dark,border:`1px solid ${C.border}`,borderRadius:7,padding:"7px 11px",color:C.white,fontSize:12,outline:"none",fontFamily:"'Sora',sans-serif",boxSizing:"border-box"}}/></div>;})}</Card>}</div>}
-    {view==="search"&&<div style={{display:"grid",gridTemplateColumns:"1fr 380px",gap:18,alignItems:"start"}}>
+    {view==="search"&&<div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 380px",gap:18,alignItems:"start"}}>
       <div>
         <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search schools, cities, conferences…" style={{flex:1,minWidth:160,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.white,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif"}}/>
@@ -1894,6 +1639,8 @@ function SchoolSearch({athlete,isFree,onUpgrade}){
           </div>;})()}
           {!isFree&&<Btn onClick={()=>genOutreach(sel)} loading={loading} full>⚡ Generate Outreach Email</Btn>}
           {!isFree&&<AIOut loading={loading} output={outreach} label="OUTREACH EMAIL"/>}
+          {!isFree&&<Btn onClick={()=>genFitAnalysis(sel)} loading={fitLoading} full style={{marginTop:8}}>🎯 AI Fit Analysis</Btn>}
+          {!isFree&&<AIOut loading={fitLoading} output={fitAnalysis} label="AI FIT ANALYSIS — CLAUDE"/>}
         </Card>:<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:36,marginBottom:12}}>🏫</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:6}}>Select a Program</div><div style={{color:C.muted,fontSize:13}}>View details, scholarships, openings and generate your outreach email.</div></Card>}
       </div>
     </div>}
@@ -1902,6 +1649,8 @@ function SchoolSearch({athlete,isFree,onUpgrade}){
 
 function AContent({athlete,saveAthletes,athletes}){
   const [ctab,setCtab]=useState("vault");const [showUpload,setShowUpload]=useState(false);const [vid,setVid]=useState({title:"",platform:[],notes:"",url:""});const [caption,setCaption]=useState("");const [capLoading,setCapLoading]=useState(false);const [selVid,setSelVid]=useState(null);
+  const [vidUploading,setVidUploading]=useState(false);
+  async function handleVideoFile(e){const file=e.target.files?.[0];if(!file)return;setVidUploading(true);try{const r=await fetch("/api/upload-video",{method:"POST",headers:{"content-type":file.type,"x-filename":file.name,"x-folder":"athlete-highlights"},body:file});const d=await r.json();if(d.url)setVid(p=>({...p,url:d.url}));}catch(err){alert("Upload failed: "+err.message);}setVidUploading(false);}
   const platforms=["TikTok","Instagram","Twitter/X","YouTube","LinkedIn"];
   const videos=athletes.find(a=>String(a.id)===String(athlete.id))?.videos||[];
   const vidLim=mediaLimits(athlete.plan,athlete.tier).videos;
@@ -1912,13 +1661,18 @@ function AContent({athlete,saveAthletes,athletes}){
     <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>{[["vault","📦 My Vault"],["captions","⚡ Caption AI"]].map(([t,l])=><Btn key={t} onClick={()=>setCtab(t)} variant={ctab===t?"gold":"ghost"} small>{l}</Btn>)}<Btn onClick={()=>setShowUpload(true)} style={{marginLeft:"auto"}}>+ Upload Video</Btn></div>
     {ctab==="vault"&&(videos.length===0?<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:40,marginBottom:12}}>🎬</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:6}}>Vault is empty</div><Btn onClick={()=>setShowUpload(true)}>Upload Video</Btn></Card>:<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>{videos.map(v=><Card key={v.id}><div style={{background:C.card2,borderRadius:8,height:100,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10,fontSize:32}}>🎥</div><div style={{color:C.white,fontWeight:700,fontSize:14,marginBottom:3}}>{v.title}</div><div style={{color:C.muted,fontSize:11,marginBottom:7}}>{v.added}</div><div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>{v.platform.map(p=><Badge key={p} color={C.blue}>{p}</Badge>)}</div>{v.url&&<a href={v.url} target="_blank" rel="noreferrer" style={{color:C.blue,fontSize:12,display:"block",marginBottom:8}}>View ↗</a>}<Btn onClick={()=>{setSelVid(v);genCaption(v);setCtab("captions");}} variant="ghost" small full>⚡ Caption</Btn></Card>)}</div>)}
     {ctab==="captions"&&<div>{videos.length>0&&<Card style={{marginBottom:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:8}}>SELECT VIDEO</div><select onChange={e=>{const v=videos.find(x=>x.id===Number(e.target.value));if(v)genCaption(v);}} style={{width:"100%",background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.white,fontSize:13,outline:"none"}}><option value="">— Pick a video —</option>{videos.map(v=><option key={v.id} value={v.id}>{v.title}</option>)}</select></Card>}<AIOut loading={capLoading} output={caption} label={selVid?`CAPTIONS — ${selVid.title}`:"CAPTIONS"}/></div>}
-    <Modal show={showUpload} onClose={()=>setShowUpload(false)} title="UPLOAD VIDEO"><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="TITLE" value={vid.title} onChange={v=>setVid(p=>({...p,title:v}))} placeholder="Spring Highlight Reel 2026"/><Inp label="VIDEO URL" value={vid.url} onChange={v=>setVid(p=>({...p,url:v}))} placeholder="https://youtube.com/..."/><div><label style={{color:C.muted,fontSize:10,fontWeight:700,letterSpacing:1,fontFamily:"DM Mono,monospace",display:"block",marginBottom:6}}>PLATFORMS</label><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{platforms.map(p=>{const on=vid.platform.includes(p);return <button key={p} onClick={()=>setVid(prev=>({...prev,platform:on?prev.platform.filter(x=>x!==p):[...prev.platform,p]}))} style={{background:on?C.goldGlow:"transparent",border:`1px solid ${on?C.gold:C.border}`,borderRadius:7,padding:"5px 11px",cursor:"pointer",color:on?C.gold:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12}}>{p}</button>;})}</div></div><Inp label="NOTES" value={vid.notes} onChange={v=>setVid(p=>({...p,notes:v}))} rows={2}/><Btn onClick={addVideo} disabled={!vid.title} full>Save to Vault</Btn></div></Modal>
+    <Modal show={showUpload} onClose={()=>setShowUpload(false)} title="UPLOAD VIDEO"><div style={{display:"flex",flexDirection:"column",gap:12}}><Inp label="TITLE" value={vid.title} onChange={v=>setVid(p=>({...p,title:v}))} placeholder="Spring Highlight Reel 2026"/><Inp label="VIDEO URL (paste YouTube, TikTok, etc.)" value={vid.url} onChange={v=>setVid(p=>({...p,url:v}))} placeholder="https://youtube.com/..."/><div style={{textAlign:"center"}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:6}}>— OR UPLOAD FILE (stored in Vault) —</div>{vidUploading?<div style={{color:C.gold,fontFamily:"DM Mono,monospace",fontSize:12}}>⟳ Uploading…</div>:<><input type="file" accept="video/*" onChange={handleVideoFile} style={{color:C.white,fontSize:12,cursor:"pointer"}}/>{vid.url&&vid.url.startsWith("https://")&&<div style={{color:C.green,fontSize:11,marginTop:6}}>✓ File uploaded</div>}</>}</div><div><label style={{color:C.muted,fontSize:10,fontWeight:700,letterSpacing:1,fontFamily:"DM Mono,monospace",display:"block",marginBottom:6}}>PLATFORMS</label><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{platforms.map(p=>{const on=vid.platform.includes(p);return <button key={p} onClick={()=>setVid(prev=>({...prev,platform:on?prev.platform.filter(x=>x!==p):[...prev.platform,p]}))} style={{background:on?C.goldGlow:"transparent",border:`1px solid ${on?C.gold:C.border}`,borderRadius:7,padding:"5px 11px",cursor:"pointer",color:on?C.gold:C.muted,fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:12}}>{p}</button>;})}</div></div><Inp label="NOTES" value={vid.notes} onChange={v=>setVid(p=>({...p,notes:v}))} rows={2}/><Btn onClick={addVideo} disabled={!vid.title} full>Save to Vault</Btn></div></Modal>
   </div>;
 }
 
 function ABrands({athlete,saveAthletes,athletes,brandDeals}){
+  const isMobile=useMobile();
   const [sel,setSel]=useState(null);const [loading,setLoading]=useState(false);const [pitch,setPitch]=useState("");
   const [sportF,setSportF]=useState("All");
+  const [showBrandSubmit,setShowBrandSubmit]=useState(false);
+  const [brandForm,setBrandForm]=useState({brand:"",cat:"",payout:"",sport:"All",desc:"",contact:"",minFollowers:"0"});
+  const [brandSubmitted,setBrandSubmitted]=useState(false);const [brandLoading,setBrandLoading]=useState(false);
+  async function submitBrandDeal(){if(!brandForm.brand||!brandForm.payout||!brandForm.contact)return;setBrandLoading(true);try{await fetch("/api/submit-deal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(brandForm)});setBrandSubmitted(true);}catch(e){}setBrandLoading(false);}
   const myDeals=athletes.find(a=>String(a.id)===String(athlete.id))?.deals||[];
   const applied=myDeals.map(d=>d.id);
   const deals=(brandDeals||SEED_BRAND_DEALS).filter(d=>d.active!==false);
@@ -1935,7 +1689,7 @@ function ABrands({athlete,saveAthletes,athletes,brandDeals}){
       <div style={{color:C.muted,fontSize:12}}>Filter:</div>
       {["All",...SPORTS_LIST.slice(0,6)].map(s=><button key={s} onClick={()=>setSportF(s)} style={{background:sportF===s?C.goldGlow:"transparent",border:`1px solid ${sportF===s?C.gold:C.border}`,borderRadius:7,padding:"4px 11px",cursor:"pointer",color:sportF===s?C.gold:C.muted,fontSize:12,fontFamily:"'Sora',sans-serif",fontWeight:600}}>{s}</button>)}
     </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 340px",gap:16,alignItems:"start"}}>
+    <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 340px",gap:16,alignItems:"start"}}>
       <div>
         {filtered.length===0&&<Card style={{textAlign:"center",padding:36}}><div style={{fontSize:36,marginBottom:10}}>🔒</div><div style={{color:C.white,fontWeight:700,marginBottom:6}}>No deals available yet</div><p style={{color:C.muted,fontSize:13}}>Grow your followers or adjust the sport filter to unlock more deals.</p></Card>}
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:12,marginBottom:locked.length?14:0}}>
@@ -1968,9 +1722,25 @@ function ABrands({athlete,saveAthletes,athletes,brandDeals}){
           <div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:10}}>YOUR PITCH — {sel.brand.toUpperCase()}</div>
           {loading?<div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:13}}>⟳ Writing…</div>:<><p style={{color:C.white,fontSize:14,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{pitch}</p>{pitch&&<Btn variant="ghost" small onClick={()=>navigator.clipboard?.writeText(pitch)} style={{marginTop:11}}>📋 Copy</Btn>}</>}
         </Card>:<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:32,marginBottom:10}}>🤝</div><div style={{color:C.white,fontWeight:600}}>Select a deal to apply</div><p style={{color:C.muted,fontSize:13,marginTop:6}}>AI writes your pitch in seconds.</p></Card>}
-        {myDeals.length>0&&<Card style={{marginTop:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>MY APPLICATIONS</div>{myDeals.map((d,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.white,fontSize:13}}>{d.brand}</span><Badge color={C.green}>{d.status}</Badge></div>)}</Card>}
+        {myDeals.length>0&&<Card style={{marginTop:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>MY APPLICATIONS</div>{myDeals.map((d,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.white,fontSize:13}}>{d.brand}</span><Badge color={d.status==="accepted"?C.green:d.status==="rejected"?C.red:C.gold}>{d.status}</Badge></div>)}</Card>}
       </div>
     </div>
+    <div style={{marginTop:20,padding:"16px",background:C.card2,borderRadius:10,border:`1px solid ${C.border}`,textAlign:"center"}}>
+      <div style={{color:C.muted,fontSize:11,marginBottom:8}}>🏷️ Are you a brand? Want to reach our athletes?</div>
+      <Btn onClick={()=>{setShowBrandSubmit(true);setBrandSubmitted(false);}} variant="ghost" small>Submit a Deal →</Btn>
+    </div>
+    <Modal show={showBrandSubmit} onClose={()=>setShowBrandSubmit(false)} title="SUBMIT A BRAND DEAL" maxW={440}>
+      {brandSubmitted?<div style={{textAlign:"center",padding:24}}><div style={{fontSize:40,marginBottom:12}}>✅</div><div style={{color:C.green,fontWeight:700,fontSize:16,marginBottom:8}}>Deal Submitted!</div><p style={{color:C.muted,fontSize:13}}>We'll review it and add it to the marketplace within 48 hours.</p></div>:<div style={{display:"flex",flexDirection:"column",gap:11}}>
+        <Inp label="BRAND NAME*" value={brandForm.brand} onChange={v=>setBrandForm(p=>({...p,brand:v}))} placeholder="Gatorade, Nike, etc."/>
+        <Inp label="CATEGORY" value={brandForm.cat} onChange={v=>setBrandForm(p=>({...p,cat:v}))} placeholder="Apparel, Nutrition, Tech..."/>
+        <Inp label="PAYOUT*" value={brandForm.payout} onChange={v=>setBrandForm(p=>({...p,payout:v}))} placeholder="$500–$2,000 per post"/>
+        <Inp label="DESCRIPTION" value={brandForm.desc} onChange={v=>setBrandForm(p=>({...p,desc:v}))} placeholder="What you need from athletes..." rows={2}/>
+        <Inp label="SPORT (or All)" value={brandForm.sport} onChange={v=>setBrandForm(p=>({...p,sport:v}))} placeholder="All"/>
+        <Inp label="MIN FOLLOWERS" value={brandForm.minFollowers} onChange={v=>setBrandForm(p=>({...p,minFollowers:v}))} placeholder="500"/>
+        <Inp label="CONTACT EMAIL*" value={brandForm.contact} onChange={v=>setBrandForm(p=>({...p,contact:v}))} placeholder="partnerships@yourbrand.com" type="email"/>
+        <Btn onClick={submitBrandDeal} disabled={brandLoading||!brandForm.brand||!brandForm.payout||!brandForm.contact} full>{brandLoading?"Submitting…":"Submit Deal →"}</Btn>
+      </div>}
+    </Modal>
   </div>;
 }
 
@@ -3165,6 +2935,7 @@ function OnboardingTerms({onAccept}){
 
 // ── AStats ─────────────────────────────────────────
 function AStats({athlete,saveAthletes,athletes}){
+  const isMobile=useMobile();
   const liveUser=athletes.find(a=>String(a.id)===String(athlete.id))||athlete;
   const [draft,setDraft]=useState(liveUser.stats||{});
   const [saved,setSaved]=useState(false);
@@ -3180,7 +2951,7 @@ function AStats({athlete,saveAthletes,athletes}){
   const pct=Math.round(filled.length/fields.length*100);
   return <div>
     <Sec title="My Stats" sub="Your recruiting numbers — coaches see this on your profile"/>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 320px",gap:16,alignItems:"start"}}>
+    <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 320px",gap:16,alignItems:"start"}}>
       <Card glow>
         <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:14}}>{(liveUser.sport||"ATHLETE").toUpperCase()} COMBINE & ACADEMIC STATS</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
@@ -3572,7 +3343,7 @@ export default function App(){
   if(!session)return <Login onSuccess={(role,user)=>{setSession({role,user});setTab("home");addLog({action:"Login",detail:`${role} ${user?.name||"owner"}`,level:"info"});}} athletes={athletes} coaches={coaches} settings={settings} onFreeSignup={createFreeAccount}/>;
 
   // Rebuild theme whenever settings change
-  C=buildTheme(settings);
+  setTheme(settings);
   const {role:sessionRole,user:sessionUser}=session;
   const role=previewAs?previewAs.role:sessionRole;
   const previewUser=previewAs?.user;
