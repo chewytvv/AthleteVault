@@ -24,11 +24,14 @@ module.exports = async (req, res) => {
       metadata: { coachId: String(coachId), name: name || '' },
     });
 
-    // Create an onboarding link
+    // Build return URL with the real account ID — client sends a template with ACCOUNT_ID placeholder
+    const baseReturn = (returnUrl || 'http://localhost:5173').split('?')[0];
+    const actualReturnUrl = `${baseReturn}?stripe_connected=${account.id}&coach=${coachId}`;
+
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
       refresh_url: refreshUrl || 'http://localhost:5173?stripe_refresh=1',
-      return_url: returnUrl || `http://localhost:5173?stripe_connected=${account.id}&coach=${coachId}`,
+      return_url: actualReturnUrl,
       type: 'account_onboarding',
     });
 

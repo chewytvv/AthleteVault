@@ -2771,6 +2771,18 @@ function CoachingHub({athlete,coaches,athletes,messages,saveMessages,saveAthlete
   const [purchased,setPurchased]=useStore(`av_purchased_${athlete.id}`,[]);
   const [registered,setRegistered]=useStore(`av_sessions_${athlete.id}`,[]);
 
+  // Apply any pending purchases from Stripe return URL (stored in localStorage by App)
+  useEffect(()=>{
+    try{
+      const pending=JSON.parse(localStorage.getItem("av_pending_purchase")||"{}");
+      const vids=Object.entries(pending).filter(([,v])=>v.type==="video").map(([id])=>id);
+      const sess=Object.entries(pending).filter(([,v])=>v.type==="session").map(([id])=>id);
+      if(vids.length>0){setPurchased(prev=>[...new Set([...prev,...vids])]);}
+      if(sess.length>0){setRegistered(prev=>[...new Set([...prev,...sess])]);}
+      if(vids.length>0||sess.length>0){localStorage.removeItem("av_pending_purchase");}
+    }catch(_){}
+  },[]);
+
   // Gather all videos + sessions from all coaches
   const allVideos=coaches.flatMap(c=>(c.coachVideos||[]).map(v=>({...v,coachObj:c})));
   const allSessions=coaches.flatMap(c=>(c.liveSessions||[]).filter(s=>s.status==="upcoming").map(s=>({...s,coachObj:c})));
@@ -3483,20 +3495,24 @@ export default function App(){
     const purchaseType=params.get("type");
     const purchaseCoachId=params.get("coach");
     if(purchasedId&&purchaseType){
-      const storageKey=purchaseType==="video"?`av_purchased_${session?.user?.id||""}`:null;
-      const sessionKey=purchaseType==="session"?`av_sessions_${session?.user?.id||""}`:null;
-      // Update coach revenue
+      // Stash the purchase in localStorage so CoachingHub can unlock it on mount
+      try{
+        const pending=JSON.parse(localStorage.getItem("av_pending_purchase")||"{}");
+        pending[purchasedId]={type:purchaseType,ts:Date.now()};
+        localStorage.setItem("av_pending_purchase",JSON.stringify(pending));
+      }catch(_){}
+      // Update coach revenue record
       if(purchaseCoachId){
         saveCoaches(prev=>prev.map(c=>{
           if(String(c.id)!==String(purchaseCoachId))return c;
           if(purchaseType==="video"){
             const v=c.coachVideos?.find(v=>String(v.id)===String(purchasedId));
             if(!v)return c;
-            return{...c,coachVideos:(c.coachVideos||[]).map(v=>String(v.id)===String(purchasedId)?{...v,revenue:(v.revenue||0)+v.price,purchases:[...(v.purchases||[]),{athlete:session?.user?.id,ts:Date.now()}]}:v),earnings:(c.earnings||0)+((v.price||0)*0.8)};
+            return{...c,coachVideos:(c.coachVideos||[]).map(v=>String(v.id)===String(purchasedId)?{...v,revenue:(v.revenue||0)+v.price,purchases:[...(v.purchases||[]),{ts:Date.now()}]}:v),earnings:(c.earnings||0)+((v.price||0)*0.8)};
           } else {
             const s=c.liveSessions?.find(s=>String(s.id)===String(purchasedId));
             if(!s)return c;
-            return{...c,liveSessions:(c.liveSessions||[]).map(s=>String(s.id)===String(purchasedId)?{...s,revenue:(s.revenue||0)+s.price,attendees:[...(s.attendees||[]),{athlete:session?.user?.id,ts:Date.now()}]}:s),earnings:(c.earnings||0)+((s.price||0)*0.8)};
+            return{...c,liveSessions:(c.liveSessions||[]).map(s=>String(s.id)===String(purchasedId)?{...s,revenue:(s.revenue||0)+s.price,attendees:[...(s.attendees||[]),{ts:Date.now()}]}:s),earnings:(c.earnings||0)+((s.price||0)*0.8)};
           }
         }));
       }

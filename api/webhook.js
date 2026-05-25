@@ -19,7 +19,13 @@ module.exports = async (req, res) => {
   switch(event.type){
     case'checkout.session.completed':{
       const s=event.data.object;
-      console.log('NEW SUBSCRIBER:',s.customer_email,'tier:',s.metadata?.tier,'role:',s.metadata?.role);
+      if(s.metadata?.itemType){
+        // Coaching purchase (video or live session)
+        console.log('COACHING PURCHASE:',s.customer_email,'item:',s.metadata.itemId,'type:',s.metadata.itemType,'coach:',s.metadata.coachId);
+      } else {
+        // Platform subscription
+        console.log('NEW SUBSCRIBER:',s.customer_email,'tier:',s.metadata?.tier,'role:',s.metadata?.role);
+      }
       break;
     }
     case'customer.subscription.deleted':
