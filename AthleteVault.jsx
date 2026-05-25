@@ -3,8 +3,8 @@ import {SCHOOLS} from "./src/data/schools.js";
 import {GLOBAL_TEAMS} from "./src/data/teams.js";
 import {supabase} from "./src/lib/supabase.js";
 
-// ── Owner Credentials ──────────────────────────
-const OWNER_CREDS={username:import.meta.env.VITE_OWNER_USER||"chewy",password:import.meta.env.VITE_OWNER_PASS||"AthleteVault2026!"};
+// ── Owner identity (env-only, never hardcoded) ──
+const OWNER_EMAIL=(import.meta.env.VITE_OWNER_EMAIL||"").toLowerCase();
 
 // ── Dynamic Theme System ───────────────────────
 // Owner can change these from dashboard — stored in settings
@@ -760,30 +760,24 @@ function Login({onSuccess,athletes,coaches,settings,onFreeSignup}){
   const locked=tries>=5;
   async function go(){
     if(locked)return;setErr("");setLoading(true);
-    // Owner hardcoded check
-    if(email.trim()===OWNER_CREDS.username&&pass===OWNER_CREDS.password){onSuccess("owner",null);return;}
     const em=email.trim().toLowerCase();
     // Demo seed users (no authId, no passwordHash → password is "demo")
     const ad=athletes.find(x=>x.email?.toLowerCase()===em&&!x.authId&&!x.passwordHash);
     if(ad&&pass==="demo"){onSuccess("athlete",ad);return;}
     const cd=coaches.find(x=>x.email?.toLowerCase()===em&&!x.authId&&!x.passwordHash);
     if(cd&&pass==="demo"){onSuccess("coach",cd);return;}
-    // Legacy hash users (old accounts before Supabase Auth)
-    const al=athletes.find(x=>x.email?.toLowerCase()===em&&x.passwordHash&&x.passwordHash===hashPass(pass));
-    if(al){onSuccess("athlete",al);return;}
-    const cl=coaches.find(x=>x.email?.toLowerCase()===em&&x.passwordHash&&x.passwordHash===hashPass(pass));
-    if(cl){onSuccess("coach",cl);return;}
-    // Supabase Auth login
+    // Supabase Auth login (handles owner, athletes, coaches)
     const{data,error}=await supabase.auth.signInWithPassword({email:email.trim(),password:pass});
     if(error){
       const n=tries+1;setTries(n);
-      setErr(n>=5?"Account locked after 5 attempts. Contact support@athletevault.org.":"Incorrect credentials. Please try again.");
+      setErr(n>=5?"Account locked after 5 attempts. Contact support@athletevault.org.":"Incorrect email or password. Please try again.");
       setLoading(false);return;
     }
     const ue=data.user?.email?.toLowerCase();
-    const a2=athletes.find(x=>x.email?.toLowerCase()===ue);
+    if(OWNER_EMAIL&&ue===OWNER_EMAIL){onSuccess("owner",null);return;}
+    const a2=athletes.find(x=>x.email?.toLowerCase()===ue||x.authId===data.user?.id);
     if(a2){onSuccess("athlete",a2);return;}
-    const c2=coaches.find(x=>x.email?.toLowerCase()===ue);
+    const c2=coaches.find(x=>x.email?.toLowerCase()===ue||x.authId===data.user?.id);
     if(c2){onSuccess("coach",c2);return;}
     setErr("Account found but profile missing. Contact support@athletevault.org.");setLoading(false);
   }
@@ -3463,9 +3457,10 @@ export default function App(){
     supabase.auth.getSession().then(({data:{session:s}})=>{
       if(!s)return;
       const em=s.user?.email?.toLowerCase();
-      const a=athletes.find(x=>x.email?.toLowerCase()===em);
+      if(OWNER_EMAIL&&em===OWNER_EMAIL){setSession({role:"owner",user:null});setShowLanding(false);return;}
+      const a=athletes.find(x=>x.email?.toLowerCase()===em||x.authId===s.user?.id);
       if(a){setSession({role:"athlete",user:a});setShowLanding(false);return;}
-      const c=coaches.find(x=>x.email?.toLowerCase()===em);
+      const c=coaches.find(x=>x.email?.toLowerCase()===em||x.authId===s.user?.id);
       if(c){setSession({role:"coach",user:c});setShowLanding(false);}
     });
   },[aReady,cReady]);

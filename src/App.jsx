@@ -1,7 +1,6 @@
 import React from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-
-const OWNER_CREDS = { username:"chewy", password:"AthleteVault2026!" };
+import { supabase } from "./lib/supabase.js";
 const C = {
   gold:"#E8B84B",goldDim:"#B8902A",goldGlow:"rgba(232,184,75,0.13)",
   black:"#070710",dark:"#0C0C1A",card:"#111120",card2:"#16162A",
@@ -83,7 +82,7 @@ async function ai(system,user){
   return d.content?.map(b=>b.text||"").join("")||"";
 }
 
-function hashPass(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0;}return String(h);}
+const OWNER_EMAIL = import.meta.env.VITE_OWNER_EMAIL || "";
 
 // ── Shared UI ────────────────────────────────
 function Badge({color=C.muted,children}){return <span style={{background:color+"22",color,border:`1px solid ${color}44`,borderRadius:4,padding:"2px 8px",fontSize:11,fontWeight:700,letterSpacing:.5,whiteSpace:"nowrap"}}>{children}</span>;}
@@ -956,24 +955,85 @@ Contact: support@athletevault.com`;
   </div>;
 }
 
-function Login({onSuccess,athletes,coaches}){
-  const [email,setEmail]=useState(""); const [pass,setPass]=useState(""); const [err,setErr]=useState(""); const [loading,setLoading]=useState(false); const [tries,setTries]=useState(0);
-  const locked=tries>=5;
-  function go(){
-    if(locked)return; setErr(""); setLoading(true);
-    setTimeout(()=>{
-      if(email.trim()===OWNER_CREDS.username&&pass===OWNER_CREDS.password){onSuccess("owner",null);return;}
-      const a=athletes.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&x.passwordHash&&x.passwordHash===hashPass(pass));
-      if(a){onSuccess("athlete",a);return;}
-      const co=coaches.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&x.passwordHash&&x.passwordHash===hashPass(pass));
-      if(co){onSuccess("coach",co);return;}
-      // demo fallback
-      const ad=athletes.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&!x.passwordHash);
-      if(ad&&pass==="demo"){onSuccess("athlete",ad);return;}
-      const cd=coaches.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&!x.passwordHash);
-      if(cd&&pass==="demo"){onSuccess("coach",cd);return;}
-      const n=tries+1;setTries(n);setErr(n>=5?"Account locked. Contact support.":"Incorrect credentials. Please try again.");setLoading(false);
-    },500);
+function ForgotPassword({onBack}){
+  const [email,setEmail]=useState(""); const [sent,setSent]=useState(false); const [err,setErr]=useState(""); const [loading,setLoading]=useState(false);
+  async function send(){
+    if(!email)return; setErr(""); setLoading(true);
+    const {error}=await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin});
+    setLoading(false);
+    if(error){setErr(error.message);return;}
+    setSent(true);
+  }
+  if(sent)return(
+    <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif"}}>
+      <div style={{width:"100%",maxWidth:400,padding:"0 24px",textAlign:"center"}}>
+        <div style={{fontSize:40,marginBottom:16}}>📬</div>
+        <div style={{color:C.white,fontWeight:700,fontSize:18,marginBottom:8}}>Check your email</div>
+        <div style={{color:C.muted,fontSize:13,lineHeight:1.6,marginBottom:24}}>We sent a password reset link to <strong style={{color:C.gold}}>{email}</strong>. Click the link to set a new password.</div>
+        <Btn onClick={onBack} variant="ghost" full>← Back to Sign In</Btn>
+      </div>
+    </div>
+  );
+  return(
+    <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif"}}>
+      <div style={{width:"100%",maxWidth:400,padding:"0 24px"}}>
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <div style={{color:C.white,fontWeight:700,fontSize:20,marginBottom:6}}>Reset Password</div>
+          <div style={{color:C.muted,fontSize:13}}>Enter your email and we'll send a reset link.</div>
+        </div>
+        <Card>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <Inp label="EMAIL" value={email} onChange={setEmail} placeholder="you@email.com"/>
+            {err&&<div style={{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"9px 13px",color:C.red,fontSize:13}}>{err}</div>}
+            <Btn onClick={send} disabled={loading||!email} full>{loading?"Sending…":"Send Reset Link"}</Btn>
+            <Btn onClick={onBack} variant="ghost" full>← Back to Sign In</Btn>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ResetPassword({onDone}){
+  const [np,setNp]=useState(""); const [cp,setCp]=useState(""); const [err,setErr]=useState(""); const [ok,setOk]=useState(false); const [loading,setLoading]=useState(false);
+  async function go(){
+    if(np.length<8){setErr("Min 8 characters.");return;}if(np!==cp){setErr("Passwords don't match.");return;}
+    setErr(""); setLoading(true);
+    const {error}=await supabase.auth.updateUser({password:np});
+    setLoading(false);
+    if(error){setErr(error.message);return;}
+    setOk(true);setTimeout(onDone,2000);
+  }
+  return(
+    <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif"}}>
+      <div style={{width:"100%",maxWidth:400,padding:"0 24px"}}>
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <div style={{color:C.white,fontWeight:700,fontSize:20,marginBottom:6}}>Set New Password</div>
+          <div style={{color:C.muted,fontSize:13}}>Choose a strong password for your account.</div>
+        </div>
+        <Card>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            {ok?<div style={{color:C.green,textAlign:"center",padding:"8px 0"}}>✓ Password updated! Signing you in…</div>:<>
+              <Inp label="NEW PASSWORD" value={np} onChange={setNp} type="password" placeholder="Min 8 characters"/>
+              <Inp label="CONFIRM PASSWORD" value={cp} onChange={v=>{setCp(v);setErr("");}} type="password" placeholder="Re-enter"/>
+              {err&&<div style={{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"9px 13px",color:C.red,fontSize:13}}>{err}</div>}
+              <Btn onClick={go} disabled={loading||!np||!cp} full>{loading?"Updating…":"Set Password"}</Btn>
+            </>}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function Login(){
+  const [email,setEmail]=useState(""); const [pass,setPass]=useState(""); const [err,setErr]=useState(""); const [loading,setLoading]=useState(false); const [showForgot,setShowForgot]=useState(false);
+  if(showForgot)return<ForgotPassword onBack={()=>setShowForgot(false)}/>;
+  async function go(){
+    if(!email||!pass)return; setErr(""); setLoading(true);
+    const {error}=await supabase.auth.signInWithPassword({email:email.trim(),password:pass});
+    setLoading(false);
+    if(error){setErr(error.message==="Invalid login credentials"?"Incorrect email or password.":error.message);}
   }
   return(
     <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif",backgroundImage:`radial-gradient(ellipse 60% 40% at 50% 0%,${C.goldGlow},transparent 70%)`}}>
@@ -988,7 +1048,8 @@ function Login({onSuccess,athletes,coaches}){
             <Inp label="EMAIL" value={email} onChange={setEmail} placeholder="you@email.com"/>
             <Inp label="PASSWORD" value={pass} onChange={v=>{setPass(v);setErr("");}} type="password" placeholder="••••••••••"/>
             {err&&<div style={{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"9px 13px",color:C.red,fontSize:13}}>🔒 {err}</div>}
-            <Btn onClick={go} disabled={loading||locked||!email||!pass} full>{loading?"Signing in…":locked?"LOCKED — Contact Support":"SIGN IN →"}</Btn>
+            <Btn onClick={go} disabled={loading||!email||!pass} full>{loading?"Signing in…":"SIGN IN →"}</Btn>
+            <button onClick={()=>setShowForgot(true)} style={{background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"'Sora',sans-serif",textAlign:"center",padding:"4px 0"}}>Forgot password?</button>
           </div>
         </Card>
         <p style={{textAlign:"center",color:C.muted,fontSize:11,marginTop:14}}>New? Contact support@athletevault.com to get set up.</p>
@@ -1036,7 +1097,7 @@ function PrivacySecurity({user,saveUsers,role}){
   const [np,setNp]=useState(""); const [cp,setCp]=useState(""); const [pm,setPm]=useState("");
   const priv=user.privacy||(role==="coach"?DEF_C_PRIV:DEF_A_PRIV);
   function updP(k,v){saveUsers(prev=>prev.map(u=>u.id===user.id?{...u,privacy:{...u.privacy,[k]:v}}:u));}
-  function changePass(){if(np.length<8){setPm("Min 8 characters.");return;}if(np!==cp){setPm("Passwords don't match.");return;}saveUsers(prev=>prev.map(u=>u.id===user.id?{...u,passwordHash:hashPass(np)}:u));setPm("✓ Password updated!");setNp("");setCp("");}
+  async function changePass(){if(np.length<8){setPm("Min 8 characters.");return;}if(np!==cp){setPm("Passwords don't match.");return;}const{error}=await supabase.auth.updateUser({password:np});if(error){setPm("Error: "+error.message);return;}setPm("✓ Password updated!");setNp("");setCp("");}
   const aTog=[{k:"profileVisible",l:"Profile Visible",s:"Appear on the platform"},{k:"searchable",l:"Searchable by Coaches",s:"Coaches can find you"},{k:"showLocation",l:"Show Location",s:"City and country"},{k:"showSchool",l:"Show School / League"},{k:"showFollowers",l:"Show Follower Count"},{k:"showStats",l:"Show Activity Stats"},{k:"showVideos",l:"Show Videos"},{k:"showEmail",l:"Show Email (hidden by default)"},{k:"showPhone",l:"Show Phone Number"},{k:"showDeals",l:"Show Brand Deals"}];
   const cTog=[{k:"profileVisible",l:"Profile Visible",s:"Appear on the platform"},{k:"searchable",l:"Searchable by Athletes"},{k:"showBio",l:"Show Bio & Recruiting Focus"},{k:"showEmail",l:"Show Email Address"},{k:"showPhone",l:"Show Phone Number"},{k:"showTwitter",l:"Show Twitter/X"},{k:"showInstagram",l:"Show Instagram"},{k:"showLinkedin",l:"Show LinkedIn"}];
   const togs=role==="coach"?cTog:aTog;
@@ -1056,7 +1117,7 @@ function PrivacySecurity({user,saveUsers,role}){
           </div>
         </Card>
         <Card><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>SECURITY STATUS</div>
-          {[["Password",user.passwordHash?"✓ Set":"⚠ Use 'demo' until set",user.passwordHash?C.green:C.gold],["Profile",priv.profileVisible?"Visible":"Hidden",priv.profileVisible?C.green:C.muted],["Searchable",priv.searchable?"Yes":"No",priv.searchable?C.green:C.muted]].map(([k,v,col])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12}}>{k}</span><span style={{color:col,fontSize:12,fontWeight:600}}>{v}</span></div>)}
+          {[["Password","✓ Managed by Supabase Auth",C.green],["Profile",priv.profileVisible?"Visible":"Hidden",priv.profileVisible?C.green:C.muted],["Searchable",priv.searchable?"Yes":"No",priv.searchable?C.green:C.muted]].map(([k,v,col])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12}}>{k}</span><span style={{color:col,fontSize:12,fontWeight:600}}>{v}</span></div>)}
           <p style={{color:C.muted,fontSize:11,marginTop:10,lineHeight:1.6}}>AthleteVault never sells your data. Contact info is only shared based on your privacy choices above.</p>
         </Card>
       </div>
@@ -1100,14 +1161,36 @@ function OOverview({athletes,coaches,messages}){
 }
 
 function OAthletes({athletes,saveAthletes,addLog}){
-  const [search,setSearch]=useState(""); const [showAdd,setShowAdd]=useState(false);
+  const [search,setSearch]=useState(""); const [showAdd,setShowAdd]=useState(false); const [addErr,setAddErr]=useState("");
   const [na,setNa]=useState({name:"",sport:"",school:"",followers:"",tier:"Rookie",email:"",password:"",country:"United States",state:"",city:"",bio:""});
   const tierColor={Rookie:C.white,Rising:C.gold,Pro:C.purple};
   const filtered=athletes.filter(a=>(a.name+a.sport+(a.country||"")).toLowerCase().includes(search.toLowerCase()));
   function toggle(id){saveAthletes(prev=>prev.map(a=>{if(a.id!==id)return a;const s=a.status==="active"?"paused":"active";addLog({action:"Status",detail:`${a.name}→${s}`,level:s==="active"?"success":"warn"});return{...a,status:s};}));}
-  function add(){if(!na.name||!na.sport||!na.email)return;const mrr=na.tier==="Rookie"?29:na.tier==="Rising"?49:79;const a={...na,id:Date.now(),role:"athlete",followers:parseInt(na.followers)||0,mrr,status:"active",joined:new Date().toISOString().slice(0,10),coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[],passwordHash:na.password?hashPass(na.password):""};saveAthletes(prev=>[...prev,a]);addLog({action:"Athlete added",detail:a.name,level:"success"});setNa({name:"",sport:"",school:"",followers:"",tier:"Rookie",email:"",password:"",country:"United States",state:"",city:"",bio:""});setShowAdd(false);}
+  async function add(){
+    if(!na.name||!na.sport||!na.email||!na.password){setAddErr("Name, sport, email, and password are required.");return;}
+    if(na.password.length<8){setAddErr("Password must be at least 8 characters.");return;}
+    setAddErr("");
+    const {data:{session}}=await supabase.auth.getSession();
+    const res=await fetch("/api/auth-create-user",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session?.access_token}`},body:JSON.stringify({email:na.email,password:na.password,role:"athlete"})});
+    const json=await res.json();
+    if(!res.ok){setAddErr(json.error||"Failed to create auth account.");return;}
+    const mrr=na.tier==="Rookie"?29:na.tier==="Rising"?49:79;
+    const a={...na,id:Date.now(),authId:json.authId,role:"athlete",followers:parseInt(na.followers)||0,mrr,status:"active",joined:new Date().toISOString().slice(0,10),coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[]};
+    delete a.password;
+    saveAthletes(prev=>[...prev,a]);addLog({action:"Athlete added",detail:a.name,level:"success"});
+    setNa({name:"",sport:"",school:"",followers:"",tier:"Rookie",email:"",password:"",country:"United States",state:"",city:"",bio:""});setShowAdd(false);
+  }
   function remove(id){const a=athletes.find(x=>x.id===id);saveAthletes(prev=>prev.filter(x=>x.id!==id));addLog({action:"Athlete removed",detail:a?.name,level:"warn"});}
-  function resetPass(id){const np=prompt("New password (min 8):");if(!np||np.length<8){alert("Min 8 chars.");return;}saveAthletes(prev=>prev.map(a=>a.id===id?{...a,passwordHash:hashPass(np)}:a));addLog({action:"Pass reset",detail:`Athlete ${id}`,level:"warn"});}
+  async function resetPass(a){
+    const np=prompt(`New password for ${a.name} (min 8):`);
+    if(!np||np.length<8){alert("Min 8 chars.");return;}
+    const {data:{session}}=await supabase.auth.getSession();
+    const res=await fetch("/api/auth-create-user",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session?.access_token}`},body:JSON.stringify({email:a.email,password:np,role:"athlete"})});
+    if(!res.ok){const j=await res.json();alert("Error: "+(j.error||"Failed"));return;}
+    const {authId}=await res.json();
+    if(authId&&!a.authId)saveAthletes(prev=>prev.map(x=>x.id===a.id?{...x,authId}:x));
+    addLog({action:"Pass reset",detail:a.name,level:"warn"});
+  }
   return <div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18,flexWrap:"wrap",gap:10}}><Sec title="Athletes" sub={`${filtered.length} total`}/><Btn onClick={()=>setShowAdd(true)}>+ Add Athlete</Btn></div>
     <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search name, sport, country…" style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.white,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif",marginBottom:13,boxSizing:"border-box"}}/>
@@ -1123,37 +1206,59 @@ function OAthletes({athletes,saveAthletes,addLog}){
           <td style={{padding:"11px 14px"}}><Badge color={a.status==="active"?C.green:C.red}>{a.status}</Badge></td>
           <td style={{padding:"11px 14px"}}><div style={{display:"flex",gap:5}}>
             <Btn onClick={()=>toggle(a.id)} variant={a.status==="active"?"danger":"success"} small>{a.status==="active"?"Pause":"Resume"}</Btn>
-            <Btn onClick={()=>resetPass(a.id)} variant="ghost" small>🔑</Btn>
+            <Btn onClick={()=>resetPass(a)} variant="ghost" small>🔑</Btn>
             <Btn onClick={()=>remove(a.id)} variant="danger" small>✕</Btn>
           </div></td>
         </tr>)}</tbody>
       </table>
     </div></Card>
-    <Modal show={showAdd} onClose={()=>setShowAdd(false)} title="ADD ATHLETE" maxW={560}>
+    <Modal show={showAdd} onClose={()=>{setShowAdd(false);setAddErr("");}} title="ADD ATHLETE" maxW={560}>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11,marginBottom:11}}>
         {[["NAME","name","First Last"],["SPORT","sport","Football"],["SCHOOL","school","UTEP"],["FOLLOWERS","followers","5000"],["EMAIL","email","athlete@email.com"],["INITIAL PASSWORD","password","Min 8 chars"],["CITY","city","Houston"],["STATE","state","Texas"]].map(([l,k,ph])=><Inp key={k} label={l} value={na[k]} onChange={v=>setNa(p=>({...p,[k]:v}))} placeholder={ph} type={k==="password"?"password":"text"}/>)}
         <Sel label="COUNTRY" value={na.country} onChange={v=>setNa(p=>({...p,country:v}))} options={REGIONS}/>
         <div style={{display:"flex",flexDirection:"column",gap:4}}><label style={{color:C.muted,fontSize:10,fontWeight:700,letterSpacing:1,fontFamily:"DM Mono,monospace"}}>TIER</label><select value={na.tier} onChange={e=>setNa(p=>({...p,tier:e.target.value}))} style={{background:C.dark,border:`1px solid ${C.border}`,borderRadius:7,padding:"9px 12px",color:C.white,fontSize:13,outline:"none"}}><option>Rookie</option><option>Rising</option><option>Pro</option></select></div>
       </div>
       <Inp label="BIO" value={na.bio} onChange={v=>setNa(p=>({...p,bio:v}))} rows={2} placeholder="Athlete's story or position"/>
-      <Btn onClick={add} disabled={!na.name||!na.sport||!na.email} full style={{marginTop:12}}>Add Athlete</Btn>
+      {addErr&&<div style={{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"9px 13px",color:C.red,fontSize:13,marginTop:10}}>{addErr}</div>}
+      <Btn onClick={add} disabled={!na.name||!na.sport||!na.email||!na.password} full style={{marginTop:12}}>Add Athlete</Btn>
     </Modal>
   </div>;
 }
 
 function OCoaches({coaches,saveCoaches,addLog}){
-  const [search,setSearch]=useState(""); const [showAdd,setShowAdd]=useState(false);
+  const [search,setSearch]=useState(""); const [showAdd,setShowAdd]=useState(false); const [addErr,setAddErr]=useState("");
   const [nc,setNc]=useState({name:"",sport:"",org:"",title:"",email:"",password:"",phone:"",country:"United States",state:"",city:"",twitter:"",instagram:"",linkedin:"",bio:"",recruitingRegions:[]});
   const filtered=coaches.filter(c=>(c.name+c.sport+c.org+(c.country||"")).toLowerCase().includes(search.toLowerCase()));
-  function add(){if(!nc.name||!nc.org||!nc.email)return;const c={...nc,id:Date.now(),role:"coach",status:"active",joined:new Date().toISOString().slice(0,10),privacy:{...DEF_C_PRIV},blockedIds:[],passwordHash:nc.password?hashPass(nc.password):""};saveCoaches(prev=>[...prev,c]);addLog({action:"Coach added",detail:c.name,level:"success"});setNc({name:"",sport:"",org:"",title:"",email:"",password:"",phone:"",country:"United States",state:"",city:"",twitter:"",instagram:"",linkedin:"",bio:"",recruitingRegions:[]});setShowAdd(false);}
+  async function add(){
+    if(!nc.name||!nc.org||!nc.email||!nc.password){setAddErr("Name, org, email, and password are required.");return;}
+    if(nc.password.length<8){setAddErr("Password must be at least 8 characters.");return;}
+    setAddErr("");
+    const {data:{session}}=await supabase.auth.getSession();
+    const res=await fetch("/api/auth-create-user",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session?.access_token}`},body:JSON.stringify({email:nc.email,password:nc.password,role:"coach"})});
+    const json=await res.json();
+    if(!res.ok){setAddErr(json.error||"Failed to create auth account.");return;}
+    const c={...nc,id:Date.now(),authId:json.authId,role:"coach",status:"active",joined:new Date().toISOString().slice(0,10),privacy:{...DEF_C_PRIV},blockedIds:[]};
+    delete c.password;
+    saveCoaches(prev=>[...prev,c]);addLog({action:"Coach added",detail:c.name,level:"success"});
+    setNc({name:"",sport:"",org:"",title:"",email:"",password:"",phone:"",country:"United States",state:"",city:"",twitter:"",instagram:"",linkedin:"",bio:"",recruitingRegions:[]});setShowAdd(false);
+  }
   function remove(id){const c=coaches.find(x=>x.id===id);saveCoaches(prev=>prev.filter(x=>x.id!==id));addLog({action:"Coach removed",detail:c?.name,level:"warn"});}
-  function resetPass(id){const np=prompt("New password:");if(!np||np.length<8)return;saveCoaches(prev=>prev.map(c=>c.id===id?{...c,passwordHash:hashPass(np)}:c));addLog({action:"Coach pass reset",level:"warn"});}
+  async function resetPass(c){
+    const np=prompt(`New password for ${c.name} (min 8):`);
+    if(!np||np.length<8){alert("Min 8 chars.");return;}
+    const {data:{session}}=await supabase.auth.getSession();
+    const res=await fetch("/api/auth-create-user",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session?.access_token}`},body:JSON.stringify({email:c.email,password:np,role:"coach"})});
+    if(!res.ok){const j=await res.json();alert("Error: "+(j.error||"Failed"));return;}
+    const {authId}=await res.json();
+    if(authId&&!c.authId)saveCoaches(prev=>prev.map(x=>x.id===c.id?{...x,authId}:x));
+    addLog({action:"Coach pass reset",detail:c.name,level:"warn"});
+  }
   return <div>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18,flexWrap:"wrap",gap:10}}><Sec title="Coaches" sub={`${filtered.length} coaches`}/><Btn onClick={()=>setShowAdd(true)}>+ Add Coach</Btn></div>
     <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search coaches…" style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.white,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif",marginBottom:13,boxSizing:"border-box"}}/>
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
       {filtered.map(c=><Card key={c.id}>
-        <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><Avatar name={c.name} size={36} color={C.purple}/><div style={{display:"flex",gap:5}}><Btn onClick={()=>resetPass(c.id)} variant="ghost" small>🔑</Btn><Btn onClick={()=>remove(c.id)} variant="danger" small>✕</Btn></div></div>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><Avatar name={c.name} size={36} color={C.purple}/><div style={{display:"flex",gap:5}}><Btn onClick={()=>resetPass(c)} variant="ghost" small>🔑</Btn><Btn onClick={()=>remove(c.id)} variant="danger" small>✕</Btn></div></div>
         <div style={{color:C.white,fontWeight:700,fontSize:14,marginBottom:2}}>{c.name}</div>
         <div style={{color:C.purple,fontSize:12,marginBottom:1}}>{c.title}</div>
         <div style={{color:C.muted,fontSize:12,marginBottom:7}}>{c.org} · {c.city}, {c.country}</div>
@@ -1161,14 +1266,15 @@ function OCoaches({coaches,saveCoaches,addLog}){
         {c.email&&<div style={{color:C.muted,fontSize:11,fontFamily:"DM Mono,monospace"}}>{c.email}</div>}
       </Card>)}
     </div>
-    <Modal show={showAdd} onClose={()=>setShowAdd(false)} title="ADD COACH" maxW={580}>
+    <Modal show={showAdd} onClose={()=>{setShowAdd(false);setAddErr("");}} title="ADD COACH" maxW={580}>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:11,marginBottom:11}}>
         {[["NAME","name","Coach Full Name"],["SPORT","sport","Football"],["ORG","org","Texas Southern"],["TITLE","title","Head Coach"],["EMAIL","email","coach@uni.edu"],["INITIAL PASSWORD","password","Min 8 chars"],["PHONE","phone","(555)000-0000"],["CITY","city","Houston"],["STATE","state","Texas"],["TWITTER","twitter","@Handle"],["INSTAGRAM","instagram","@handle"],["LINKEDIN","linkedin","linkedin.com/in/..."]].map(([l,k,ph])=><Inp key={k} label={l} value={nc[k]} onChange={v=>setNc(p=>({...p,[k]:v}))} placeholder={ph} type={k==="password"?"password":"text"}/>)}
         <Sel label="BASE COUNTRY" value={nc.country} onChange={v=>setNc(p=>({...p,country:v}))} options={REGIONS}/>
       </div>
       <Inp label="BIO / RECRUITING FOCUS" value={nc.bio} onChange={v=>setNc(p=>({...p,bio:v}))} rows={2}/>
       <div style={{marginTop:11}}><label style={{color:C.muted,fontSize:10,fontWeight:700,letterSpacing:1,fontFamily:"DM Mono,monospace",display:"block",marginBottom:8}}>RECRUITING REGIONS</label><RegionPicker selected={nc.recruitingRegions} onChange={v=>setNc(p=>({...p,recruitingRegions:v}))}/></div>
-      <Btn onClick={add} disabled={!nc.name||!nc.org||!nc.email} full style={{marginTop:13}}>Add Coach</Btn>
+      {addErr&&<div style={{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"9px 13px",color:C.red,fontSize:13,marginTop:10}}>{addErr}</div>}
+      <Btn onClick={add} disabled={!nc.name||!nc.org||!nc.email||!nc.password} full style={{marginTop:13}}>Add Coach</Btn>
     </Modal>
   </div>;
 }
@@ -1630,15 +1736,45 @@ export default function App(){
   const [settings,saveSettings]=useStore("av_set_v5",SEED_SET);
   const [messages,saveMessages]=useStore("av_msgs_v5",{});
   const [session,setSession]=useState(null);
+  const [authReady,setAuthReady]=useState(false);
+  const [recovering,setRecovering]=useState(false);
   const [oTab,setOTab]=useState("overview");
   const [aTab,setATab]=useState("home");
   const [coachTab,setCoachTab]=useState("home");
 
-  function addLog(e){saveLogs(prev=>[{id:Date.now(),ts:stamp(),...e},...prev.slice(0,99)]);}
-  function handleLogin(role,user){setSession({role,user});addLog({action:`${role} login`,detail:user?.name||"Owner",level:"success"});}
-  function logout(){addLog({action:"Logout",detail:session?.user?.name||"Owner",level:"info"});setSession(null);}
+  const athletesRef=useRef(athletes); useEffect(()=>{athletesRef.current=athletes;},[athletes]);
+  const coachesRef=useRef(coaches); useEffect(()=>{coachesRef.current=coaches;},[coaches]);
 
-  if(!aReady||!cReady)return(
+  function addLog(e){saveLogs(prev=>[{id:Date.now(),ts:stamp(),...e},...prev.slice(0,99)]);}
+
+  const resolveSession=useCallback((supaUser)=>{
+    if(!supaUser){setSession(null);return;}
+    if(OWNER_EMAIL&&supaUser.email===OWNER_EMAIL){setSession({role:"owner",user:null});return;}
+    const as=athletesRef.current;const cs=coachesRef.current;
+    const a=as.find(x=>x.authId===supaUser.id||x.email===supaUser.email);
+    if(a){setSession({role:"athlete",user:a});return;}
+    const c=cs.find(x=>x.authId===supaUser.id||x.email===supaUser.email);
+    if(c){setSession({role:"coach",user:c});return;}
+    supabase.auth.signOut();
+  },[]);
+
+  useEffect(()=>{
+    if(!aReady||!cReady)return;
+    supabase.auth.getSession().then(({data:{session:s}})=>{
+      if(s?.user)resolveSession(s.user);
+      setAuthReady(true);
+    });
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((event,s)=>{
+      if(event==="PASSWORD_RECOVERY"){setRecovering(true);return;}
+      if(event==="SIGNED_OUT"){setSession(null);setRecovering(false);return;}
+      if(s?.user)resolveSession(s.user);
+    });
+    return()=>subscription.unsubscribe();
+  },[aReady,cReady,resolveSession]);
+
+  async function logout(){addLog({action:"Logout",detail:session?.user?.name||"Owner",level:"info"});await supabase.auth.signOut();}
+
+  if(!aReady||!cReady||!authReady)return(
     <div style={{minHeight:"100vh",background:C.black,display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{color:C.gold,fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,letterSpacing:2}}>LOADING VAULT…</div>
     </div>
@@ -1649,12 +1785,15 @@ export default function App(){
     <OnboardingTerms onAccept={()=>setTermsAccepted(true)}/>
   );
 
+  // ── STEP 1b: Password recovery (user clicked reset link in email) ──
+  if(recovering)return<ResetPassword onDone={()=>setRecovering(false)}/>;
+
   // ── STEP 2: Login ──
-  if(!session)return<Login onSuccess={handleLogin} athletes={athletes} coaches={coaches}/>;
+  if(!session)return<Login/>;
 
   const {role,user}=session;
-  const liveAthlete=role==="athlete"?athletes.find(a=>a.id===user.id)||user:null;
-  const liveCoach=role==="coach"?coaches.find(c=>c.id===user.id)||user:null;
+  const liveAthlete=role==="athlete"?athletes.find(a=>user&&(a.id===user.id||a.authId===user.authId||a.email===user.email))||user:null;
+  const liveCoach=role==="coach"?coaches.find(c=>user&&(c.id===user.id||c.authId===user.authId||c.email===user.email))||user:null;
   const me=liveAthlete||liveCoach;
 
   function unreadCount(uid){
