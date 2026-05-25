@@ -226,13 +226,16 @@ const SEED_SETTINGS={
 
 const SEED_LOGS=[{id:1,ts:stamp(),action:"AthleteVault v3.0 launched",detail:"Tron: Ares edition",level:"success"}];
 
-const BRAND_DEALS=[
-  {id:1,brand:"Gatorade",cat:"Sports Nutrition",payout:"$500–$2,000",logo:"🏆",desc:"Hydration partner for game-day content. 2 posts/month."},
-  {id:2,brand:"Nike Training",cat:"Apparel",payout:"$300–$1,500",logo:"👟",desc:"Showcase Nike Training gear in workout clips."},
-  {id:3,brand:"WHOOP",cat:"Fitness Tech",payout:"$200–$800",logo:"⌚",desc:"Wearable recovery tracking. Share your stats."},
-  {id:4,brand:"Raising Cane's",cat:"Food & Beverage",payout:"$150–$600",logo:"🍗",desc:"Post-game meal content. Easy collab."},
-  {id:5,brand:"Athletic Greens",cat:"Health",payout:"$400–$1,200",logo:"🥗",desc:"Morning routine supplement feature."},
-  {id:6,brand:"Beats by Dre",cat:"Audio",payout:"$800–$3,000",logo:"🎧",desc:"Pre-game tunnel walk or training session."},
+const SEED_BRAND_DEALS=[
+  {id:1,brand:"Gatorade",cat:"Sports Nutrition",payout:"$500–$2,000",logo:"🏆",desc:"Hydration partner for game-day content. 2 posts/month.",sport:"All",minFollowers:500,deadline:"",spots:10,active:true},
+  {id:2,brand:"Nike Training",cat:"Apparel",payout:"$300–$1,500",logo:"👟",desc:"Showcase Nike Training gear in workout clips.",sport:"All",minFollowers:1000,deadline:"",spots:5,active:true},
+  {id:3,brand:"WHOOP",cat:"Fitness Tech",payout:"$200–$800",logo:"⌚",desc:"Wearable recovery tracking. Share your stats.",sport:"All",minFollowers:500,deadline:"",spots:20,active:true},
+  {id:4,brand:"Raising Cane's",cat:"Food & Beverage",payout:"$150–$600",logo:"🍗",desc:"Post-game meal content. Easy collab.",sport:"All",minFollowers:200,deadline:"",spots:50,active:true},
+  {id:5,brand:"Athletic Greens",cat:"Health",payout:"$400–$1,200",logo:"🥗",desc:"Morning routine supplement feature.",sport:"All",minFollowers:1000,deadline:"",spots:15,active:true},
+  {id:6,brand:"Beats by Dre",cat:"Audio",payout:"$800–$3,000",logo:"🎧",desc:"Pre-game tunnel walk or training session.",sport:"All",minFollowers:2000,deadline:"",spots:8,active:true},
+  {id:7,brand:"Fanatics",cat:"Merchandise",payout:"$300–$1,000",logo:"🛒",desc:"Co-branded merch drop. Revenue share on every sale.",sport:"Football",minFollowers:1500,deadline:"",spots:12,active:true},
+  {id:8,brand:"Prime Hydration",cat:"Sports Nutrition",payout:"$250–$750",logo:"💧",desc:"Feature Prime as your recovery drink. TikTok + IG content.",sport:"All",minFollowers:500,deadline:"",spots:25,active:true},
+  {id:9,brand:"GFL Connect",cat:"Football / Europe",payout:"€500–€2,000",logo:"🇩🇪",desc:"Promote GFL and ELF American football in Europe. Perfect for athletes with overseas interest.",sport:"Football",minFollowers:300,deadline:"",spots:30,active:true},
 ];
 
 const NIL_LESSONS=[
@@ -971,7 +974,7 @@ function PrivacySecurity({user,saveUsers,role}){
 // ═══════════════════════════════════════════════
 //  OWNER DASHBOARD — full control center
 // ═══════════════════════════════════════════════
-const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"wins",icon:"🏆",label:"Wall of Wins"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"},{id:"myaccount",icon:"🏃",label:"My Athlete Profile"}];
+const O_NAV=[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"coaches",icon:"🏈",label:"Coaches"},{id:"messages",icon:"💬",label:"Messages"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"wins",icon:"🏆",label:"Wall of Wins"},{id:"brandmgr",icon:"🤝",label:"NIL Deals"},{id:"ai",icon:"⚡",label:"AI Tools"},{id:"outreach",icon:"📨",label:"Outreach"},{id:"growth",icon:"🚀",label:"Growth"},{id:"referrals",icon:"🎁",label:"Referrals"},{id:"discounts",icon:"🏷️",label:"Discounts"},{id:"siteconfig",icon:"⚙️",label:"Site Config"},{id:"theme",icon:"🎨",label:"Theme Editor"},{id:"security",icon:"🛡️",label:"Security"},{id:"myaccount",icon:"🏃",label:"My Athlete Profile"}];
 
 function OOverview({athletes,coaches,messages,settings,onPreview}){
   const active=athletes.filter(a=>a.status==="active");
@@ -1571,6 +1574,69 @@ function OThemeEditor({settings,saveSettings,addLog}){
 }
 
 // ── OWNER SITE CONFIG (updated with theme link) ──
+function OBrandManager({brandDeals,saveBrandDeals}){
+  const deals=brandDeals||SEED_BRAND_DEALS;
+  const [editId,setEditId]=useState(null);
+  const [showAdd,setShowAdd]=useState(false);
+  const blankDeal={id:Date.now(),brand:"",cat:"",logo:"🏷️",desc:"",payout:"",sport:"All",minFollowers:0,deadline:"",spots:10,active:true};
+  const [form,setForm]=useState(blankDeal);
+  function saveDeal(){
+    if(!form.brand||!form.payout)return;
+    if(editId){
+      saveBrandDeals(prev=>prev.map(d=>d.id===editId?{...form,id:editId}:d));
+      setEditId(null);
+    } else {
+      saveBrandDeals(prev=>[...prev,{...form,id:Date.now()}]);
+      setShowAdd(false);
+    }
+    setForm(blankDeal);
+  }
+  function startEdit(d){setForm({...d});setEditId(d.id);}
+  function toggleActive(id){saveBrandDeals(prev=>prev.map(d=>d.id===id?{...d,active:!d.active}:d));}
+  function removeDeal(id){saveBrandDeals(prev=>prev.filter(d=>d.id!==id));}
+  const editing=editId?deals.find(d=>d.id===editId):null;
+  return <div>
+    <Sec title="NIL Deal Marketplace" sub={`${deals.filter(d=>d.active).length} active deals — visible to athletes in Brand Deals tab`} action={<Btn onClick={()=>{setShowAdd(true);setForm(blankDeal);}} variant="gold" small>+ Add Deal</Btn>}/>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+      {deals.map(d=><Card key={d.id} style={{opacity:d.active?1:.5}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}><span style={{fontSize:24}}>{d.logo}</span><div><div style={{color:C.white,fontWeight:700,fontSize:14}}>{d.brand}</div><div style={{color:C.muted,fontSize:11}}>{d.cat}</div></div></div>
+          <Badge color={d.active?C.green:C.muted}>{d.active?"Active":"Off"}</Badge>
+        </div>
+        <p style={{color:C.mutedHi,fontSize:12,lineHeight:1.5,marginBottom:8}}>{d.desc}</p>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+          <Badge color={C.gold}>{d.payout}</Badge>
+          <Badge color={C.blue}>{d.sport}</Badge>
+          {d.minFollowers>0&&<Badge color={C.purple}>{fmt(d.minFollowers)}+ followers</Badge>}
+          {d.deadline&&<Badge color={C.orange}>⏰ {d.deadline}</Badge>}
+        </div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          <Btn onClick={()=>startEdit(d)} small variant="ghost">Edit</Btn>
+          <Btn onClick={()=>toggleActive(d.id)} small variant={d.active?"danger":"green"}>{d.active?"Pause":"Activate"}</Btn>
+          <Btn onClick={()=>removeDeal(d.id)} small variant="danger">Delete</Btn>
+        </div>
+      </Card>)}
+    </div>
+    <Modal show={showAdd||!!editId} onClose={()=>{setShowAdd(false);setEditId(null);setForm(blankDeal);}} title={editId?"EDIT DEAL":"ADD BRAND DEAL"} maxW={480}>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+          <Inp label="BRAND NAME" value={form.brand} onChange={v=>setForm(p=>({...p,brand:v}))} placeholder="Nike"/>
+          <Inp label="EMOJI LOGO" value={form.logo} onChange={v=>setForm(p=>({...p,logo:v}))} placeholder="👟"/>
+          <Inp label="CATEGORY" value={form.cat} onChange={v=>setForm(p=>({...p,cat:v}))} placeholder="Apparel"/>
+          <Inp label="PAYOUT" value={form.payout} onChange={v=>setForm(p=>({...p,payout:v}))} placeholder="$200–$800"/>
+          <Sel label="SPORT" value={form.sport} onChange={v=>setForm(p=>({...p,sport:v}))} options={["All",...SPORTS_LIST]}/>
+          <Inp label="MIN FOLLOWERS" value={String(form.minFollowers||0)} onChange={v=>setForm(p=>({...p,minFollowers:parseInt(v)||0}))} placeholder="500"/>
+          <Inp label="SPOTS AVAILABLE" value={String(form.spots||10)} onChange={v=>setForm(p=>({...p,spots:parseInt(v)||10}))} placeholder="10"/>
+          <Inp label="DEADLINE (optional)" value={form.deadline||""} onChange={v=>setForm(p=>({...p,deadline:v}))} placeholder="2026-08-01"/>
+        </div>
+        <Inp label="DESCRIPTION" value={form.desc} onChange={v=>setForm(p=>({...p,desc:v}))} rows={2} placeholder="What athletes will do for this deal…"/>
+        <Tog label="Active (visible to athletes)" val={!!form.active} onChange={v=>setForm(p=>({...p,active:v}))}/>
+        <Btn onClick={saveDeal} disabled={!form.brand||!form.payout} full>{editId?"Save Changes":"Add Deal"}</Btn>
+      </div>
+    </Modal>
+  </div>;
+}
+
 function OSiteConfig({settings,saveSettings,addLog,setTab}){
   const [s,setS]=useState(settings);const [saved,setSaved]=useState(false);
   function save(){saveSettings(s);addLog({action:"Site config updated",level:"info"});setSaved(true);setTimeout(()=>setSaved(false),2000);}
@@ -1847,18 +1913,60 @@ function AContent({athlete,saveAthletes,athletes}){
   </div>;
 }
 
-function ABrands({athlete,saveAthletes,athletes}){
+function ABrands({athlete,saveAthletes,athletes,brandDeals}){
   const [sel,setSel]=useState(null);const [loading,setLoading]=useState(false);const [pitch,setPitch]=useState("");
+  const [sportF,setSportF]=useState("All");
   const myDeals=athletes.find(a=>String(a.id)===String(athlete.id))?.deals||[];
   const applied=myDeals.map(d=>d.id);
-  async function apply(deal){setSel(deal);setPitch("");setLoading(true);try{const r=await ai(`Brand pitch DM from ${athlete.name} (${athlete.sport}, ${fmt(athlete.followers)} followers, ${athlete.city||""} ${athlete.country}) to ${deal.brand} (${deal.cat}). Under 130 words. Authentic, specific, clear CTA.`);setPitch(r);saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,brandSent:(a.brandSent||0)+1,deals:[...(a.deals||[]),{id:deal.id,brand:deal.brand,status:"applied",date:new Date().toISOString().slice(0,10)}]}:a));}catch(e){setPitch("⚠️ Failed.");}setLoading(false);}
+  const deals=(brandDeals||SEED_BRAND_DEALS).filter(d=>d.active!==false);
+  const filtered=deals.filter(d=>{
+    const mSp=sportF==="All"||d.sport==="All"||d.sport===sportF;
+    const mMin=(athlete.followers||0)>=(d.minFollowers||0);
+    return mSp&&mMin;
+  });
+  const locked=deals.filter(d=>{const mSp=sportF==="All"||d.sport==="All"||d.sport===sportF;return mSp&&(athlete.followers||0)<(d.minFollowers||0);});
+  async function apply(deal){setSel(deal);setPitch("");setLoading(true);try{const r=await ai(`Brand pitch DM from ${athlete.name} (${athlete.sport}, ${fmt(athlete.followers)} followers, ${athlete.city||""} ${athlete.country}) to ${deal.brand} (${deal.cat}). The deal: ${deal.desc}. Payout: ${deal.payout}. Under 130 words. Authentic, specific, clear CTA.`);setPitch(r);saveAthletes(prev=>prev.map(a=>String(a.id)===String(athlete.id)?{...a,brandSent:(a.brandSent||0)+1,deals:[...(a.deals||[]),{id:deal.id,brand:deal.brand,status:"applied",date:new Date().toISOString().slice(0,10)}]}:a));}catch(e){setPitch("⚠️ Failed.");}setLoading(false);}
   return <div>
     <Sec title="Brand Deals" sub="Find deals. AI writes your pitch. Get paid."/>
+    <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",alignItems:"center"}}>
+      <div style={{color:C.muted,fontSize:12}}>Filter:</div>
+      {["All",...SPORTS_LIST.slice(0,6)].map(s=><button key={s} onClick={()=>setSportF(s)} style={{background:sportF===s?C.goldGlow:"transparent",border:`1px solid ${sportF===s?C.gold:C.border}`,borderRadius:7,padding:"4px 11px",cursor:"pointer",color:sportF===s?C.gold:C.muted,fontSize:12,fontFamily:"'Sora',sans-serif",fontWeight:600}}>{s}</button>)}
+    </div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 340px",gap:16,alignItems:"start"}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:12}}>
-        {BRAND_DEALS.map(d=>{const isApplied=applied.includes(d.id);return <Card key={d.id} glow={sel?.id===d.id}><div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div style={{fontSize:26}}>{d.logo}</div><Badge color={isApplied?C.green:C.blue}>{isApplied?"Applied":"Open"}</Badge></div><div style={{color:C.white,fontWeight:700,fontSize:15,marginBottom:2}}>{d.brand}</div><div style={{color:C.muted,fontSize:11,marginBottom:6}}>{d.cat}</div><div style={{color:C.mutedHi,fontSize:12,marginBottom:8,lineHeight:1.5}}>{d.desc}</div><div style={{color:C.green,fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,marginBottom:10}}>{d.payout}</div><Btn onClick={()=>apply(d)} loading={loading&&sel?.id===d.id} variant={isApplied?"green":"gold"} small full>{isApplied?"Pitch Again":"⚡ Apply with AI Pitch"}</Btn></Card>;})}
+      <div>
+        {filtered.length===0&&<Card style={{textAlign:"center",padding:36}}><div style={{fontSize:36,marginBottom:10}}>🔒</div><div style={{color:C.white,fontWeight:700,marginBottom:6}}>No deals available yet</div><p style={{color:C.muted,fontSize:13}}>Grow your followers or adjust the sport filter to unlock more deals.</p></Card>}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:12,marginBottom:locked.length?14:0}}>
+          {filtered.map(d=>{const isApplied=applied.includes(d.id);return <Card key={d.id} glow={sel?.id===d.id}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div style={{fontSize:26}}>{d.logo}</div><Badge color={isApplied?C.green:C.blue}>{isApplied?"Applied":"Open"}</Badge></div>
+            <div style={{color:C.white,fontWeight:700,fontSize:15,marginBottom:2}}>{d.brand}</div>
+            <div style={{color:C.muted,fontSize:11,marginBottom:6}}>{d.cat}{d.sport!=="All"?` · ${d.sport}`:""}</div>
+            <div style={{color:C.mutedHi,fontSize:12,marginBottom:8,lineHeight:1.5}}>{d.desc}</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:4}}>
+              <div style={{color:C.green,fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700}}>{d.payout}</div>
+              {d.minFollowers>0&&<div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace"}}>{fmt(d.minFollowers)}+ followers</div>}
+            </div>
+            {d.deadline&&<div style={{color:C.orange,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:8}}>⏰ Deadline: {d.deadline}</div>}
+            <Btn onClick={()=>apply(d)} loading={loading&&sel?.id===d.id} variant={isApplied?"green":"gold"} small full>{isApplied?"Pitch Again":"⚡ Apply with AI Pitch"}</Btn>
+          </Card>;})}
+        </div>
+        {locked.length>0&&<div style={{marginTop:6}}>
+          <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:8}}>LOCKED — GROW YOUR FOLLOWERS TO UNLOCK</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:10}}>
+            {locked.map(d=><Card key={d.id} style={{opacity:.5}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span style={{fontSize:22}}>{d.logo}</span><Badge color={C.muted}>🔒 {fmt(d.minFollowers)}+ needed</Badge></div>
+              <div style={{color:C.white,fontWeight:700,fontSize:14,marginBottom:3}}>{d.brand}</div>
+              <div style={{color:C.green,fontSize:15,fontWeight:700}}>{d.payout}</div>
+            </Card>)}
+          </div>
+        </div>}
       </div>
-      <div>{sel?<Card glow><div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:10}}>YOUR PITCH — {sel.brand.toUpperCase()}</div>{loading?<div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:13}}>⟳ Writing…</div>:<><p style={{color:C.white,fontSize:14,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{pitch}</p><Btn variant="ghost" small onClick={()=>navigator.clipboard?.writeText(pitch)} style={{marginTop:11}}>📋 Copy</Btn></>}</Card>:<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:32,marginBottom:10}}>🤝</div><div style={{color:C.white,fontWeight:600}}>Select a deal to apply</div></Card>}{myDeals.length>0&&<Card style={{marginTop:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>MY APPLICATIONS</div>{myDeals.map((d,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.white,fontSize:13}}>{d.brand}</span><Badge color={C.green}>{d.status}</Badge></div>)}</Card>}</div>
+      <div>
+        {sel?<Card glow>
+          <div style={{color:C.gold,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:10}}>YOUR PITCH — {sel.brand.toUpperCase()}</div>
+          {loading?<div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:13}}>⟳ Writing…</div>:<><p style={{color:C.white,fontSize:14,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{pitch}</p>{pitch&&<Btn variant="ghost" small onClick={()=>navigator.clipboard?.writeText(pitch)} style={{marginTop:11}}>📋 Copy</Btn>}</>}
+        </Card>:<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:32,marginBottom:10}}>🤝</div><div style={{color:C.white,fontWeight:600}}>Select a deal to apply</div><p style={{color:C.muted,fontSize:13,marginTop:6}}>AI writes your pitch in seconds.</p></Card>}
+        {myDeals.length>0&&<Card style={{marginTop:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>MY APPLICATIONS</div>{myDeals.map((d,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.white,fontSize:13}}>{d.brand}</span><Badge color={C.green}>{d.status}</Badge></div>)}</Card>}
+      </div>
     </div>
   </div>;
 }
@@ -3337,6 +3445,7 @@ export default function App(){
   const [coaches,saveCoaches,cReady]=useStore("av_coa_v1",SEED_COACHES);
   const [messages,saveMessages,msgReady]=useStore("av_msgs_v1",{});
   const [settings,saveSettings,sReady]=useStore("av_set_v1",SEED_SETTINGS);
+  const [brandDeals,saveBrandDeals]=useStore("av_brand_deals_v1",SEED_BRAND_DEALS);
   const [logs,saveLogs]=useStore("av_logs_v1",SEED_LOGS);
   const [termsOk,setTermsOk]=useStore("av_terms_accepted_v1",false);
   const [session,setSession]=useState(null);
@@ -3473,6 +3582,7 @@ export default function App(){
       if(tab==="growth")return <OGrowth addLog={addLog}/>;
       if(tab==="referrals")return <OReferrals athletes={athletes} coaches={coaches} settings={settings} saveSettings={saveSettings}/>;
       if(tab==="discounts")return <ODiscounts settings={settings} saveSettings={saveSettings} addLog={addLog}/>;
+      if(tab==="brandmgr")return <OBrandManager brandDeals={brandDeals} saveBrandDeals={saveBrandDeals}/>;
       if(tab==="siteconfig")return <OSiteConfig settings={settings} saveSettings={saveSettings} addLog={addLog} setTab={setTab}/>;
       if(tab==="theme")return <OThemeEditor settings={settings} saveSettings={saveSettings} addLog={addLog}/>;
       if(tab==="security")return <OSecurity logs={logs} addLog={addLog} onLogout={logout}/>;
@@ -3490,7 +3600,7 @@ export default function App(){
       if(tab==="schools")return <SchoolSearch athlete={liveUser} isFree={isFreeUser} onUpgrade={upgrade}/>;
       if(tab==="euroteams")return gate("European Teams Database",<EuroTeams athlete={liveUser}/>);
       if(tab==="content")return gate("Content Creator Tools",<AContent athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>);
-      if(tab==="brands")return gate("Brand Deal Finder",<ABrands athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>);
+      if(tab==="brands")return gate("Brand Deal Finder",<ABrands athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes} brandDeals={brandDeals}/>);
       if(tab==="coaches")return gate("Coach Network & Outreach",<ACoachNetwork athlete={liveUser} coaches={coaches} saveAthletes={saveAthletes}/>);
       if(tab==="money")return gate("Monetization Tools",<AMoney athlete={liveUser}/>);
       if(tab==="stats")return <AStats athlete={liveUser} saveAthletes={saveAthletes} athletes={athletes}/>;
