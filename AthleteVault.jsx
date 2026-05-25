@@ -1,6 +1,7 @@
 ﻿import React,{useState,useEffect,useCallback,useRef} from "react";
 import {SCHOOLS} from "./src/data/schools.js";
 import {GLOBAL_TEAMS} from "./src/data/teams.js";
+import {supabase} from "./src/lib/supabase.js";
 
 // ── Owner Credentials ──────────────────────────
 const OWNER_CREDS={username:import.meta.env.VITE_OWNER_USER||"chewy",password:import.meta.env.VITE_OWNER_PASS||"AthleteVault2026!"};
@@ -248,25 +249,54 @@ const NIL_LESSONS=[
 // ═══════════════════════════════════════════════
 //  STORAGE + AI + SHARED UI — TRON: ARES EDITION
 // ═══════════════════════════════════════════════
+// Keys that stay browser-local (per-device, not shared across users)
+const LOCAL_KEYS=new Set(["av_terms_accepted_v1"]);
+
 function useStore(key,init){
+  const isLocal=LOCAL_KEYS.has(key);
+
+  // Seed localStorage for local keys so the ready-flag works synchronously
   const [data,setData]=useState(()=>{
-    try{const s=localStorage.getItem(key);return s?JSON.parse(s):init;}catch(_){return init;}
+    if(isLocal){try{const s=localStorage.getItem(key);return s?JSON.parse(s):init;}catch(_){return init;}}
+    return init;
   });
-  const [ready,setReady]=useState(true);
-  const save=useCallback(val=>{
+  const [ready,setReady]=useState(isLocal); // local keys are immediately ready
+
+  // On mount: load from Supabase (shared keys only)
+  useEffect(()=>{
+    if(isLocal)return;
+    (async()=>{
+      try{
+        const{data:row}=await supabase.from("kv_store").select("value").eq("key",key).maybeSingle();
+        if(row?.value!==undefined&&row.value!==null)setData(row.value);
+      }catch(_){}
+      setReady(true);
+    })();
+  },[key]);
+
+  const save=useCallback(async val=>{
     const next=typeof val==="function"?val(data):val;
     setData(next);
-    try{localStorage.setItem(key,JSON.stringify(next));}catch(_){}
+    try{
+      if(isLocal){
+        localStorage.setItem(key,JSON.stringify(next));
+      } else {
+        await supabase.from("kv_store").upsert({key,value:next,updated_at:new Date().toISOString()},{onConflict:"key"});
+      }
+    }catch(_){}
     return next;
-  },[key,data]);
+  },[key,data,isLocal]);
+
   return[data,save,ready];
 }
 
 const AI_SYS="You are AthleteVault's AI — a world-class sports brand strategist for athletes and coaches navigating NIL, recruiting, overseas play, and monetization. Be direct, specific, practical, and real.";
 async function ai(prompt,sys){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,system:sys||AI_SYS,messages:[{role:"user",content:prompt}]})});
+  const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system:sys||AI_SYS,user:prompt})});
   if(!r.ok)throw new Error(r.status);
-  const d=await r.json();return d.content?.map(b=>b.text||"").join("")||"";
+  const d=await r.json();
+  if(d.error)throw new Error(d.error);
+  return d.text||"";
 }
 
 // Stripe Checkout
@@ -658,6 +688,8 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
   const[tier,setTier]=useState("rookie");
   const[planType,setPlanType]=useState("paid");
   const[loading,setLoading]=useState(false);
+  const[signupErr,setSignupErr]=useState("");
+  const[promoCode,setPromoCode]=useState("");
   const rp=settings?.rookiePrice||29;
   const sp=settings?.risingPrice||49;
   const pp=settings?.proPrice||79;
@@ -670,9 +702,11 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
     await startCheckout(role==="coach"?"coach":tier,email,name,role);
     setLoading(false);
   }
-  function goFree(){
+  async function goFree(){
     if(!name||!email||!pass)return;
-    onFreeSignup&&onFreeSignup({name,email,password:pass,sport,role});
+    setLoading(true);setSignupErr("");
+    const result=await onFreeSignup?.({name,email,password:pass,sport,role,referralCode:promoCode.trim()||null});
+    if(result?.error){setSignupErr(result.error);setLoading(false);return;}
     onClose();
   }
   const planPrice=role==="coach"?cp:prices[tier];
@@ -691,7 +725,8 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
       React.createElement(Inp,{label:"FULL NAME",value:name,onChange:setName,placeholder:"Marcus Webb"}),
       React.createElement(Inp,{label:"EMAIL",value:email,onChange:setEmail,placeholder:"you@email.com",type:"email"}),
       planType==="free"&&React.createElement(Inp,{label:"SPORT",value:sport,onChange:setSport,placeholder:"Football, Basketball…"}),
-      planType==="free"&&React.createElement(Inp,{label:"PASSWORD",value:pass,onChange:setPass,placeholder:"Min 8 characters",type:"password"})
+      planType==="free"&&React.createElement(Inp,{label:"PASSWORD",value:pass,onChange:setPass,placeholder:"Min 8 characters",type:"password"}),
+      planType==="free"&&React.createElement(Inp,{label:"REFERRAL CODE (optional)",value:promoCode,onChange:setPromoCode,placeholder:"Enter a friend's code for perks"})
     ),
     planType==="paid"&&role==="athlete"&&React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:8,marginBottom:14}},
       React.createElement("div",{style:{color:C.muted,fontSize:9,fontFamily:"DM Mono,monospace",letterSpacing:1.5,marginBottom:4}},"SELECT PRO PLAN"),
@@ -708,30 +743,52 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
       React.createElement("div",{style:{color:C.muted,fontSize:12,marginTop:2}},"Athlete search, studio, live sessions, school jobs"),
       React.createElement("div",{style:{color:C.blue,fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,marginTop:4}},"$"+cp,React.createElement("span",{style:{fontSize:12,color:C.muted}},"/mo"))
     ),
+    signupErr&&React.createElement("div",{style:{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"10px 13px",color:C.red,fontSize:13,marginBottom:4}},"⚠️ "+signupErr),
     planType==="free"
-      ?React.createElement(Btn,{onClick:goFree,disabled:!name||!email||pass.length<8,full:true,variant:"green"},"Create Free Account →")
-      :React.createElement(Btn,{onClick:goPaid,loading,disabled:!name||!email,full:true},"Start Free Trial — $"+planPrice+"/mo"),
+      ?React.createElement(Btn,{onClick:goFree,disabled:loading||!name||!email||pass.length<8,full:true,variant:"green"},loading?"Creating account…":"Create Free Account →")
+      :React.createElement(Btn,{onClick:goPaid,disabled:loading||!name||!email,full:true},loading?"Redirecting…":"Start Free Trial — $"+planPrice+"/mo"),
     planType==="paid"&&React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"CANCEL ANYTIME · SECURE CHECKOUT · STRIPE"),
     planType==="free"&&React.createElement("p",{style:{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}},"FREE FOREVER · UPGRADE ANYTIME · NO CREDIT CARD")
   );
 }
 function Login({onSuccess,athletes,coaches,settings,onFreeSignup}){
   const [email,setEmail]=useState("");const [pass,setPass]=useState("");const [err,setErr]=useState("");const [loading,setLoading]=useState(false);const [tries,setTries]=useState(0);const [refCode,setRefCode]=useState("");const [showRef,setShowRef]=useState(false);const [showSignup,setShowSignup]=useState(false);
+  const [showReset,setShowReset]=useState(false);const [resetSent,setResetSent]=useState(false);
   const locked=tries>=5;
-  function go(){
+  async function go(){
     if(locked)return;setErr("");setLoading(true);
-    setTimeout(()=>{
-      if(email.trim()===OWNER_CREDS.username&&pass===OWNER_CREDS.password){onSuccess("owner",null);return;}
-      const a=athletes.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&x.passwordHash&&x.passwordHash===hashPass(pass));
-      if(a){onSuccess("athlete",a);return;}
-      const co=coaches.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&x.passwordHash&&x.passwordHash===hashPass(pass));
-      if(co){onSuccess("coach",co);return;}
-      const ad=athletes.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&!x.passwordHash);
-      if(ad&&pass==="demo"){onSuccess("athlete",ad);return;}
-      const cd=coaches.find(x=>x.email.toLowerCase()===email.trim().toLowerCase()&&!x.passwordHash);
-      if(cd&&pass==="demo"){onSuccess("coach",cd);return;}
-      const n=tries+1;setTries(n);setErr(n>=5?"Account locked after 5 attempts. Contact support@athletevault.org.":"Incorrect credentials. Please try again.");setLoading(false);
-    },600);
+    // Owner hardcoded check
+    if(email.trim()===OWNER_CREDS.username&&pass===OWNER_CREDS.password){onSuccess("owner",null);return;}
+    const em=email.trim().toLowerCase();
+    // Demo seed users (no authId, no passwordHash → password is "demo")
+    const ad=athletes.find(x=>x.email?.toLowerCase()===em&&!x.authId&&!x.passwordHash);
+    if(ad&&pass==="demo"){onSuccess("athlete",ad);return;}
+    const cd=coaches.find(x=>x.email?.toLowerCase()===em&&!x.authId&&!x.passwordHash);
+    if(cd&&pass==="demo"){onSuccess("coach",cd);return;}
+    // Legacy hash users (old accounts before Supabase Auth)
+    const al=athletes.find(x=>x.email?.toLowerCase()===em&&x.passwordHash&&x.passwordHash===hashPass(pass));
+    if(al){onSuccess("athlete",al);return;}
+    const cl=coaches.find(x=>x.email?.toLowerCase()===em&&x.passwordHash&&x.passwordHash===hashPass(pass));
+    if(cl){onSuccess("coach",cl);return;}
+    // Supabase Auth login
+    const{data,error}=await supabase.auth.signInWithPassword({email:email.trim(),password:pass});
+    if(error){
+      const n=tries+1;setTries(n);
+      setErr(n>=5?"Account locked after 5 attempts. Contact support@athletevault.org.":"Incorrect credentials. Please try again.");
+      setLoading(false);return;
+    }
+    const ue=data.user?.email?.toLowerCase();
+    const a2=athletes.find(x=>x.email?.toLowerCase()===ue);
+    if(a2){onSuccess("athlete",a2);return;}
+    const c2=coaches.find(x=>x.email?.toLowerCase()===ue);
+    if(c2){onSuccess("coach",c2);return;}
+    setErr("Account found but profile missing. Contact support@athletevault.org.");setLoading(false);
+  }
+  async function sendReset(){
+    if(!email){setErr("Enter your email address above first.");return;}
+    setLoading(true);
+    await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+"?reset=1"});
+    setResetSent(true);setLoading(false);
   }
   return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif",backgroundImage:`radial-gradient(ellipse 70% 50% at 50% 0%,${C.goldGlow},transparent 70%)`}}>
     <div style={{width:"100%",maxWidth:420,padding:"0 24px"}}>
@@ -745,9 +802,17 @@ function Login({onSuccess,athletes,coaches,settings,onFreeSignup}){
           <Inp label="EMAIL OR USERNAME" value={email} onChange={setEmail} placeholder="you@email.com"/>
           <Inp label="PASSWORD" value={pass} onChange={v=>{setPass(v);setErr("");}} type="password" placeholder="••••••••••"/>
           {err&&<div style={{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"10px 13px",color:C.red,fontSize:13}}>🔒 {err}</div>}
-          <Btn onClick={go} disabled={loading||locked||!email||!pass} full loading={loading}>{locked?"LOCKED — Contact Support":"SIGN IN →"}</Btn>
-          <button onClick={()=>setShowRef(p=>!p)} style={{background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"'Sora',sans-serif"}}>Have a referral code? {showRef?"▲":"▼"}</button>
+          <Btn onClick={go} disabled={loading||locked||!email||!pass} full>{locked?"LOCKED — Contact Support":loading?"Signing in…":"SIGN IN →"}</Btn>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <button onClick={()=>setShowRef(p=>!p)} style={{background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"'Sora',sans-serif"}}>Have a referral code? {showRef?"▲":"▼"}</button>
+            <button onClick={()=>{setShowReset(p=>!p);setResetSent(false);setErr("");}} style={{background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"'Sora',sans-serif"}}>Forgot password?</button>
+          </div>
           {showRef&&<Inp label="REFERRAL CODE" value={refCode} onChange={setRefCode} placeholder="e.g. AB12CD"/>}
+          {showReset&&!resetSent&&<div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <p style={{color:C.muted,fontSize:12,lineHeight:1.5}}>Enter your email above, then tap the button to get a reset link.</p>
+            <Btn onClick={sendReset} variant="ghost" full disabled={!email||loading}>{loading?"Sending…":"Send Password Reset Email"}</Btn>
+          </div>}
+          {resetSent&&<div style={{background:C.green+"18",border:`1px solid ${C.green}44`,borderRadius:8,padding:"10px 13px",color:C.green,fontSize:13}}>✓ Reset link sent — check your email inbox.</div>}
         </div>
       </Card>
       <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}><Btn onClick={()=>setShowSignup(true)} variant="ghost" full>New here? Create Account →</Btn><p style={{textAlign:"center",color:C.muted,fontSize:11}}>Already have an account? Sign in above.</p></div><SignupModal show={showSignup} onClose={()=>setShowSignup(false)} settings={settings} onFreeSignup={data=>{onFreeSignup&&onFreeSignup(data);setShowSignup(false);}}/>
@@ -758,6 +823,53 @@ function Login({onSuccess,athletes,coaches,settings,onFreeSignup}){
       </div>
     </div>
   </div>;
+}
+
+function useMobile(){
+  const [m,setM]=useState(()=>typeof window!=="undefined"&&window.innerWidth<640);
+  useEffect(()=>{const f=()=>setM(window.innerWidth<640);window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
+  return m;
+}
+
+const MOBILE_PRIMARY={
+  athlete:[{id:"home",icon:"🏠",label:"Vault"},{id:"schools",icon:"🏫",label:"Schools"},{id:"messages",icon:"💬",label:"Messages"},{id:"profile",icon:"👤",label:"Profile"}],
+  coach:[{id:"home",icon:"🏠",label:"Home"},{id:"athletes",icon:"🔍",label:"Athletes"},{id:"messages",icon:"💬",label:"Messages"},{id:"profile",icon:"👤",label:"Profile"}],
+  owner:[{id:"overview",icon:"⬡",label:"Overview"},{id:"athletes",icon:"👥",label:"Athletes"},{id:"revenue",icon:"💰",label:"Revenue"},{id:"ai",icon:"⚡",label:"AI"}],
+};
+
+function BottomNav({role,tab,setTab,navItems,msgCount,notifCount,user,onLogout}){
+  const [moreOpen,setMoreOpen]=useState(false);
+  const primary=MOBILE_PRIMARY[role]||MOBILE_PRIMARY.athlete;
+  const primaryIds=new Set(primary.map(t=>t.id));
+  const secondary=navItems.filter(n=>!primaryIds.has(n.id));
+  const isFree=role==="athlete"&&user?.plan==="free";
+  return <>
+    {moreOpen&&<div onClick={()=>setMoreOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.75)",zIndex:198}}/>}
+    <div style={{position:"fixed",bottom:58,left:0,right:0,background:C.dark,borderTop:`1px solid ${C.border}`,zIndex:199,padding:"12px 16px 8px",display:moreOpen?"block":"none",maxHeight:"60vh",overflowY:"auto",borderRadius:"16px 16px 0 0"}}>
+      <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:2,marginBottom:10}}>ALL TABS</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+        {secondary.map(n=>{const locked=isFree&&n.pro;return <button key={n.id} onClick={()=>{if(!locked){setTab(n.id);setMoreOpen(false);}}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"10px 4px",borderRadius:9,border:"none",background:tab===n.id?C.goldGlow:C.card,color:locked?C.muted:tab===n.id?C.gold:C.mutedHi,cursor:locked?"not-allowed":"pointer",fontFamily:"'Sora',sans-serif",fontSize:10,fontWeight:600}}>
+          <span style={{fontSize:18}}>{n.icon}</span>
+          <span style={{textAlign:"center",lineHeight:1.2}}>{n.label}</span>
+          {locked&&<span style={{fontSize:9,color:C.muted}}>🔒</span>}
+        </button>;})}
+        <button onClick={()=>{onLogout();setMoreOpen(false);}} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"10px 4px",borderRadius:9,border:"none",background:C.card,color:C.red,cursor:"pointer",fontFamily:"'Sora',sans-serif",fontSize:10,fontWeight:600}}>
+          <span style={{fontSize:18}}>🚪</span><span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+    <div style={{position:"fixed",bottom:0,left:0,right:0,height:58,background:C.dark,borderTop:`1px solid ${C.border}`,display:"flex",zIndex:200,alignItems:"stretch",padding:"0 4px",paddingBottom:"env(safe-area-inset-bottom)"}}>
+      {primary.map(t=>{const count=t.id==="messages"?msgCount:t.id==="notifications"?notifCount:0;const active=tab===t.id;return <button key={t.id} onClick={()=>{setTab(t.id);setMoreOpen(false);}} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,border:"none",background:"transparent",cursor:"pointer",position:"relative",borderTop:`2px solid ${active?C.gold:"transparent"}`}}>
+        <span style={{fontSize:21}}>{t.icon}</span>
+        <span style={{fontFamily:"'Sora',sans-serif",fontSize:9,fontWeight:600,color:active?C.gold:C.muted}}>{t.label}</span>
+        {count>0&&<div style={{position:"absolute",top:4,right:"18%",minWidth:16,height:16,borderRadius:8,background:C.red,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"white",fontWeight:700,padding:"0 3px"}}>{count>9?"9+":count}</div>}
+      </button>;})}
+      <button onClick={()=>setMoreOpen(p=>!p)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,border:"none",background:"transparent",cursor:"pointer",borderTop:`2px solid ${moreOpen?C.gold:"transparent"}`}}>
+        <span style={{fontSize:21,letterSpacing:-2,color:moreOpen?C.gold:C.muted}}>•••</span>
+        <span style={{fontFamily:"'Sora',sans-serif",fontSize:9,fontWeight:600,color:moreOpen?C.gold:C.muted}}>More</span>
+      </button>
+    </div>
+  </>;
 }
 
 function Sidebar({navItems,tab,setTab,user,role,onLogout,msgCount,notifCount}){
@@ -819,7 +931,14 @@ function PrivacySecurity({user,saveUsers,role}){
   const [np,setNp]=useState("");const [cp,setCp]=useState("");const [pm,setPm]=useState("");
   const priv=user.privacy||(role==="coach"?DEF_C_PRIV:DEF_A_PRIV);
   function updP(k,v){saveUsers(prev=>prev.map(u=>String(u.id)===String(user.id)?{...u,privacy:{...u.privacy,[k]:v}}:u));}
-  function changePass(){if(np.length<8){setPm("Min 8 characters.");return;}if(np!==cp){setPm("Passwords don't match.");return;}saveUsers(prev=>prev.map(u=>String(u.id)===String(user.id)?{...u,passwordHash:hashPass(np)}:u));setPm("✓ Password updated!");setNp("");setCp("");}
+  async function changePass(){
+    if(np.length<8){setPm("Min 8 characters.");return;}
+    if(np!==cp){setPm("Passwords don't match.");return;}
+    const{error}=await supabase.auth.updateUser({password:np});
+    if(error){setPm("⚠️ "+error.message);return;}
+    saveUsers(prev=>prev.map(u=>String(u.id)===String(user.id)?{...u,passwordHash:null}:u));
+    setPm("✓ Password updated!");setNp("");setCp("");
+  }
   const aTogs=[{k:"profileVisible",l:"Profile Visible",s:"Appear in search results"},{k:"searchable",l:"Searchable by Coaches",s:"Coaches can find you"},{k:"showLocation",l:"Show Location"},{k:"showSchool",l:"Show School / League"},{k:"showFollowers",l:"Show Follower Count"},{k:"showStats",l:"Show Activity Stats"},{k:"showVideos",l:"Show Videos"},{k:"showEmail",l:"Show Email (hidden by default)"},{k:"showPhone",l:"Show Phone Number"},{k:"showDeals",l:"Show Brand Deals"}];
   const cTogs=[{k:"profileVisible",l:"Profile Visible"},{k:"searchable",l:"Searchable by Athletes"},{k:"showBio",l:"Show Bio & Focus"},{k:"showEmail",l:"Show Email"},{k:"showPhone",l:"Show Phone"},{k:"showTwitter",l:"Show Twitter/X"},{k:"showInstagram",l:"Show Instagram"},{k:"showLinkedin",l:"Show LinkedIn"}];
   const togs=role==="coach"?cTogs:aTogs;
@@ -1511,9 +1630,10 @@ function AHome({athlete,settings}){
 }
 
 function EuroTeams({athlete}){
-  const [search,setSearch]=useState("");const [sportF,setSportF]=useState(athlete?.sport||"all");const [countryF,setCountryF]=useState("all");const [leagueF,setLeagueF]=useState("all");const [sel,setSel]=useState(null);const [loading,setLoading]=useState(false);const [pitch,setPitch]=useState("");
+  const isMobile=useMobile();
+  const [search,setSearch]=useState("");const [sportF,setSportF]=useState(athlete?.sport||"all");const [countryF,setCountryF]=useState("all");const [leagueF,setLeagueF]=useState("all");const [sel,setSel]=useState(null);const [loading,setLoading]=useState(false);const [pitch,setPitch]=useState("");const [showDetail,setShowDetail]=useState(false);
   const SPORT_CATS=["All","American Football","Soccer","Basketball","Baseball","Rugby","Ice Hockey","Cricket","Other"];
-  const [catF,setCatF]=useState("All");
+  const [catF,setCatF]=useState(athlete?.sport==="Football"?"American Football":"All");
   const sports=[...new Set(GLOBAL_TEAMS.map(t=>t.sport))];
   const countries=[...new Set(GLOBAL_TEAMS.map(t=>t.country))];
   const leagues=[...new Set(GLOBAL_TEAMS.map(t=>t.league))];
@@ -1539,8 +1659,19 @@ Write a compelling email:
 - Professional close with contact ask
 
 Under 200 words. Confident. International ready.`);setPitch(r);}catch(e){setPitch("⚠️ Failed. Retry.");}setLoading(false);}
+  const gflLeagues=new Set(["GFL1","GFL2","ELF"]);
+  const isFootball=catF==="American Football"||catF==="All";
   return <div>
     <Sec title="Global Teams" sub={`${GLOBAL_TEAMS.length}+ pro teams worldwide — NFL, NBA, MLB, Premier League, La Liga, Bundesliga, GFL, ELF, EuroLeague & more`}/>
+    {/* GFL Insider banner — shown for football athletes */}
+    {isFootball&&<Card glow color={C.gold} style={{marginBottom:16,padding:"14px 18px",display:"flex",gap:14,alignItems:"center",flexWrap:"wrap"}}>
+      <div style={{fontSize:36,flexShrink:0}}>🇩🇪</div>
+      <div style={{flex:1,minWidth:200}}>
+        <div style={{color:C.gold,fontWeight:900,fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,letterSpacing:1,marginBottom:4}}>GFL INSIDER — FROM CHEWY</div>
+        <p style={{color:C.mutedHi,fontSize:12,lineHeight:1.7,margin:0}}>"I play in the GFL. German football is real pro football — housing, salary, and competitive reps. If you're a skilled position player who can't get a camp invite, Europe is where you prove yourself. The GFL1 teams contact me for recommendations. Get your profile right and I can make intro connections."</p>
+      </div>
+    </Card>}
+    {/* Category filter pills */}
     <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>{SPORT_CATS.map(c=><button key={c} onClick={()=>setCatF(c)} style={{background:catF===c?C.goldGlow:"transparent",border:`1px solid ${catF===c?C.gold:C.border}`,borderRadius:7,padding:"5px 12px",cursor:"pointer",color:catF===c?C.gold:C.muted,fontSize:12,fontFamily:"'Sora',sans-serif",fontWeight:600}}>{c}</button>)}</div>
     <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
       <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search teams, leagues, cities…" style={{flex:1,minWidth:160,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.white,fontSize:13,outline:"none",fontFamily:"'Sora',sans-serif"}}/>
@@ -1548,32 +1679,56 @@ Under 200 words. Confident. International ready.`);setPitch(r);}catch(e){setPitc
       <select value={leagueF} onChange={e=>setLeagueF(e.target.value)} style={{background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.white,fontSize:13,outline:"none"}}><option value="all">All Leagues</option>{leagues.map(l=><option key={l}>{l}</option>)}</select>
     </div>
     <p style={{color:C.muted,fontSize:12,marginBottom:14,fontFamily:"DM Mono,monospace"}}>{filtered.length} teams found</p>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 380px",gap:18,alignItems:"start"}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:12}}>
-        {filtered.map(t=><Card key={t.id} glow={sel?.id===t.id} color={leagueColor[t.league]} onClick={()=>{setSel(t);setPitch("");}} style={{cursor:"pointer"}}>
+    {/* Mobile detail modal */}
+    {isMobile&&showDetail&&sel&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.9)",zIndex:300,overflowY:"auto",padding:16}}>
+      <button onClick={()=>setShowDetail(false)} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.white,padding:"8px 16px",cursor:"pointer",marginBottom:14,fontFamily:"'Sora',sans-serif",fontSize:13}}>← Back</button>
+      <Card glow color={leagueColor[sel.league]}>
+        <div style={{fontSize:36,marginBottom:6}}>{sel.logo}</div>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:C.white,letterSpacing:1,lineHeight:1,marginBottom:4}}>{sel.name}</div>
+        <div style={{color:leagueColor[sel.league]||C.gold,fontWeight:700,fontSize:13,marginBottom:12}}>{sel.league} · {sel.country}</div>
+        {gflLeagues.has(sel.league)&&<div style={{background:C.goldGlow,border:`1px solid ${C.gold}44`,borderRadius:7,padding:"6px 10px",marginBottom:12,color:C.gold,fontSize:11,fontFamily:"DM Mono,monospace",fontWeight:700}}>⭐ GFL — CHEWY PLAYS HERE</div>}
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}><Badge color={leagueColor[sel.league]||C.muted}>{sel.league}</Badge><Badge color={C.blue}>{sel.sport}</Badge></div>
+        <p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6,marginBottom:13}}>{sel.description}</p>
+        {[["📍 Location",`${sel.city}, ${sel.country}`],["💰 Salary",sel.salary],["🏆 Openings",sel.openings],["🌐 Website",sel.website],["📧 Contact",sel.contact]].map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8,flexWrap:"wrap"}}><span style={{color:C.muted,fontSize:12,flexShrink:0}}>{k}</span><span style={{color:k.includes("Contact")?C.blue:C.white,fontSize:12,fontWeight:600,textAlign:"right",wordBreak:"break-all"}}>{v}</span></div>)}
+        <Btn onClick={()=>genPitch(sel)} loading={loading} full style={{marginTop:14}}>⚡ Generate Outreach Pitch</Btn>
+        <AIOut loading={loading} output={pitch} label="OUTREACH PITCH"/>
+      </Card>
+    </div>}
+    {/* Desktop: two-column. Mobile: single column + modal */}
+    <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 380px",gap:18,alignItems:"start"}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(auto-fill,minmax(${isMobile?160:230}px,1fr))`,gap:12}}>
+        {filtered.map(t=><Card key={t.id} glow={sel?.id===t.id} color={leagueColor[t.league]} onClick={()=>{setSel(t);setPitch("");if(isMobile)setShowDetail(true);}} style={{cursor:"pointer"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:9}}>
-            <div style={{fontSize:28}}>{t.logo}</div>
-            <Badge color={leagueColor[t.league]||C.muted}>{t.league}</Badge>
+            <div style={{fontSize:isMobile?22:28}}>{t.logo}</div>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+              <Badge color={leagueColor[t.league]||C.muted}>{t.league}</Badge>
+              {gflLeagues.has(t.league)&&<Badge color={C.gold}>⭐ GFL</Badge>}
+            </div>
           </div>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:C.white,letterSpacing:.5,lineHeight:1.1,marginBottom:3}}>{t.name}</div>
-          <div style={{color:C.muted,fontSize:12,marginBottom:7}}>📍 {t.city}, {t.country}</div>
-          <div style={{color:C.green,fontSize:12,fontFamily:"DM Mono,monospace",marginBottom:7}}>{t.salary}</div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:isMobile?15:18,fontWeight:900,color:C.white,letterSpacing:.5,lineHeight:1.1,marginBottom:3}}>{t.name}</div>
+          <div style={{color:C.muted,fontSize:11,marginBottom:7}}>📍 {t.city}, {t.country}</div>
+          <div style={{color:C.green,fontSize:11,fontFamily:"DM Mono,monospace",marginBottom:7}}>{t.salary}</div>
           <Badge color={C.blue}>{t.sport}</Badge>
         </Card>)}
         {filtered.length===0&&<div style={{color:C.muted,fontSize:14,padding:"20px 0",gridColumn:"1/-1"}}>No teams match your filters.</div>}
       </div>
-      <div style={{position:"sticky",top:20}}>
+      {!isMobile&&<div style={{position:"sticky",top:20}}>
         {sel?<Card glow color={leagueColor[sel.league]}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
-            <div><div style={{fontSize:36,marginBottom:6}}>{sel.logo}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:C.white,letterSpacing:1,lineHeight:1}}>{sel.name}</div><div style={{color:leagueColor[sel.league]||C.gold,fontWeight:700,fontSize:13,marginTop:4}}>{sel.league} · {sel.country}</div></div>
+            <div>
+              <div style={{fontSize:36,marginBottom:6}}>{sel.logo}</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:C.white,letterSpacing:1,lineHeight:1}}>{sel.name}</div>
+              <div style={{color:leagueColor[sel.league]||C.gold,fontWeight:700,fontSize:13,marginTop:4}}>{sel.league} · {sel.country}</div>
+            </div>
           </div>
+          {gflLeagues.has(sel.league)&&<div style={{background:C.goldGlow,border:`1px solid ${C.gold}44`,borderRadius:7,padding:"6px 10px",marginBottom:12,color:C.gold,fontSize:11,fontFamily:"DM Mono,monospace",fontWeight:700}}>⭐ GFL LEAGUE — CHEWY PLAYS HERE. DIRECT CONNECTIONS AVAILABLE.</div>}
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}><Badge color={leagueColor[sel.league]||C.muted}>{sel.league}</Badge><Badge color={C.blue}>{sel.sport}</Badge></div>
           <p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6,marginBottom:13}}>{sel.description}</p>
           {[["📍 Location",`${sel.city}, ${sel.country}`],["💰 Salary",sel.salary],["🏆 Openings",sel.openings],["🌐 Website",sel.website],["📧 Contact",sel.contact]].map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,gap:8,flexWrap:"wrap"}}><span style={{color:C.muted,fontSize:12,flexShrink:0}}>{k}</span><span style={{color:k.includes("Contact")?C.blue:C.white,fontSize:12,fontWeight:600,textAlign:"right",wordBreak:"break-all"}}>{v}</span></div>)}
           <Btn onClick={()=>genPitch(sel)} loading={loading} full style={{marginTop:14}}>⚡ Generate Outreach Pitch</Btn>
           <AIOut loading={loading} output={pitch} label="OUTREACH PITCH"/>
         </Card>:<Card style={{textAlign:"center",padding:44}}><div style={{fontSize:40,marginBottom:12}}>🌍</div><div style={{color:C.white,fontWeight:700,fontSize:16,marginBottom:6}}>Select a Team</div><div style={{color:C.muted,fontSize:13}}>View full details, salary info, open positions, and generate your outreach pitch.</div></Card>}
-      </div>
+      </div>}
     </div>
   </div>;
 }
@@ -1589,10 +1744,46 @@ function SchoolSearch({athlete,isFree,onUpgrade}){
   async function genOutreach(school){setLoading(true);setOutreach("");try{const r=await ai(`Write a personalized recruiting email from ${athlete?.name||"an athlete"} (${athlete?.sport}, ${fmt(athlete?.followers||0)} social followers, ${athlete?.school||"current program"}, ${athlete?.city||""} ${athlete?.country||"USA"}) to the coaching staff at ${school.name} (${school.nick}, ${school.div}, ${school.conf}).Open positions: ${JSON.stringify(school.openings)}. Scholarships: ${school.schNote}.Complete email with subject line, personal opening, athletic credentials, why this school, academic mention, clear ask. Under 200 words.`);setOutreach(r);markContacted(school);}catch(e){setOutreach("⚠️ Failed.");}setLoading(false);}
   async function genMatch(){setMatchLoading(true);setMatchOut("");try{const r=await ai(`Recommend top 10 school matches for: ${athlete?.name}, ${athlete?.sport}, ${fmt(athlete?.followers||0)} followers, ${athlete?.city||""} ${athlete?.country}, school: ${athlete?.school||"unknown"}, bio: "${athlete?.bio||""}".Schools available: ${SCHOOLS.filter(s=>s.sports?.includes(athlete?.sport||"Football")).map(s=>`${s.name} (${s.div}, ${s.loc}, scholarships:${s.scholarships})`).join("; ")}.For each: school name, match score 1-100, why they fit, realistic scholarship chance, first action. Be honest about realistic levels.`);setMatchOut(r);}catch(e){setMatchOut("⚠️ Failed.");}setMatchLoading(false);}
   const divColor={"NCAA D1":C.gold,"NCAA D2":C.blue,"NAIA":C.green,"NJCAA":C.teal};
+
+  // Algorithmic fit score (0-100) based on athlete profile
+  function fitScore(school){
+    if(!athlete)return 0;
+    let score=50;
+    // Sport match
+    if(school.sports?.includes(athlete.sport))score+=20;else score-=20;
+    // Division realism based on follower proxy for notoriety
+    const f=athlete.followers||0;
+    const div=school.div;
+    if(div==="NCAA D1"&&f>=5000)score+=15;
+    else if(div==="NCAA D1"&&f<1000)score-=10;
+    else if(div==="NCAA D2"&&f>=500)score+=10;
+    else if(div==="NAIA"||div==="NJCAA")score+=8;
+    // Scholarship bonus
+    if(school.scholarships)score+=5;
+    // HBCU athlete flag preference
+    if(school.type==="HBCU"&&athlete.hbcuInterest)score+=15;
+    // Location proximity
+    const usaState=athlete.state?.toUpperCase();
+    if(usaState&&school.loc?.toLowerCase().includes(athlete.state?.toLowerCase()||"_"))score+=8;
+    // Already contacted = engagement
+    if(contacted.some(c=>c.id===school.id))score+=5;
+    // Already saved
+    if(saved.includes(school.id))score+=3;
+    return Math.max(0,Math.min(100,Math.round(score)));
+  }
+  function scoreColor(s){if(s>=80)return C.green;if(s>=60)return C.gold;if(s>=40)return C.blue;return C.muted;}
+
   return <div>
     <Sec title="School Search" sub="NCAA D1, D2, NAIA, JUCO, HBCUs — better than NCSA"/>
     <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>{[["search","🔍 Search"],["matcher","🤖 AI Match Me"],["saved",`⭐ Saved (${saved.length})`],["tracker",`📋 Tracker (${contacted.length})`]].map(([t,l])=><Btn key={t} onClick={()=>setView(t)} variant={view===t?"gold":"ghost"} small>{l}</Btn>)}</div>
-    {view==="matcher"&&<div><Card glow style={{marginBottom:14}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>AI SCHOOL MATCHER — POWERED BY CLAUDE</div><p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6,marginBottom:14}}>AI analyzes your profile and ranks your top 10 best-fit programs across all divisions.</p><Btn onClick={genMatch} loading={matchLoading}>⚡ Find My Best Schools</Btn></Card><AIOut loading={matchLoading} output={matchOut} label="TOP 10 SCHOOL MATCHES"/></div>}
+    {view==="matcher"&&<div>
+      <Card glow style={{marginBottom:14}}>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",marginBottom:10}}>AI SCHOOL MATCHER — POWERED BY CLAUDE</div>
+        <p style={{color:C.mutedHi,fontSize:13,lineHeight:1.6,marginBottom:14}}>AI analyzes your profile and ranks your top 10 best-fit programs. Also check your Search tab — every card now shows a real-time fit score.</p>
+        <Btn onClick={genMatch} loading={matchLoading}>⚡ Find My Best Schools (AI)</Btn>
+      </Card>
+      <AIOut loading={matchLoading} output={matchOut} label="TOP 10 SCHOOL MATCHES"/>
+    </div>}
     {view==="saved"&&<div>{savedSchools.length===0?<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:36,marginBottom:10}}>⭐</div><div style={{color:C.white,fontWeight:700}}>No saved schools yet</div></Card>:<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>{savedSchools.map(s=><Card key={s.id} onClick={()=>{setSel(s);setView("search");}} style={{cursor:"pointer"}}><div style={{fontSize:22,marginBottom:7}}>{s.logo}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:900,color:C.white,marginBottom:3}}>{s.name}</div><div style={{color:divColor[s.div]||C.gold,fontSize:12,marginBottom:6}}>{s.div} · {s.conf}</div><Badge color={s.scholarships?C.green:C.muted}>{s.scholarships?"Scholarships":"No Scholarship"}</Badge></Card>)}</div>}</div>}
     {view==="tracker"&&<div>{contactedSchools.length===0?<Card style={{textAlign:"center",padding:40}}><div style={{fontSize:36,marginBottom:10}}>📋</div><div style={{color:C.white,fontWeight:700}}>Tracker empty</div><div style={{color:C.muted,fontSize:13}}>Generate outreach emails to track schools here.</div></Card>:<Card>{contactedSchools.map(s=>{const c=contacted.find(x=>x.id===s.id);const nk=`s_${s.id}`;return <div key={s.id} style={{padding:"12px 0",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:6}}><div><div style={{color:C.white,fontWeight:700,fontSize:14}}>{s.logo} {s.name}</div><div style={{color:C.muted,fontSize:12}}>{s.div} · Contacted {c?.date}</div></div><Badge color={c?.status==="committed"?C.gold:c?.status==="replied"?C.green:c?.status==="visit"?C.purple:C.muted}>{c?.status}</Badge></div><div style={{display:"flex",gap:5,marginBottom:8,flexWrap:"wrap"}}>{["contacted","replied","visit","committed","declined"].map(st=><button key={st} onClick={()=>setContacted(prev=>prev.map(x=>x.id===s.id?{...x,status:st}:x))} style={{background:c?.status===st?C.goldGlow:"transparent",border:`1px solid ${c?.status===st?C.gold:C.border}`,borderRadius:5,padding:"3px 8px",cursor:"pointer",color:c?.status===st?C.gold:C.muted,fontSize:10,fontFamily:"'Sora',sans-serif",fontWeight:600,textTransform:"capitalize"}}>{st}</button>)}</div><input value={notes[nk]||""} onChange={e=>setNotes(p=>({...p,[nk]:e.target.value}))} placeholder="Notes…" style={{width:"100%",background:C.dark,border:`1px solid ${C.border}`,borderRadius:7,padding:"7px 11px",color:C.white,fontSize:12,outline:"none",fontFamily:"'Sora',sans-serif",boxSizing:"border-box"}}/></div>;})}</Card>}</div>}
     {view==="search"&&<div style={{display:"grid",gridTemplateColumns:"1fr 380px",gap:18,alignItems:"start"}}>
@@ -1606,13 +1797,14 @@ function SchoolSearch({athlete,isFree,onUpgrade}){
         </div>
         <p style={{color:C.muted,fontSize:12,marginBottom:12,fontFamily:"DM Mono,monospace"}}>{filtered.length} programs</p>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:11}}>
-          {filtered.map(s=><Card key={s.id} glow={sel?.id===s.id} color={divColor[s.div]} onClick={()=>setSel(s)} style={{cursor:"pointer"}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}><span style={{fontSize:22}}>{s.logo}</span><button onClick={e=>{e.stopPropagation();toggleSave(s.id);}} style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:saved.includes(s.id)?C.gold:C.muted}}>{saved.includes(s.id)?"⭐":"☆"}</button></div>
+          {filtered.map(s=>{const fs=fitScore(s);return <Card key={s.id} glow={sel?.id===s.id} color={divColor[s.div]} onClick={()=>setSel(s)} style={{cursor:"pointer"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}><span style={{fontSize:22}}>{s.logo}</span><div style={{display:"flex",gap:6,alignItems:"center"}}><div style={{textAlign:"right"}}><div style={{fontFamily:"DM Mono,monospace",fontSize:13,fontWeight:700,color:scoreColor(fs)}}>{fs}%</div><div style={{color:C.muted,fontSize:9}}>FIT</div></div><button onClick={e=>{e.stopPropagation();toggleSave(s.id);}} style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:saved.includes(s.id)?C.gold:C.muted}}>{saved.includes(s.id)?"⭐":"☆"}</button></div></div>
+            <div style={{height:3,background:C.border,borderRadius:2,marginBottom:8,overflow:"hidden"}}><div style={{width:`${fs}%`,height:"100%",background:scoreColor(fs),borderRadius:2,transition:"width .3s"}}/></div>
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:900,color:C.white,lineHeight:1.1,marginBottom:3}}>{s.name}</div>
             <div style={{color:divColor[s.div]||C.gold,fontSize:11,fontWeight:700,marginBottom:5}}>{s.nick} · {s.div}</div>
             <div style={{color:C.muted,fontSize:11,marginBottom:7}}>📍 {s.loc}</div>
             <div style={{display:"flex",gap:5,flexWrap:"wrap"}}><Badge color={divColor[s.div]||C.muted}>{s.div}</Badge>{s.scholarships&&<Badge color={C.green}>Scholarships</Badge>}{s.type==="HBCU"&&<Badge color={C.teal}>HBCU</Badge>}{s.type==="JUCO"&&<Badge color={C.blue}>JUCO</Badge>}</div>
-          </Card>)}
+          </Card>;})}
         </div>
       </div>
       <div style={{position:"sticky",top:20}}>
@@ -1740,7 +1932,7 @@ function ANIL(){
 }
 
 function AProfile({athlete,saveAthletes}){
-  const [f,setF]=useState({name:athlete.name,sport:athlete.sport,school:athlete.school,city:athlete.city||"",state:athlete.state||"",country:athlete.country||"United States",bio:athlete.bio||"",phone:athlete.phone||"",followers:String(athlete.followers||0),highlightUrl:athlete.highlightUrl||"",profilePhoto:athlete.profilePhoto||"",profileCode:athlete.profileCode||"",hasPassport:athlete.hasPassport||false,seekingInternational:athlete.seekingInternational||false,workAuth:athlete.workAuth||[],preferredCountries:athlete.preferredCountries||[]});
+  const [f,setF]=useState({name:athlete.name,sport:athlete.sport,school:athlete.school,city:athlete.city||"",state:athlete.state||"",country:athlete.country||"United States",bio:athlete.bio||"",phone:athlete.phone||"",twitter:athlete.twitter||"",instagram:athlete.instagram||"",followers:String(athlete.followers||0),highlightUrl:athlete.highlightUrl||"",profilePhoto:athlete.profilePhoto||"",profileCode:athlete.profileCode||"",hasPassport:athlete.hasPassport||false,seekingInternational:athlete.seekingInternational||false,workAuth:athlete.workAuth||[],preferredCountries:athlete.preferredCountries||[]});
   const [saved,setSaved]=useState(false);
   const [linkCopied,setLinkCopied]=useState(false);
   const [showShare,setShowShare]=useState(false);
@@ -1785,7 +1977,7 @@ function AProfile({athlete,saveAthletes}){
     </div>
     {athlete.inPortal&&<Card glow color={C.gold} style={{marginBottom:14,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:20}}>🔄</span><div><div style={{color:C.gold,fontWeight:700,fontSize:13}}>TRANSFER PORTAL ACTIVE</div><div style={{color:C.mutedHi,fontSize:12}}>Coaches can see you are available. Your profile is boosted in coach search.</div></div></Card>}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:13}}>
-      <Card><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>PERSONAL INFO</div><div style={{display:"flex",flexDirection:"column",gap:11}}>{[["FULL NAME","name"],["SPORT","sport"],["SCHOOL / LEAGUE","school"],["FOLLOWERS","followers"],["PHONE","phone"]].map(([l,k])=><Inp key={k} label={l} value={f[k]} onChange={v=>setF(p=>({...p,[k]:v}))}/>)}<Inp label="HIGHLIGHT REEL (YouTube / Hudl URL)" value={f.highlightUrl} onChange={v=>setF(p=>({...p,highlightUrl:v}))} placeholder="https://youtube.com/watch?v=..."/></div></Card>
+      <Card><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>PERSONAL INFO</div><div style={{display:"flex",flexDirection:"column",gap:11}}>{[["FULL NAME","name"],["SPORT","sport"],["SCHOOL / LEAGUE","school"],["FOLLOWERS","followers"],["PHONE","phone"],["TWITTER / X","twitter"],["INSTAGRAM","instagram"]].map(([l,k])=><Inp key={k} label={l} value={f[k]} onChange={v=>setF(p=>({...p,[k]:v}))}/>)}<Inp label="HIGHLIGHT REEL (YouTube / Hudl URL)" value={f.highlightUrl} onChange={v=>setF(p=>({...p,highlightUrl:v}))} placeholder="https://youtube.com/watch?v=..."/></div></Card>
       <div><Card style={{marginBottom:13}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:13}}>LOCATION</div><div style={{display:"flex",flexDirection:"column",gap:11}}><Inp label="CITY" value={f.city} onChange={v=>setF(p=>({...p,city:v}))}/><Inp label="STATE" value={f.state} onChange={v=>setF(p=>({...p,state:v}))}/><Sel label="COUNTRY" value={f.country} onChange={v=>setF(p=>({...p,country:v}))} options={REGIONS}/></div></Card><Card><Inp label="BIO" value={f.bio} onChange={v=>setF(p=>({...p,bio:v}))} rows={4} placeholder="Tell coaches and brands your story…"/></Card></div>
     </div>
     {/* Profile Photo */}
@@ -2212,6 +2404,8 @@ function CoachStudio({coach,coaches,saveCoaches,athletes,settings,messages,saveM
   const [vf,setVf]=useState({title:"",desc:"",sport:"",level:"All Levels",price:"",duration:"",url:"",thumbnail:"",category:"technique"});
   const [vidLoading,setVidLoading]=useState(false);
   const [vidDesc,setVidDesc]=useState("");
+  const [vidUploading,setVidUploading]=useState(false);
+  const [vidUploadErr,setVidUploadErr]=useState("");
 
   async function genDesc(){if(!vf.title)return;setVidLoading(true);try{const r=await ai(`Write a compelling 2-sentence video description for a coaching video titled "${vf.title}" by ${coach.name} (${coach.title} at ${coach.org}, ${coach.sport}). Level: ${vf.level}. Make athletes want to buy it immediately.`);setVidDesc(r);}catch(e){}setVidLoading(false);}
 
@@ -2246,9 +2440,42 @@ function CoachStudio({coach,coaches,saveCoaches,athletes,settings,messages,saveM
   const myCoachCut=totalRevenue*(coachCut/100);
   const cats=["technique","recruiting","mindset","fitness","film-study","nutrition","overview"];
   const lvls=["Beginner","Intermediate","Advanced","All Levels","Elite Only"];
+  const [connectLoading,setConnectLoading]=useState(false);
+  const stripeConnected=!!(liveUser?.stripeAccountId);
+
+  async function connectStripe(){
+    setConnectLoading(true);
+    try{
+      const origin=window.location.origin;
+      const r=await fetch("/api/stripe-connect-onboard",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        coachId:coach.id,email:coach.email,name:coach.name,
+        refreshUrl:origin+"?stripe_refresh=1",
+        returnUrl:origin+"?stripe_connected=ACCOUNT_ID&coach="+coach.id,
+      })});
+      const d=await r.json();
+      if(d.url)window.location.href=d.url;
+      else alert("Stripe setup failed: "+d.error);
+    }catch(e){alert("Connection error. Try again.");}
+    setConnectLoading(false);
+  }
 
   return <div>
     <Sec title="Coach Studio" sub="Create, publish, and monetize your coaching content"/>
+
+    {/* Stripe Connect Banner */}
+    {!stripeConnected&&<Card style={{marginBottom:16,borderColor:`${C.gold}55`,background:`${C.gold}08`}}>
+      <div style={{display:"flex",gap:14,alignItems:"center",flexWrap:"wrap"}}>
+        <div style={{fontSize:28}}>💳</div>
+        <div style={{flex:1}}>
+          <div style={{color:C.gold,fontWeight:700,fontSize:14,marginBottom:3}}>Connect Stripe to Get Paid</div>
+          <div style={{color:C.muted,fontSize:12,lineHeight:1.6}}>Athletes can't purchase your content until you connect a Stripe account. Takes 2 minutes. You'll keep {coachCut}% of every sale.</div>
+        </div>
+        <Btn onClick={connectStripe} disabled={connectLoading} variant="gold">{connectLoading?"Connecting…":"Connect Stripe →"}</Btn>
+      </div>
+    </Card>}
+    {stripeConnected&&<Card style={{marginBottom:16,borderColor:`${C.green}44`,background:`${C.green}08`,padding:"12px 16px"}}>
+      <div style={{display:"flex",gap:10,alignItems:"center"}}><span style={{fontSize:18}}>✅</span><div><div style={{color:C.green,fontWeight:700,fontSize:13}}>Stripe Connected — You're ready to earn</div><div style={{color:C.muted,fontSize:11}}>Payouts go directly to your bank after each sale. AthleteVault takes {platformCut}%.</div></div></div>
+    </Card>}
 
     {/* Revenue Stats */}
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:12,marginBottom:18}}>
@@ -2370,7 +2597,32 @@ function CoachStudio({coach,coaches,saveCoaches,athletes,settings,messages,saveM
           <Sel label="LEVEL" value={vf.level} onChange={v=>setVf(p=>({...p,level:v}))} options={lvls}/>
           <Sel label="CATEGORY" value={vf.category} onChange={v=>setVf(p=>({...p,category:v}))} options={cats}/>
         </div>
-        <Inp label="VIDEO URL (YouTube, Vimeo, etc.)" value={vf.url} onChange={v=>setVf(p=>({...p,url:v}))} placeholder="https://youtube.com/..."/>
+        <div>
+          <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:6}}>VIDEO SOURCE</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <Inp label="YouTube / Vimeo URL" value={vf.url} onChange={v=>setVf(p=>({...p,url:v}))} placeholder="https://youtube.com/watch?v=..."/>
+            <div style={{color:C.muted,fontSize:11,textAlign:"center"}}>— or upload a file (requires Vercel Blob) —</div>
+            <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px"}}>
+              <span style={{fontSize:18}}>📁</span>
+              <div style={{flex:1}}>
+                <div style={{color:vidUploading?C.gold:C.white,fontSize:13,fontWeight:600}}>{vidUploading?"Uploading…":vf.url&&!vf.url.startsWith("http")?vf.url:"Choose video file (MP4, MOV)"}</div>
+                <div style={{color:C.muted,fontSize:11}}>Max 500MB · stored on Vercel Blob</div>
+              </div>
+              <input type="file" accept="video/*" style={{display:"none"}} disabled={vidUploading} onChange={async e=>{
+                const file=e.target.files?.[0];if(!file)return;
+                setVidUploading(true);setVidUploadErr("");
+                try{
+                  const r=await fetch("/api/upload-video",{method:"POST",headers:{"content-type":file.type,"x-filename":file.name,"x-folder":"coach-videos"},body:file});
+                  const d=await r.json();
+                  if(d.url)setVf(p=>({...p,url:d.url}));
+                  else setVidUploadErr(d.error||"Upload failed");
+                }catch(ex){setVidUploadErr("Upload error: "+ex.message);}
+                setVidUploading(false);
+              }}/>
+            </label>
+            {vidUploadErr&&<div style={{color:C.red,fontSize:12}}>{vidUploadErr}</div>}
+          </div>
+        </div>
         <Inp label="DESCRIPTION" value={vidDesc||vf.desc} onChange={v=>setVidDesc(v)} rows={3} placeholder="What athletes will learn…"/>
         <Btn onClick={genDesc} loading={vidLoading} variant="ghost" small>⚡ AI Write Description</Btn>
         <AIOut loading={vidLoading} output={vidLoading?"":""} label=""/>
@@ -2431,8 +2683,38 @@ function CoachingHub({athlete,coaches,athletes,messages,saveMessages,saveAthlete
   });
   const filtSess=allSessions.filter(s=>(s.title+(s.desc||"")+(s.coachObj?.name||"")).toLowerCase().includes(search.toLowerCase()));
 
-  function buyVideo(v){setPurchased(prev=>[...prev.filter(x=>x!==v.id),v.id]);}
-  function joinSession(s){setRegistered(prev=>[...prev.filter(x=>x!==s.id),s.id]);}
+  async function buyVideo(v){
+    if(purchased.includes(v.id))return;
+    const origin=window.location.origin;
+    try{
+      const r=await fetch("/api/buy-coaching",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        itemId:v.id,itemTitle:v.title,itemType:"video",price:v.price,
+        coachStripeId:v.coachObj?.stripeAccountId||null,
+        athleteEmail:athlete.email,coachId:v.coachId,
+        successUrl:origin+"?coaching_purchased="+v.id+"&type=video&coach="+v.coachId,
+        cancelUrl:origin+"?tab=coaching",
+      })});
+      const d=await r.json();
+      if(d.url)window.location.href=d.url;
+      else alert("Payment error: "+(d.error||"Try again"));
+    }catch(e){alert("Connection error. Try again.");}
+  }
+  async function joinSession(s){
+    if(registered.includes(s.id))return;
+    const origin=window.location.origin;
+    try{
+      const r=await fetch("/api/buy-coaching",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        itemId:s.id,itemTitle:s.title,itemType:"session",price:s.price,
+        coachStripeId:s.coachObj?.stripeAccountId||null,
+        athleteEmail:athlete.email,coachId:s.coachId,
+        successUrl:origin+"?coaching_purchased="+s.id+"&type=session&coach="+s.coachId,
+        cancelUrl:origin+"?tab=coaching",
+      })});
+      const d=await r.json();
+      if(d.url)window.location.href=d.url;
+      else alert("Payment error: "+(d.error||"Try again"));
+    }catch(e){alert("Connection error. Try again.");}
+  }
 
   const catColor={technique:C.accent,recruiting:C.gold,mindset:C.purple,fitness:C.green,"film-study":C.blue,nutrition:C.teal,overview:C.orange};
 
@@ -2950,18 +3232,46 @@ function OMyAccount({athletes,saveAthletes,coaches,saveCoaches,settings,onSwitch
 }
 
 // ── PublicProfile ──────────────────────────────────
-function PublicProfile({athleteId,athletes,onEnter}){
+function PublicProfile({athleteId,athletes,saveAthletes,onEnter}){
+  const [linkCopied,setLinkCopied]=useState(false);
   const a=athletes.find(x=>String(x.id)===String(athleteId));
-  const stats=a?.stats||{};
+  const profileUrl=a?`${window.location.origin}${window.location.pathname}#/p/${a.profileCode||a.id}`:"";
+
+  // Increment profile views once per browser session
+  useEffect(()=>{
+    if(!a)return;
+    const key=`av_viewed_${a.id}`;
+    if(sessionStorage.getItem(key))return;
+    sessionStorage.setItem(key,"1");
+    saveAthletes(prev=>prev.map(x=>String(x.id)===String(a.id)?{...x,profileViews:(x.profileViews||0)+1}:x));
+  },[a?.id]);
+
+  function share(){
+    if(navigator.share){navigator.share({title:`${a.name} — AthleteVault`,url:profileUrl}).catch(()=>{});}
+    else{navigator.clipboard?.writeText(profileUrl);setLinkCopied(true);setTimeout(()=>setLinkCopied(false),2500);}
+  }
+
+  const notFound=<div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif",padding:20}}><div style={{fontSize:48,marginBottom:16}}>🔍</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8,textAlign:"center"}}>PROFILE NOT FOUND</div><div style={{color:C.muted,fontSize:14,marginBottom:24,textAlign:"center"}}>This athlete profile doesn't exist or is private.</div><Btn onClick={onEnter} variant="gold">Join AthleteVault →</Btn></div>;
+  if(!a)return notFound;
+  if(a.privacy?.profileVisible===false)return notFound;
+
+  const stats=a.stats||{};
   const statKeys=Object.keys(stats).filter(k=>stats[k]);
-  if(!a)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif",padding:20}}><div style={{fontSize:48,marginBottom:16}}>🔍</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8,textAlign:"center"}}>PROFILE NOT FOUND</div><div style={{color:C.muted,fontSize:14,marginBottom:24,textAlign:"center"}}>This athlete profile doesn't exist or is private.</div><Btn onClick={onEnter} variant="gold">Join AthleteVault →</Btn></div>;
+  const priv=a.privacy||DEF_A_PRIV;
+  const location=`${a.city||""}${a.country&&a.city?", ":""}${a.country||""}`;
+
   return <div style={{minHeight:"100vh",background:C.black,fontFamily:"'Sora',sans-serif",padding:"0 0 60px 0"}}>
     <TronBg/>
     <div style={{position:"relative",zIndex:1,maxWidth:740,margin:"0 auto",padding:"24px 16px"}}>
+      {/* Top bar */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:900,color:C.white,letterSpacing:3}}>ATHLETEVAULT</div>
-        <Btn onClick={onEnter} small variant="gold">Join Free →</Btn>
+        <div style={{display:"flex",gap:8}}>
+          <Btn onClick={share} small variant="ghost">{linkCopied?"✓ Copied!":"🔗 Share"}</Btn>
+          <Btn onClick={onEnter} small variant="gold">Join Free →</Btn>
+        </div>
       </div>
+      {/* Hero card */}
       <Card glow color={C.accent} style={{marginBottom:16,overflow:"hidden",padding:0}}>
         <div style={{height:90,background:`linear-gradient(135deg,${C.accent}33,${C.gold}22)`,position:"relative"}}><div className="tron-grid-bg" style={{position:"absolute",inset:0,opacity:.4}}/></div>
         <div style={{padding:"0 24px 24px",marginTop:-44}}>
@@ -2972,7 +3282,8 @@ function PublicProfile({athleteId,athletes,onEnter}){
             <div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:34,fontWeight:900,color:C.white,letterSpacing:1,lineHeight:1}}>{a.name}</div>
               <div style={{color:C.accent,fontWeight:700,fontSize:14,marginTop:4}}>{a.sport}</div>
-              {a.school&&<div style={{color:C.muted,fontSize:13,marginTop:2}}>{a.school}</div>}
+              {priv.showSchool&&a.school&&<div style={{color:C.muted,fontSize:13,marginTop:2}}>{a.school}</div>}
+              {priv.showLocation&&location&&<div style={{color:C.mutedHi,fontSize:12,marginTop:2}}>📍 {location}</div>}
               <div style={{color:C.mutedHi,fontSize:11,marginTop:4,fontFamily:"DM Mono,monospace"}}>athletevault.org/#/p/{a.profileCode||a.id}</div>
             </div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
@@ -2985,14 +3296,32 @@ function PublicProfile({athleteId,athletes,onEnter}){
           </div>
         </div>
       </Card>
+      {/* Stats row */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:16}}>
-        <Stat icon="👥" label="FOLLOWERS" value={fmt(a.followers||0)} color={C.blue}/>
-        <Stat icon="👁️" label="PROFILE VIEWS" value={fmt(a.profileViews||0)} color={C.gold}/>
-        <Stat icon="📍" label="LOCATION" value={`${a.city||""}${a.country&&a.city?", ":""}${a.country||""}`||"—"} color={C.teal}/>
+        {priv.showFollowers&&<Stat icon="👥" label="FOLLOWERS" value={fmt(a.followers||0)} color={C.blue}/>}
+        <Stat icon="👁️" label="PROFILE VIEWS" value={fmt((a.profileViews||0)+1)} color={C.gold}/>
+        {priv.showLocation&&location&&<Stat icon="📍" label="LOCATION" value={location} color={C.teal}/>}
       </div>
-      {a.bio&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:8}}>ABOUT</div><p style={{color:C.white,fontSize:14,lineHeight:1.7,margin:0}}>{a.bio}</p></Card>}
+      {/* Bio */}
+      {priv.showBio!==false&&a.bio&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:8}}>ABOUT</div><p style={{color:C.white,fontSize:14,lineHeight:1.7,margin:0}}>{a.bio}</p></Card>}
+      {/* Social links */}
+      {(a.twitter||a.instagram)&&<Card style={{marginBottom:16}}>
+        <div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:10}}>SOCIAL</div>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+          {a.twitter&&<a href={a.twitter.startsWith("http")?a.twitter:`https://x.com/${a.twitter.replace(/^@/,"")}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,color:C.blue,fontSize:13,textDecoration:"none",background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px"}}>𝕏 {a.twitter.replace(/^@/,"@").startsWith("@")?a.twitter:"@"+a.twitter.replace(/.*\//,"")}</a>}
+          {a.instagram&&<a href={a.instagram.startsWith("http")?a.instagram:`https://instagram.com/${a.instagram.replace(/^@/,"")}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,color:C.purple,fontSize:13,textDecoration:"none",background:C.dark,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px"}}>📷 {a.instagram.replace(/^@/,"@").startsWith("@")?a.instagram:"@"+a.instagram.replace(/.*\//,"")}</a>}
+        </div>
+      </Card>}
+      {/* Highlight reel */}
       {a.highlightUrl&&(()=>{const yt=a.highlightUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);const embedId=yt?yt[1]:null;return <Card style={{marginBottom:16,padding:0,overflow:"hidden"}}><div style={{padding:"12px 16px 8px",color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1}}>HIGHLIGHT REEL</div>{embedId?<div style={{position:"relative",paddingBottom:"56.25%",height:0}}><iframe src={`https://www.youtube.com/embed/${embedId}`} style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",border:"none"}} allowFullScreen title="Highlight reel"/></div>:<div style={{padding:"0 16px 16px"}}><a href={a.highlightUrl} target="_blank" rel="noopener noreferrer" style={{color:C.teal,fontSize:14,textDecoration:"none",display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:20}}>▶️</span>Watch Highlight Reel</a></div>}</Card>;})()}
-      {statKeys.length>0&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>COMBINE / ACADEMIC STATS</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>{statKeys.map(k=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12,textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1")}</span><span style={{color:C.white,fontWeight:700,fontFamily:"DM Mono,monospace",fontSize:13}}>{stats[k]}</span></div>)}</div></Card>}
+      {/* Stats table */}
+      {priv.showStats!==false&&statKeys.length>0&&<Card style={{marginBottom:16}}><div style={{color:C.muted,fontSize:10,fontFamily:"DM Mono,monospace",letterSpacing:1,marginBottom:12}}>COMBINE / ACADEMIC STATS</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>{statKeys.map(k=><div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.muted,fontSize:12,textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1")}</span><span style={{color:C.white,fontWeight:700,fontFamily:"DM Mono,monospace",fontSize:13}}>{stats[k]}</span></div>)}</div></Card>}
+      {/* Share strip */}
+      <div style={{background:C.dark,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 16px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexWrap:"wrap"}}>
+        <div style={{color:C.mutedHi,fontSize:12,fontFamily:"DM Mono,monospace",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{profileUrl}</div>
+        <Btn onClick={share} small variant={linkCopied?"ghost":"accent"}>{linkCopied?"✓ Copied!":"📋 Copy Link"}</Btn>
+      </div>
+      {/* CTA */}
       <Card glow color={C.gold} style={{textAlign:"center",padding:28}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:C.white,letterSpacing:1,marginBottom:8}}>CONNECT WITH {a.name.split(" ")[0].toUpperCase()}</div>
         <p style={{color:C.mutedHi,fontSize:13,marginBottom:16}}>Join AthleteVault to message athletes, recruit talent, and find your next opportunity. Free to start.</p>
@@ -3003,6 +3332,7 @@ function PublicProfile({athleteId,athletes,onEnter}){
 }
 
 export default function App(){
+  const isMobile=useMobile();
   const [athletes,saveAthletes,aReady]=useStore("av_ath_v1",SEED_ATHLETES);
   const [coaches,saveCoaches,cReady]=useStore("av_coa_v1",SEED_COACHES);
   const [messages,saveMessages,msgReady]=useStore("av_msgs_v1",{});
@@ -3018,18 +3348,79 @@ export default function App(){
 
   const addLog=useCallback(entry=>saveLogs(prev=>[{id:Date.now(),ts:stamp(),...entry},...prev.slice(0,199)]),[saveLogs]);
 
-  function createFreeAccount({name,email,password,sport,role:r}){
+  // Restore Supabase Auth session on page load (runs once data is ready)
+  useEffect(()=>{
+    if(!aReady||!cReady||session)return;
+    supabase.auth.getSession().then(({data:{session:s}})=>{
+      if(!s)return;
+      const em=s.user?.email?.toLowerCase();
+      const a=athletes.find(x=>x.email?.toLowerCase()===em);
+      if(a){setSession({role:"athlete",user:a});setShowLanding(false);return;}
+      const c=coaches.find(x=>x.email?.toLowerCase()===em);
+      if(c){setSession({role:"coach",user:c});setShowLanding(false);}
+    });
+  },[aReady,cReady]);
+
+  // Handle Stripe return URLs
+  useEffect(()=>{
+    if(!aReady||!cReady)return;
+    const params=new URLSearchParams(window.location.search);
+
+    // Coach just connected their Stripe account
+    const stripeAcct=params.get("stripe_connected");
+    const stripeCoachId=params.get("coach");
+    if(stripeAcct&&stripeCoachId&&stripeAcct!=="ACCOUNT_ID"){
+      saveCoaches(prev=>prev.map(c=>String(c.id)===String(stripeCoachId)?{...c,stripeAccountId:stripeAcct,stripeConnected:true}:c));
+      window.history.replaceState({},"",window.location.pathname);
+    }
+
+    // Athlete just paid for a video or session
+    const purchasedId=params.get("coaching_purchased");
+    const purchaseType=params.get("type");
+    const purchaseCoachId=params.get("coach");
+    if(purchasedId&&purchaseType){
+      const storageKey=purchaseType==="video"?`av_purchased_${session?.user?.id||""}`:null;
+      const sessionKey=purchaseType==="session"?`av_sessions_${session?.user?.id||""}`:null;
+      // Update coach revenue
+      if(purchaseCoachId){
+        saveCoaches(prev=>prev.map(c=>{
+          if(String(c.id)!==String(purchaseCoachId))return c;
+          if(purchaseType==="video"){
+            const v=c.coachVideos?.find(v=>String(v.id)===String(purchasedId));
+            if(!v)return c;
+            return{...c,coachVideos:(c.coachVideos||[]).map(v=>String(v.id)===String(purchasedId)?{...v,revenue:(v.revenue||0)+v.price,purchases:[...(v.purchases||[]),{athlete:session?.user?.id,ts:Date.now()}]}:v),earnings:(c.earnings||0)+((v.price||0)*0.8)};
+          } else {
+            const s=c.liveSessions?.find(s=>String(s.id)===String(purchasedId));
+            if(!s)return c;
+            return{...c,liveSessions:(c.liveSessions||[]).map(s=>String(s.id)===String(purchasedId)?{...s,revenue:(s.revenue||0)+s.price,attendees:[...(s.attendees||[]),{athlete:session?.user?.id,ts:Date.now()}]}:s),earnings:(c.earnings||0)+((s.price||0)*0.8)};
+          }
+        }));
+      }
+      window.history.replaceState({},"",window.location.pathname);
+    }
+  },[aReady,cReady]);
+
+  async function createFreeAccount({name,email,password,sport,role:r,referralCode:refBy}){
+    const{data:authData,error:authErr}=await supabase.auth.signUp({email,password,options:{data:{name,role:r}}});
+    if(authErr)return{error:authErr.message};
+    const authId=authData.user?.id||null;
+    // Resolve referral: find referrer by code
+    const allU=[...athletes,...coaches];
+    const referrer=refBy?allU.find(u=>u.referralCode?.toUpperCase()===refBy.toUpperCase()):null;
     if(r==="coach"){
-      const nc={id:Date.now(),role:"coach",name,email,sport:sport||"Football",org:"Independent",title:"Coach",status:"active",plan:"free",joined:new Date().toISOString().slice(0,10),privacy:{...DEF_C_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:0,notifications:[],verified:false,passwordHash:hashPass(password)};
+      const nc={id:Date.now(),role:"coach",authId,name,email,sport:sport||"Football",org:"Independent",title:"Coach",status:"active",plan:"free",joined:new Date().toISOString().slice(0,10),privacy:{...DEF_C_PRIV},blockedIds:[],referralCode:genCode(),referredBy:referrer?.id||null,profileViews:0,notifications:[],verified:false};
       saveCoaches(prev=>[...prev,nc]);
       setSession({role:"coach",user:nc});
     } else {
-      const na={id:Date.now(),role:"athlete",name,email,sport:sport||"Football",tier:"rookie",plan:"free",mrr:0,status:"active",joined:new Date().toISOString().slice(0,10),followers:0,coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:null,profileViews:0,notifications:[],verified:false,passwordHash:hashPass(password),pinnedStats:[],achievements:[],following:[],followers_list:[],highlightUrl:"",profilePhoto:"",profileCode:"",hasPassport:false,seekingInternational:false,workAuth:[],preferredCountries:[]};
+      const na={id:Date.now(),role:"athlete",authId,name,email,sport:sport||"Football",tier:"rookie",plan:"free",mrr:0,status:"active",joined:new Date().toISOString().slice(0,10),followers:0,coachSent:0,brandSent:0,videos:[],deals:[],privacy:{...DEF_A_PRIV},blockedIds:[],referralCode:genCode(),referredBy:referrer?.id||null,profileViews:0,notifications:[],verified:false,pinnedStats:[],achievements:[],following:[],followers_list:[],highlightUrl:"",profilePhoto:"",profileCode:"",hasPassport:false,seekingInternational:false,workAuth:[],preferredCountries:[]};
       saveAthletes(prev=>[...prev,na]);
       setSession({role:"athlete",user:na});
     }
     setShowLanding(false);
-    addLog({action:"Free signup",detail:`${name} (${r})`,level:"success"});
+    addLog({action:"Free signup",detail:`${name} (${r})${referrer?` via ${referrer.name}`:""}`,level:"success"});
+    // Send welcome email (fire and forget)
+    fetch("/api/send-email",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:email,template:"welcome",data:{name,role:r}})}).catch(()=>{});
+    return{success:true};
   }
 
   function handlePreview(type){
@@ -3042,7 +3433,7 @@ export default function App(){
   const ready=aReady&&cReady&&msgReady&&sReady;
   if(!ready)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}><div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${C.gold},${C.goldDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:C.black,animation:"pulse 2s ease-in-out infinite"}}>AV</div><div style={{color:C.muted,fontFamily:"DM Mono,monospace",fontSize:12,letterSpacing:2}}>LOADING…</div><style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style></div>;
 
-  if(publicProfileSlug){const pubA=athletes.find(a=>String(a.id)===publicProfileSlug||(a.profileCode&&a.profileCode===publicProfileSlug.toUpperCase()));return <PublicProfile athleteId={pubA?pubA.id:publicProfileSlug} athletes={athletes} onEnter={()=>{window.location.hash="login";window.location.reload();}}/>;}
+  if(publicProfileSlug){const pubA=athletes.find(a=>String(a.id)===publicProfileSlug||(a.profileCode&&a.profileCode===publicProfileSlug.toUpperCase()));return <PublicProfile athleteId={pubA?pubA.id:publicProfileSlug} athletes={athletes} saveAthletes={saveAthletes} onEnter={()=>{window.location.hash="login";window.location.reload();}}/>;}
   if(showLanding&&!session)return <MarketingPage onEnter={()=>{setShowLanding(false);window.location.hash="login";}} settings={settings} athletes={athletes}/>;
   if(!termsOk)return <OnboardingTerms onAccept={()=>setTermsOk(true)}/>;
   if(!session)return <Login onSuccess={(role,user)=>{setSession({role,user});setTab("home");addLog({action:"Login",detail:`${role} ${user?.name||"owner"}`,level:"info"});}} athletes={athletes} coaches={coaches} settings={settings} onFreeSignup={createFreeAccount}/>;
@@ -3052,7 +3443,7 @@ export default function App(){
   const {role:sessionRole,user:sessionUser}=session;
   const role=previewAs?previewAs.role:sessionRole;
   const previewUser=previewAs?.user;
-  function logout(){setSession(null);setTab("home");setPreviewAs(null);addLog({action:"Logout",detail:sessionRole,level:"info"});}
+  function logout(){supabase.auth.signOut();setSession(null);setTab("home");setPreviewAs(null);addLog({action:"Logout",detail:sessionRole,level:"info"});}
 
   // Identify current user from live data
   const liveUser=previewAs?previewUser:sessionRole==="athlete"?athletes.find(a=>String(a.id)===String(sessionUser?.id)):sessionRole==="coach"?coaches.find(c=>String(c.id)===String(sessionUser?.id)):null;
@@ -3133,6 +3524,7 @@ export default function App(){
 
   const navItems=role==="owner"?O_NAV:role==="athlete"?A_NAV:C_NAV;
   const isMsgFull=tab==="messages";
+  const logoutFn=previewAs?()=>{setPreviewAs(null);setTab("overview");}:logout;
 
   return <div style={{display:"flex",fontFamily:"'Sora',sans-serif",background:C.black,minHeight:"100vh",flexDirection:"column"}}>
     {previewAs&&<div style={{background:C.gold,color:C.black,padding:"9px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:900,letterSpacing:1,flexShrink:0,zIndex:100}}>
@@ -3140,8 +3532,8 @@ export default function App(){
       <Btn onClick={()=>{setPreviewAs(null);setTab("overview");}} variant="danger" small>✕ EXIT PREVIEW</Btn>
     </div>}
     <div style={{display:"flex",flex:1}}>
-    <Sidebar navItems={navItems} tab={tab} setTab={setTab} user={liveUser} role={role} onLogout={previewAs?()=>{setPreviewAs(null);setTab("overview");}:logout} msgCount={unreadMsgs} notifCount={unreadNotifs}/>
-    <TronBg/><TronStyles C={C} settings={settings}/><main style={{position:"relative",zIndex:1,flex:1,padding:isMsgFull?0:28,overflowY:isMsgFull?"hidden":"auto",minHeight:"100vh",background:C.black}}>
+    {!isMobile&&<Sidebar navItems={navItems} tab={tab} setTab={setTab} user={liveUser} role={role} onLogout={logoutFn} msgCount={unreadMsgs} notifCount={unreadNotifs}/>}
+    <TronBg/><TronStyles C={C} settings={settings}/><main style={{position:"relative",zIndex:1,flex:1,padding:isMsgFull?0:isMobile?"16px 14px 80px":28,overflowY:isMsgFull?"hidden":"auto",minHeight:"100vh",background:C.black}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0;}
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Sora:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
@@ -3158,5 +3550,6 @@ export default function App(){
       {renderTab()}
     </main>
   </div>
+  {isMobile&&<BottomNav role={role} tab={tab} setTab={setTab} navItems={navItems} msgCount={unreadMsgs} notifCount={unreadNotifs} user={liveUser} onLogout={logoutFn}/>}
   </div>;
 }

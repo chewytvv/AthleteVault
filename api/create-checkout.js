@@ -14,20 +14,22 @@ module.exports = async (req, res) => {
   if(req.method==='OPTIONS')return res.status(200).end();
   if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});
   try{
-    const{tier,email,name,role}=req.body;
+    const{tier,email,name,role,referralCode}=req.body;
     if(!tier||!email)return res.status(400).json({error:'Missing tier or email'});
     const priceId=PRICE_MAP[tier];
     if(!priceId)return res.status(400).json({error:'Invalid tier: '+tier});
-    const session=await stripe.checkout.sessions.create({
+    const sessionParams={
       mode:'subscription',
       payment_method_types:['card'],
       customer_email:email,
       line_items:[{price:priceId,quantity:1}],
-      metadata:{name:name||'',role:role||'athlete',tier},
+      allow_promotion_codes:true,
+      metadata:{name:name||'',role:role||'athlete',tier,referralCode:referralCode||''},
       success_url:`https://athletevault.org?checkout=success&tier=${tier}&email=${encodeURIComponent(email)}`,
       cancel_url:`https://athletevault.org?checkout=cancelled`,
       subscription_data:{metadata:{name:name||'',role:role||'athlete',tier}},
-    });
+    };
+    const session=await stripe.checkout.sessions.create(sessionParams);
     return res.status(200).json({url:session.url,sessionId:session.id});
   }catch(err){
     console.error('Stripe error:',err.message);
