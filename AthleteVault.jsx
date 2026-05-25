@@ -304,9 +304,9 @@ async function ai(prompt,sys){
 
 // Stripe Checkout
 const STRIPE_PK="pk_live_51TaEWWDfHooSk0bkHYBQBKgYCoSjkQxM3sgDSBjKEjHNoXAcghZjbA2EFoG7fRF1LDYO8YY4IfCbayMNCAgmEXBs00vXsO1G3G";
-async function startCheckout(tier,email,name,role){
+async function startCheckout(tier,email,name,role,discountCode=""){
   try{
-    const r=await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tier,email,name,role})});
+    const r=await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tier,email,name,role,discountCode:discountCode||""})});
     const d=await r.json();
     if(d.url)window.location.href=d.url;
     else throw new Error(d.error||"Checkout failed");
@@ -546,6 +546,13 @@ function Messaging({me,athletes,coaches,saveAthletes,saveCoaches,messages,saveMe
     const msg={id:Date.now(),senderId:me.id,text:newMsg.trim(),ts:new Date().toISOString(),read:false};
     saveMessages(prev=>({...prev,[selThread]:[...(prev[selThread]||[]),msg]}));
     setNewMsg("");
+    // Email the recipient only if they have no prior unread messages in this thread
+    const otherId=selThread.split("_").find(id=>id!==String(me.id));
+    const recipient=otherId?allUsers.find(u=>String(u.id)===otherId):null;
+    const alreadyUnread=(messages[selThread]||[]).some(m=>String(m.senderId)===String(me.id)&&!m.read);
+    if(recipient?.email&&!alreadyUnread){
+      fetch("/api/send-email",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({to:recipient.email,template:"message_alert",data:{recipientName:recipient.name,senderName:me.name}})}).catch(()=>{});
+    }
   }
   function startThread(otherId){const tid=makeThreadId(me.id,otherId);setSelThread(tid);setShowNew(false);setNewSearch("");}
   function blockUser(otherId){
@@ -693,6 +700,7 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
   const[loading,setLoading]=useState(false);
   const[signupErr,setSignupErr]=useState("");
   const[promoCode,setPromoCode]=useState("");
+  const[discountCode,setDiscountCode]=useState("");
   const rp=settings?.rookiePrice||29;
   const sp=settings?.risingPrice||49;
   const pp=settings?.proPrice||79;
@@ -702,7 +710,7 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
   async function goPaid(){
     if(!name||!email)return;
     setLoading(true);
-    await startCheckout(role==="coach"?"coach":tier,email,name,role);
+    await startCheckout(role==="coach"?"coach":tier,email,name,role,discountCode.trim());
     setLoading(false);
   }
   async function goFree(){
@@ -746,6 +754,7 @@ function SignupModal({show,onClose,settings,onFreeSignup}){
       React.createElement("div",{style:{color:C.muted,fontSize:12,marginTop:2}},"Athlete search, studio, live sessions, school jobs"),
       React.createElement("div",{style:{color:C.blue,fontFamily:"'Rajdhani',sans-serif",fontSize:28,fontWeight:700,marginTop:4}},"$"+cp,React.createElement("span",{style:{fontSize:12,color:C.muted}},"/mo"))
     ),
+    planType==="paid"&&React.createElement(Inp,{label:"DISCOUNT / REFERRAL CODE (optional)",value:discountCode,onChange:setDiscountCode,placeholder:"e.g. CHEWY20"}),
     signupErr&&React.createElement("div",{style:{background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:8,padding:"10px 13px",color:C.red,fontSize:13,marginBottom:4}},"⚠️ "+signupErr),
     planType==="free"
       ?React.createElement(Btn,{onClick:goFree,disabled:loading||!name||!email||pass.length<8,full:true,variant:"green"},loading?"Creating account…":"Create Free Account →")
@@ -3458,6 +3467,10 @@ export default function App(){
   const [showLanding,setShowLanding]=useState(()=>{const h=window.location.hash;return !h.includes("login")&&!h.match(/#\/p\/[A-Za-z0-9]+/);});
   const [tab,setTab]=useState("home");
   const [previewAs,setPreviewAs]=useState(null); // {role,user}
+  const [showUpgradeModal,setShowUpgradeModal]=useState(false);
+  const [upgradeCode,setUpgradeCode]=useState("");
+  const [upgradeTier,setUpgradeTier]=useState("rookie");
+  const [upgradeLoading,setUpgradeLoading]=useState(false);
   const publicProfileMatch=window.location.hash.match(/#\/p\/([A-Za-z0-9]+)/);
   const publicProfileSlug=publicProfileMatch?publicProfileMatch[1]:null;
 
@@ -3577,7 +3590,8 @@ export default function App(){
   if(settings.maintenanceMode&&sessionRole!=="owner"&&!previewAs)return <div style={{minHeight:"100vh",background:C.black,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Sora',sans-serif"}}><div style={{fontSize:48,marginBottom:16}}>🔧</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:C.white,letterSpacing:2,marginBottom:8}}>MAINTENANCE MODE</div><div style={{color:C.muted,fontSize:14,marginBottom:20}}>{settings.welcomeMsg||"Platform is temporarily down for maintenance. Check back soon."}</div><Btn onClick={logout} variant="ghost">Back to Login</Btn></div>;
 
   const isFreeUser=role==="athlete"&&liveUser?.plan==="free";
-  function upgrade(){startCheckout("rookie",liveUser?.email||"",liveUser?.name||"",role);}
+  function upgrade(){setUpgradeTier("rookie");setUpgradeCode("");setShowUpgradeModal(true);}
+  async function doUpgrade(){setUpgradeLoading(true);await startCheckout(role==="coach"?"coach":upgradeTier,liveUser?.email||"",liveUser?.name||"",role,upgradeCode.trim());setUpgradeLoading(false);}
 
   // Render content
   function renderTab(){
@@ -3672,5 +3686,14 @@ export default function App(){
     </main>
   </div>
   {isMobile&&<BottomNav role={role} tab={tab} setTab={setTab} navItems={navItems} msgCount={unreadMsgs} notifCount={unreadNotifs} user={liveUser} onLogout={logoutFn}/>}
+  {showUpgradeModal&&<Modal show={showUpgradeModal} onClose={()=>setShowUpgradeModal(false)} title="UPGRADE PLAN" maxW={420}>
+    {role==="athlete"&&<div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:14}}>
+      <div style={{color:C.muted,fontSize:9,fontFamily:"DM Mono,monospace",letterSpacing:1.5,marginBottom:4}}>SELECT PLAN</div>
+      {[["rookie",settings?.rookiePrice||29,"School contacts, Euro teams, messaging, NIL basics"],["rising",settings?.risingPrice||49,"AI roadmap, content vault, brand deals, priority support"],["pro",settings?.proPrice||79,"Full suite, overseas pitch, coaching hub, NIL tracker"]].map(([t,p,d])=><div key={t} onClick={()=>setUpgradeTier(t)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",borderRadius:8,border:"1px solid "+(upgradeTier===t?C.gold:C.border),background:upgradeTier===t?C.goldGlow:"transparent",cursor:"pointer"}}><div><div style={{color:C.white,fontWeight:700,fontSize:13,textTransform:"capitalize"}}>{t==="rising"?"Rising Star":t}</div><div style={{color:C.muted,fontSize:11,marginTop:2}}>{d}</div></div><div style={{color:C.gold,fontFamily:"'Rajdhani',sans-serif",fontSize:24,fontWeight:700}}>${p}<span style={{fontSize:11,color:C.muted}}>/mo</span></div></div>)}
+    </div>}
+    <Inp label="DISCOUNT / REFERRAL CODE (optional)" value={upgradeCode} onChange={setUpgradeCode} placeholder="e.g. CHEWY20"/>
+    <div style={{marginTop:14}}><Btn onClick={doUpgrade} disabled={upgradeLoading} full>{upgradeLoading?"Redirecting…":"Upgrade Now →"}</Btn></div>
+    <p style={{color:C.muted,fontSize:11,textAlign:"center",marginTop:10,fontFamily:"DM Mono,monospace"}}>CANCEL ANYTIME · SECURE CHECKOUT · STRIPE</p>
+  </Modal>}
   </div>;
 }

@@ -20,11 +20,18 @@ module.exports = async (req, res) => {
     case'checkout.session.completed':{
       const s=event.data.object;
       if(s.metadata?.itemType){
-        // Coaching purchase (video or live session)
         console.log('COACHING PURCHASE:',s.customer_email,'item:',s.metadata.itemId,'type:',s.metadata.itemType,'coach:',s.metadata.coachId);
       } else {
-        // Platform subscription
-        console.log('NEW SUBSCRIBER:',s.customer_email,'tier:',s.metadata?.tier,'role:',s.metadata?.role);
+        const tier=s.metadata?.tier||'rookie';
+        const name=s.metadata?.name||s.customer_email||'';
+        console.log('NEW SUBSCRIBER:',s.customer_email,'tier:',tier,'role:',s.metadata?.role);
+        // Send payment confirmation email
+        const prices={rookie:29,rising:49,pro:79,coach:49};
+        fetch(`${process.env.VERCEL_URL?'https://'+process.env.VERCEL_URL:''}/api/send-email`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({to:s.customer_email,template:'payment_success',data:{name,tier,amount:prices[tier]||29}}),
+        }).catch(()=>{});
       }
       break;
     }
